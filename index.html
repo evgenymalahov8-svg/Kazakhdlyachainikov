@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Казахский для чайников</title>
-<meta name="description" content="Казахский для чайников: бесплатный курс казахского языка с нуля за 30 дней. Алфавит, слова, фразы для дороги, магазина, аэропорта и простого разговора. Сайт создан студентом, который поступил учиться в Казахстан и сам не казах. Некоммерческий проект: только для развлечения и познавательных целей.">
+<meta name="google-site-verification" content="9FLcp8ronQXt1HrMMBbQ4hMsTtxATs3dVO6RfaXjYgo" />
+<meta name="description" content="Казахский для чайников: бесплатный курс казахского языка с нуля за 30 дней. Алфавит, слова, фразы для дороги, магазина, аэропорта и простого разговора. Сайт создан студенткой, которая поступила учиться в Казахстан и сама не казашка. Некоммерческий проект: только для развлечения и познавательных целей.">
 <meta name="keywords" content="казахский для чайников, казахский язык с нуля, выучить казахский, казахский за 30 дней, казахский для начинающих">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
@@ -12,12 +13,12 @@
 <meta property="og:description" content="Бесплатный курс казахского с нуля за 30 дней. Некоммерческий студенческий проект для развлечения и познавательных целей.">
 <meta property="og:locale" content="ru_RU">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --paper: #f2f2ef; --ink: #111; --pink: #f0479a; --pink-d: #b8246a; --green: #3dbe4a; --green-d: #1d7a2a;
     --yellow: #ffe45c; --blue: #6f8cff; --white: #fff; --muted: #4f5462; --sky1: #6fc6f2; --sky2: #cdeeff;
-    --pixel: "Silkscreen", "Courier New", monospace;
+    --pixel: "Press Start 2P", "Courier New", monospace;
     --body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
     box-sizing: border-box;
   }
@@ -106,7 +107,6 @@
   .node.current .sq { background: var(--yellow); animation: blink 1s steps(2, start) infinite; }
   .node.locked { opacity: .45; cursor: not-allowed; }
   .node:not(.locked):hover .sq { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
-  .node.review .sq::after { content: "★"; position: absolute; }
   .node .sq { position: relative; }
   .node-badge { font-family: var(--pixel); font-size: 10px; background: var(--ink); color: var(--paper); padding: 2px 6px; }
 
@@ -159,6 +159,53 @@
   .dlg-line { display: grid; grid-template-columns: 30px 1fr; gap: 10px; padding: 8px 0; border-bottom: 2px dashed var(--ink); }
   .who { font-family: var(--pixel); font-size: 13px; background: var(--pink); color: var(--white); border: 2px solid var(--ink); width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
   .who.b { background: var(--blue); }
+  /* Розовая рамка и пиксельные полосы главной */
+  html { background: var(--pink); }
+  body { max-width: 980px; margin: 0 auto; border-left: 4px solid var(--ink); border-right: 4px solid var(--ink); min-height: 100vh; }
+  @media (max-width: 1000px) { body { margin: 0 7px; } }
+  .view[data-view="home"] { padding: 0; max-width: none; }
+  .band { position: relative; padding: 40px 20px 44px; overflow: hidden; }
+  .band.sky { background: linear-gradient(var(--sky1), var(--sky2)); text-align: center; padding-top: 34px; }
+  .band.sky::before, .band.sky::after { content: ""; position: absolute; left: -10%; width: 120%; height: 110px; pointer-events: none; background: radial-gradient(circle at 12% 60%, #fff 0 22px, transparent 23px), radial-gradient(circle at 28% 45%, #fff 0 34px, transparent 35px), radial-gradient(circle at 47% 62%, #fff 0 28px, transparent 29px), radial-gradient(circle at 66% 48%, #fff 0 40px, transparent 41px), radial-gradient(circle at 86% 62%, #fff 0 26px, transparent 27px); animation: drift 40s linear infinite alternate; }
+  .band.sky::before { top: 96px; opacity: .92; }
+  .band.sky::after { bottom: 10px; opacity: .8; animation-duration: 58s; }
+  .band.sky > * { position: relative; z-index: 1; }
+  .kicker { display: inline-block; font-family: var(--pixel); font-size: 13px; background: var(--yellow); border: 2px solid var(--ink); padding: 3px 9px; margin: 0 0 18px; }
+  .mega { font-family: "Press Start 2P", var(--pixel); font-weight: 400; font-size: clamp(22px, 8.2vw, 58px); line-height: 1.25; margin: 0; color: var(--ink); text-shadow: 3px 3px 0 #fff; overflow-wrap: anywhere; }
+  .mega span { display: block; font-size: .56em; color: var(--pink); text-shadow: 2px 2px 0 var(--ink); margin-top: 10px; }
+  .mascot { width: 112px; height: 70px; display: block; margin: 22px auto 20px; animation: bob 1.2s steps(2) infinite; }
+  @keyframes bob { 50% { transform: translateY(-8px); } }
+  .btn.start { background: var(--ink); color: var(--white); font-size: 16px; padding: 14px 20px; box-shadow: 5px 5px 0 var(--pink); border-color: var(--ink); }
+  .btn.start:active { box-shadow: 2px 2px 0 var(--pink); }
+  .quick { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 26px; }
+  .quick a { font-family: var(--pixel); font-size: 13px; background: var(--pink); color: var(--white); border: 2px solid var(--ink); padding: 5px 10px; text-decoration: none; }
+  .quick a:hover, .quick a:focus-visible { background: var(--ink); outline: none; }
+  .px-edge { height: 32px; background-size: 96px 32px; background-repeat: repeat-x; image-rendering: pixelated; }
+  .e-sky { background-color: var(--sky2); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 4' shape-rendering='crispEdges'%3E%3Cpath fill='%23111' d='M0 3h12v1H0zM0 2h3v1H0zM5 2h2v1H5zM9 2h2v1H9zM1 1h1v1H1zM5 1h1v1H5zM10 1h1v1h-1z'/%3E%3Cpath fill='%23f0479a' d='M3 1h1v1H3zM8 0h1v1H8z'/%3E%3C/svg%3E"); }
+  .e-night { background-color: #111; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 4' shape-rendering='crispEdges'%3E%3Cpath fill='%23ffe45c' d='M0 3h12v1H0zM1 2h3v1H1zM6 2h2v1H6zM10 2h2v1h-2zM2 1h1v1H2zM7 1h1v1H7z'/%3E%3Cpath fill='%236fc6f2' d='M4 1h1v1H4zM10 0h1v1h-1z'/%3E%3C/svg%3E"); }
+  .e-sun { background-color: var(--yellow); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 4' shape-rendering='crispEdges'%3E%3Cpath fill='%23f2f2ef' d='M0 3h12v1H0zM0 2h2v1H0zM4 2h3v1H4zM9 2h2v1H9zM5 1h1v1H5zM10 1h1v1h-1z'/%3E%3Cpath fill='%23111' d='M2 1h1v1H2zM8 0h1v1H8z'/%3E%3C/svg%3E"); }
+  .band.night { background-color: #111; color: var(--white); background-image: radial-gradient(#fff 1px, transparent 1.6px), radial-gradient(#fff 1px, transparent 1.6px); background-size: 90px 90px, 150px 150px; background-position: 10px 20px, 60px 80px; }
+  .spark { position: absolute; font-family: var(--pixel); font-size: 22px; color: var(--white); animation: blink 1.6s steps(2, start) infinite; }
+  .spark:nth-of-type(2n) { animation-delay: .8s; }
+  .mega2 { font-family: "Press Start 2P", var(--pixel); font-weight: 400; font-size: clamp(17px, 5.4vw, 32px); line-height: 1.35; margin: 0 0 22px; color: var(--white); overflow-wrap: anywhere; position: relative; }
+  .mega2.dark { color: var(--ink); text-align: center; }
+  .night-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 22px; position: relative; }
+  .lead-n { font-size: 19px; font-weight: 700; margin: 0; }
+  .small-n { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13.5px; line-height: 1.6; margin: 0; }
+  .band.night mark { background: var(--pink); color: var(--white); padding: 0 4px; }
+  .band.sun { background: var(--yellow); }
+  .formula { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; }
+  .formula i { font-family: var(--pixel); font-style: normal; font-size: 26px; font-weight: 700; }
+  .f-tile { background: var(--white); border: 3px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); width: 128px; padding: 12px 6px; text-align: center; }
+  .f-tile b { display: block; font-family: "Press Start 2P", var(--pixel); font-weight: 400; font-size: 22px; margin-bottom: 8px; }
+  .f-tile span { font-family: var(--pixel); font-size: 14px; }
+  .bubble { position: relative; max-width: 420px; margin: 30px auto 0; background: var(--white); border: 3px solid var(--ink); padding: 10px 14px; font-size: 14.5px; text-align: center; }
+  .bubble::after { content: ""; position: absolute; left: 28px; bottom: -13px; width: 10px; height: 10px; background: var(--white); border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink); }
+  .band.plain { background: var(--paper); }
+  .band.plain .info-list { margin-top: 0; }
+  @media (max-width: 720px) { .night-grid { grid-template-columns: 1fr; } .f-tile { width: 118px; } .formula i { display: none; } }
+  /* Значок повторения недели: в углу, а не поверх цифры */
+  .node.review .sq::after { content: "★"; position: absolute; top: -11px; right: -11px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-family: Arial, sans-serif; font-size: 13px; line-height: 1; color: var(--ink); background: var(--yellow); border: 2px solid var(--ink); }
   footer { text-align: center; padding: 24px; font-size: 13px; color: var(--muted); border-top: 3px solid var(--ink); }
 
   @media (max-width: 640px) {
@@ -170,29 +217,91 @@
     *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   }
   :focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+  /* ===== Один читаемый пиксельный шрифт для заголовков, кнопок и подписей ===== */
+  .brand, .streak, .btn, table.sched th, .tag, .seg button, .h-pixel, .card h3, .unit h3, .node .sq, .node-badge, .sess-count, .sit-name, .sit-head, .who, .finish h2, .stat, .kicker, .quick a, .f-tile span, .f-tile b, .lang button, .mega, .mega2, .formula i, .spark { font-family: var(--pixel); font-weight: 400; text-transform: uppercase; letter-spacing: 0; }
+  .brand { display: flex; flex-direction: column; gap: 5px; font-size: 10px; line-height: 1.2; min-width: 0; color: var(--ink); }
+  .brand span + span { font-size: 8px; color: var(--pink-d); }
+  .streak { font-size: 8px; line-height: 1.2; padding: 9px 8px; flex: none; }
+  .streak b { font-weight: 400; }
+  .streak-star { display: none; font-family: Arial, sans-serif; font-size: 11px; }
+  .lang { display: flex; border: 3px solid var(--ink); background: var(--white); flex: none; }
+  .lang button { font-size: 8px; line-height: 1.2; padding: 8px 6px; border: 0; background: transparent; color: var(--ink); cursor: pointer; }
+  .lang button[aria-pressed="true"] { background: var(--ink); color: var(--white); }
+  .btn { font-size: 10px; line-height: 1.5; padding: 12px 14px; }
+  .btn.small { font-size: 9px; padding: 9px 10px; }
+  .btn.start { font-size: 12px; padding: 15px 18px; }
+  table.sched th { font-size: 8px; line-height: 1.5; }
+  .tag { font-size: 8px; line-height: 1.4; padding: 4px 7px; }
+  .seg { flex-wrap: wrap; }
+  .seg button { font-size: 9px; line-height: 1.4; padding: 10px 11px; }
+  .h-pixel { font-size: clamp(15px, 4.4vw, 26px); line-height: 1.6; margin-bottom: 18px; display: flex; align-items: center; gap: 14px; }
+  .card h3 { font-size: 11px; line-height: 1.6; margin-bottom: 10px; }
+  .unit h3 { font-size: 10px; line-height: 1.6; }
+  .node .sq { font-size: 14px; }
+  .node-badge { font-size: 8px; line-height: 1.5; text-align: center; max-width: 100%; padding: 3px 5px; }
+  .sess-count { font-size: 9px; }
+  .q-label { font-family: var(--body); font-size: 14px; font-weight: 800; text-transform: none; color: var(--muted); }
+  .sit-name { font-size: 10px; line-height: 1.5; }
+  .sit-head { font-size: 14px; line-height: 1.6; }
+  .who { font-size: 10px; }
+  .finish h2 { font-size: 16px; line-height: 1.7; }
+  .stat { font-size: 12px; line-height: 1.4; }
+  .kicker { font-size: 9px; line-height: 1.4; padding: 6px 9px; }
+  .quick a { font-size: 9px; line-height: 1.4; padding: 8px 9px; }
+  .f-tile b { font-size: 18px; }
+  .f-tile span { font-size: 9px; line-height: 1.4; display: block; }
+  .formula i { font-size: 18px; }
+  .spark { font-size: 16px; }
+  .mega { text-shadow: none; font-size: clamp(24px, 8.6vw, 60px); line-height: 1.3; }
+  .mega span.gold { display: inline; font-size: 1em; margin: 0; }
+  .mega span.sub { display: block; font-size: .5em; color: var(--white); margin-top: 14px; text-shadow: -2px 0 0 var(--ink), 2px 0 0 var(--ink), 0 -2px 0 var(--ink), 0 2px 0 var(--ink), -2px -2px 0 var(--ink), 2px 2px 0 var(--ink), -2px 2px 0 var(--ink), 2px -2px 0 var(--ink), 0 4px 0 var(--ink); }
+  /* Золотые буквы с тёмной обводкой, как в аркадных играх */
+  .gold { color: var(--yellow); text-shadow: -2px 0 0 var(--ink), 2px 0 0 var(--ink), 0 -2px 0 var(--ink), 0 2px 0 var(--ink), -2px -2px 0 var(--ink), 2px 2px 0 var(--ink), -2px 2px 0 var(--ink), 2px -2px 0 var(--ink), 0 4px 0 var(--ink); }
+  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .gold { background-image: linear-gradient(180deg, #fff8c4 0 26%, #ffe45c 26% 66%, #f5a11f 66% 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; text-shadow: none; -webkit-box-decoration-break: clone; box-decoration-break: clone; filter: drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)); }
+    .mega .gold { filter: drop-shadow(3px 0 0 var(--ink)) drop-shadow(-3px 0 0 var(--ink)) drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 -3px 0 var(--ink)) drop-shadow(0 4px 0 var(--ink)); }
+  }
+  /* ===== Казахский орнамент «қошқар мүйіз» в пикселях: небольшие детали ===== */
+  .orn-strip { height: 34px; background-color: var(--paper); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 8' shape-rendering='crispEdges'%3E%3Cpath fill='%23111' fill-opacity='.3' d='M2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM1 1h1v1h-1zM5 1h1v1h-1zM7 1h1v1h-1zM11 1h1v1h-1zM1 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM8 2h1v1h-1zM9 2h1v1h-1zM11 2h1v1h-1zM1 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM11 3h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM6 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM7 5h1v1h-1zM8 5h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM7 6h1v1h-1zM6 7h1v1h-1zM16 3h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM16 5h1v1h-1z'/%3E%3C/svg%3E"); background-repeat: repeat-x; background-position: center; background-size: 60px 24px; image-rendering: pixelated; border-top: 3px solid var(--ink); }
+  .h-pixel::after { content: ""; flex: none; width: 33px; height: 24px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 8' shape-rendering='crispEdges'%3E%3Cpath fill='%23111' fill-opacity='.3' d='M1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM7 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM0 1h1v1h-1zM4 1h1v1h-1zM6 1h1v1h-1zM10 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM10 2h1v1h-1zM0 3h1v1h-1zM3 3h1v1h-1zM5 3h1v1h-1zM7 3h1v1h-1zM10 3h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM5 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM3 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM7 5h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM5 7h1v1h-1z'/%3E%3C/svg%3E") no-repeat center / contain; image-rendering: pixelated; }
+  .band.night::after { content: ""; position: absolute; right: 14px; bottom: 12px; width: 68px; height: 32px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 8' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' fill-opacity='.42' d='M2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM12 0h1v1h-1zM13 0h1v1h-1zM14 0h1v1h-1zM1 1h1v1h-1zM5 1h1v1h-1zM8 1h1v1h-1zM11 1h1v1h-1zM15 1h1v1h-1zM0 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM9 2h1v1h-1zM12 2h1v1h-1zM13 2h1v1h-1zM16 2h1v1h-1zM0 3h1v1h-1zM3 3h1v1h-1zM7 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM13 3h1v1h-1zM16 3h1v1h-1zM0 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM11 4h1v1h-1zM12 4h1v1h-1zM16 4h1v1h-1zM1 5h1v1h-1zM6 5h1v1h-1zM7 5h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM10 5h1v1h-1zM15 5h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM9 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM12 6h1v1h-1zM13 6h1v1h-1zM14 6h1v1h-1zM7 7h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1z'/%3E%3C/svg%3E") no-repeat center / contain; image-rendering: pixelated; }
+  .drawer::after { content: ""; display: block; margin: 28px auto 0; width: 85px; height: 40px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 8' shape-rendering='crispEdges'%3E%3Cpath fill='%23111' fill-opacity='.28' d='M2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM12 0h1v1h-1zM13 0h1v1h-1zM14 0h1v1h-1zM1 1h1v1h-1zM5 1h1v1h-1zM8 1h1v1h-1zM11 1h1v1h-1zM15 1h1v1h-1zM0 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM9 2h1v1h-1zM12 2h1v1h-1zM13 2h1v1h-1zM16 2h1v1h-1zM0 3h1v1h-1zM3 3h1v1h-1zM7 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM13 3h1v1h-1zM16 3h1v1h-1zM0 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM7 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM11 4h1v1h-1zM12 4h1v1h-1zM16 4h1v1h-1zM1 5h1v1h-1zM6 5h1v1h-1zM7 5h1v1h-1zM8 5h1v1h-1zM9 5h1v1h-1zM10 5h1v1h-1zM15 5h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM7 6h1v1h-1zM8 6h1v1h-1zM9 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM12 6h1v1h-1zM13 6h1v1h-1zM14 6h1v1h-1zM7 7h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1z'/%3E%3C/svg%3E") no-repeat center / contain; image-rendering: pixelated; }
+  .unit { position: relative; }
+  .unit::after { content: ""; position: absolute; right: 12px; top: 12px; width: 22px; height: 16px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 8' shape-rendering='crispEdges'%3E%3Cpath fill='%23111' fill-opacity='.3' d='M1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM7 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM0 1h1v1h-1zM4 1h1v1h-1zM6 1h1v1h-1zM10 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM10 2h1v1h-1zM0 3h1v1h-1zM3 3h1v1h-1zM5 3h1v1h-1zM7 3h1v1h-1zM10 3h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM5 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM3 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM7 5h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM5 7h1v1h-1z'/%3E%3C/svg%3E") no-repeat center / contain; image-rendering: pixelated; }
+  @media (min-width: 1100px) {
+    body::before, body::after { content: ""; position: fixed; top: 0; bottom: 0; width: 33px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 14' shape-rendering='crispEdges'%3E%3Cpath fill='%23111' fill-opacity='.24' d='M1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM7 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM0 1h1v1h-1zM4 1h1v1h-1zM6 1h1v1h-1zM10 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM10 2h1v1h-1zM0 3h1v1h-1zM3 3h1v1h-1zM5 3h1v1h-1zM7 3h1v1h-1zM10 3h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM5 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM3 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM7 5h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM5 7h1v1h-1zM5 10h1v1h-1zM4 11h1v1h-1zM5 11h1v1h-1zM6 11h1v1h-1zM5 12h1v1h-1z'/%3E%3C/svg%3E"); background-repeat: repeat-y; background-size: 33px 42px; image-rendering: pixelated; pointer-events: none; }
+    body::before { left: calc(50% - 494px - 54px); }
+    body::after { left: calc(50% + 494px + 21px); }
+  }
+  /* ===== Ширина экрана: телефон, планшет, ноутбук ===== */
+  @media (max-width: 520px) { .streak-word { display: none; } .streak-star { display: inline; } .top { gap: 9px; padding: 10px 10px; } }
+  @media (min-width: 700px) { .brand { font-size: 13px; } .brand span + span { font-size: 10px; } .streak { font-size: 10px; } .lang button { font-size: 10px; padding: 9px 8px; } .btn { font-size: 11px; } .btn.small { font-size: 10px; } .card h3 { font-size: 12px; } .unit h3 { font-size: 12px; } .tag { font-size: 9px; } .quick a, .kicker { font-size: 10px; } .f-tile span { font-size: 10px; } .orn-strip { background-size: 80px 32px; height: 44px; } }
 </style>
 </head>
 <body>
 
 <header class="top">
-  <a class="brand" href="#home">Казахский · чайникам</a>
-  <div class="streak" aria-label="Серия дней подряд">Серия <b id="streakN">0</b></div>
-  <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Открыть меню">
+  <a class="brand" href="#home"><span data-i="brand1">Казахский</span><span data-i="brand2">для чайников</span></a>
+  <div class="lang" role="group" aria-label="Язык / Language">
+    <button type="button" data-lang="ru" aria-pressed="true">RU</button><button type="button" data-lang="en" aria-pressed="false">EN</button>
+  </div>
+  <div class="streak" aria-label="Серия дней подряд" data-ia="a_streak"><span class="streak-word" data-i="streak">Серия</span><span class="streak-star" aria-hidden="true">★</span> <b id="streakN">0</b></div>
+  <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Открыть меню" data-ia="a_menu">
     <span></span><span></span><span></span>
   </button>
 </header>
 <div class="scrim" id="scrim" hidden></div>
-<nav class="drawer" id="menu" aria-label="Главное меню">
+<nav class="drawer" id="menu" aria-label="Главное меню" data-ia="a_nav">
   <ul>
-    <li><a href="#home">Главная</a></li>
-    <li><a href="#plan">План обучения</a></li>
-    <li><a href="#schedule">Расписание</a></li>
-    <li><a href="#places">Ситуации: дорога, магазин, аэропорт</a></li>
-    <li><a href="#talk">Разговор: сіз и сен</a></li>
-    <li><a href="#slang">Молодёжный сленг</a></li>
-    <li><a href="#practice">Практика с ИИ</a></li>
-    <li><a href="#resources">Ресурсы</a></li>
-    <li><a href="#about">О сайте</a></li>
+    <li><a href="#home" data-i="m_home">Главная</a></li>
+    <li><a href="#plan" data-i="m_plan">План обучения</a></li>
+    <li><a href="#schedule" data-i="m_sched">Расписание</a></li>
+    <li><a href="#places" data-i="m_places">Ситуации: дорога, магазин, аэропорт</a></li>
+    <li><a href="#talk" data-i="m_talk">Разговор: сіз и сен</a></li>
+    <li><a href="#slang" data-i="m_slang">Молодёжный сленг</a></li>
+    <li><a href="#practice" data-i="m_practice">Практика с ИИ</a></li>
+    <li><a href="#resources" data-i="m_res">Ресурсы</a></li>
+    <li><a href="#about" data-i="m_about">О сайте</a></li>
   </ul>
 </nav>
 
@@ -200,27 +309,57 @@
 
   <!-- СТАРТОВАЯ -->
   <section class="view" data-view="home" hidden>
-    <div class="hero">
-      <h1>Казахский<span>для чайников</span></h1>
-      <p>Казахский — государственный язык Казахстана. Многим хочется понимать речь родных, говорить со старшими и друзьями. Этот курс проводит с нуля: алфавит, первые слова, фразы для разговора и повторение, чтобы слова не забывались.</p>
-      <a class="btn primary big-btn" href="#plan"><span class="blink">►</span> Начать изучение</a>
+    <div class="band sky">
+      <p class="kicker" data-i="kicker">курс · 30 дней · с нуля</p>
+      <h1 class="mega"><span class="gold" data-i="t1">КАЗАХСКИЙ</span><span class="sub" data-i="t2">для чайников</span></h1>
+      <svg class="mascot" viewBox="0 0 16 10" shape-rendering="crispEdges" role="img" aria-label="Пиксельный чайник" data-ia="a_mascot">
+        <g fill="#111"><rect x="7" y="0" width="2" height="1"/><rect x="5" y="1" width="6" height="1"/><rect x="4" y="2" width="8" height="1"/><rect x="3" y="3" width="10" height="4"/><rect x="4" y="7" width="8" height="1"/><rect x="5" y="8" width="6" height="1"/>
+        <rect x="1" y="3" width="2" height="1"/><rect x="1" y="4" width="1" height="2"/><rect x="1" y="6" width="2" height="1"/>
+        <rect x="13" y="4" width="1" height="2"/><rect x="14" y="3" width="1" height="2"/><rect x="15" y="2" width="1" height="2"/></g>
+        <g fill="#fff"><rect x="6" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/></g>
+        <rect x="7" y="6" width="2" height="1" fill="#f0479a"/>
+      </svg>
+      <div><a class="btn start" href="#plan" data-i="start"><span class="blink">►</span> Начать изучение</a></div>
+      <nav class="quick" aria-label="Быстрые разделы" data-ia="a_quick">
+        <a href="#plan" data-i="q_plan">План</a><a href="#places" data-i="q_places">Ситуации</a><a href="#talk" data-i="q_talk">Разговор</a><a href="#slang" data-i="q_slang">Сленг</a>
+      </nav>
     </div>
-    <div class="grid2">
-      <div class="card"><h3>Как устроен урок</h3><p>Сначала новые слова, потом упражнения: выбор перевода, ввод, сборка фразы. Слова, которые забываются, возвращаются сами через день, три, неделю.</p></div>
-      <div class="card"><h3>Сколько времени</h3><p>Один урок в день, около 15 минут. Каждый 7-й день — повторение недели. 30 дней подряд дают основу для простого разговора.</p></div>
+    <div class="px-edge e-sky" aria-hidden="true"></div>
+    <div class="band night">
+      <span class="spark" style="left:6%;top:18%" aria-hidden="true">+</span><span class="spark" style="right:8%;top:10%" aria-hidden="true">+</span><span class="spark" style="left:12%;bottom:12%" aria-hidden="true">+</span><span class="spark" style="left:46%;bottom:6%" aria-hidden="true">+</span>
+      <h2 class="mega2" data-i="n_h">ЗАЧЕМ ЭТОТ САЙТ?</h2>
+      <div class="night-grid">
+        <p class="lead-n" data-i="n_lead">Казахский — <mark>государственный язык</mark> Казахстана. Хочется понимать его и отвечать, а начать с нуля непросто.</p>
+        <p class="small-n" data-i="n_small">Непривычные буквы, новые звуки, падежи. Сайт ведёт по шагам: <mark>один урок в день</mark>, а слова возвращаются на повторение, пока не запомнятся. Курс сделала студентка, которая сама учит язык и <mark>не хотела платить за курсы</mark>.</p>
+      </div>
     </div>
-    <div class="info-list">
-      <div><b>Что внутри:</b> 30 уроков, карта дней, расписание, ситуации (дорога, магазин, аэропорт, университет, театр, кафе), простой разговор о делах и погоде, фразы для вежливого и дружеского разговора, молодёжный сленг, проверка грамматики и произношения через ИИ (на claude.ai в Chrome).</div>
-      <div><b>Прогресс:</b> сохраняется в этом браузере. Аккаунт не нужен, платных разделов нет.</div>
+    <div class="px-edge e-night" aria-hidden="true"></div>
+    <div class="band sun">
+      <h2 class="mega2 dark" data-i="s_h">КАК УСТРОЕН УРОК</h2>
+      <div class="formula">
+        <div class="f-tile"><b>1</b><span data-i="f1">Звуки</span></div><i>+</i>
+        <div class="f-tile"><b>2</b><span data-i="f2">Слова</span></div><i>+</i>
+        <div class="f-tile"><b>3</b><span data-i="f3">Упражнения</span></div><i>+</i>
+        <div class="f-tile"><b>4</b><span data-i="f4">Повторение</span></div>
+      </div>
+      <p class="bubble" data-i="bubble">Один урок в день, около 15 минут. Каждый 7-й день — повторение недели.</p>
+    </div>
+    <div class="px-edge e-sun" aria-hidden="true"></div>
+    <div class="band plain">
+      <div class="info-list">
+        <div data-i="info1"><b>Что внутри:</b> 30 уроков, карта дней, расписание, ситуации (дорога, магазин, аэропорт, университет, театр, кафе), простой разговор о делах и погоде, вежливая и дружеская речь, молодёжный сленг.</div>
+        <div data-i="info2"><b>Прогресс:</b> сохраняется в этом браузере. Аккаунт не нужен, платных разделов нет.</div>
+      </div>
+      <div style="text-align:center;margin-top:26px"><a class="btn start" href="#plan" data-i="start"><span class="blink">►</span> Начать изучение</a></div>
     </div>
   </section>
 
   <!-- ПЛАН -->
   <section class="view" data-view="plan" hidden>
-    <h1 class="h-pixel">План обучения</h1>
+    <h1 class="h-pixel"><span class="gold" data-i="h_plan">План обучения</span></h1>
     <div class="card">
       <p><b id="progText">Пройдено: 0 из 30</b></p>
-      <div class="notice-small">Нажмите на день, чтобы начать. Открыт только текущий и уже пройденные дни. Чтобы пройти урок, нужно набрать 60% правильных ответов с первой попытки.</div>
+      <div class="notice-small" data-i="plan_note">Нажмите на день, чтобы начать. Открыт только текущий и уже пройденные дни. Чтобы пройти урок, нужно набрать 60% правильных ответов с первой попытки.</div>
     </div>
     <div id="units"></div>
   </section>
@@ -228,130 +367,133 @@
   <!-- УРОК -->
   <section class="view" data-view="lesson" hidden>
     <div class="sess-top">
-      <button class="icon-btn" id="sessExit" type="button" aria-label="Выйти из урока">✕</button>
+      <button class="icon-btn" id="sessExit" type="button" aria-label="Выйти из урока" data-ia="a_exit">✕</button>
       <div class="sess-bar" aria-hidden="true"><div id="sessBar"></div></div>
       <div class="sess-count" id="sessCount"></div>
     </div>
     <div class="sess-body" id="sessBody"></div>
     <div class="sess-foot">
       <div class="fb" id="sessFb" aria-live="polite"></div>
-      <button class="btn primary" id="sessAct" type="button" disabled>Выберите ответ</button>
+      <button class="btn primary" id="sessAct" type="button" disabled>…</button>
     </div>
   </section>
 
   <!-- РАСПИСАНИЕ -->
   <section class="view" data-view="schedule" hidden>
-    <h1 class="h-pixel">Расписание</h1>
+    <h1 class="h-pixel"><span class="gold" data-i="h_sched">Расписание</span></h1>
     <div class="grid2">
       <div class="card">
-        <div class="field"><span><b>Дни недели</b></span><div class="weekdays" id="wdays"></div></div>
-        <div class="field"><label for="timeIn"><b>Время</b></label><input type="time" id="timeIn" value="19:00"></div>
-        <button class="btn primary" id="saveSched" type="button">Сохранить</button>
+        <div class="field"><span data-i="sch_days"><b>Дни недели</b></span><div class="weekdays" id="wdays"></div></div>
+        <div class="field"><label for="timeIn" data-i="sch_time"><b>Время</b></label><input type="time" id="timeIn" value="19:00"></div>
+        <button class="btn primary" id="saveSched" type="button" data-i="sch_save">Сохранить</button>
       </div>
       <div class="card">
-        <h3>Ближайшие занятия</h3>
+        <h3 data-i="sch_up">Ближайшие занятия</h3>
         <div id="schedOut"></div>
-        <p class="notice">Сайт не присылает напоминания. Добавьте занятия в календарь или будильник телефона.</p>
+        <p class="notice" data-i="sch_note">Сайт не присылает напоминания. Добавьте занятия в календарь или будильник телефона.</p>
       </div>
     </div>
   </section>
 
   <!-- СИТУАЦИИ -->
   <section class="view" data-view="places" hidden>
-    <h1 class="h-pixel">Ситуации</h1>
-    <p class="muted">Готовые фразы для разговора с людьми: спросить дорогу, купить, уточнить, поддержать беседу. Фразы вежливые, на «сіз».</p>
+    <h1 class="h-pixel"><span class="gold" data-i="h_places">Ситуации</span></h1>
+    <p class="muted" data-i="places_p">Готовые фразы для разговора с людьми: спросить дорогу, купить, уточнить, поддержать беседу. Фразы вежливые, на «сіз».</p>
     <div id="placesBox"></div>
   </section>
 
   <!-- РАЗГОВОР -->
   <section class="view" data-view="talk" hidden>
-    <h1 class="h-pixel">Разговор</h1>
-    <p class="muted">Со взрослыми используйте «сіз» и обращения «аға», «апа», «ақсақал». С друзьями подходит «сен».</p>
-    <div class="seg" role="group" aria-label="С кем говорите">
-      <button type="button" data-reg="adult" aria-pressed="true">Со взрослыми</button>
-      <button type="button" data-reg="friend" aria-pressed="false">С друзьями</button>
+    <h1 class="h-pixel"><span class="gold" data-i="h_talk">Разговор</span></h1>
+    <p class="muted" data-i="talk_p">Со взрослыми используйте «сіз» и обращения «аға», «апа», «ақсақал». С друзьями подходит «сен».</p>
+    <div class="seg" role="group" aria-label="С кем говорите" data-ia="a_seg">
+      <button type="button" data-reg="adult" aria-pressed="true" data-i="seg_adult">Со взрослыми</button>
+      <button type="button" data-reg="friend" aria-pressed="false" data-i="seg_friend">С друзьями</button>
     </div>
     <div class="grid2" id="phrases"></div>
   </section>
 
   <!-- СЛЕНГ -->
   <section class="view" data-view="slang" hidden>
-    <h1 class="h-pixel">Молодёжный сленг</h1>
-    <p class="muted">Примеры из статьи Tengrinews (28 февраля 2025). Неформальная речь: со взрослыми и в официальной обстановке её не используют.</p>
+    <h1 class="h-pixel"><span class="gold" data-i="h_slang">Молодёжный сленг</span></h1>
+    <p class="muted" data-i="slang_p">Примеры из статьи Tengrinews (28 февраля 2025). Неформальная речь: со взрослыми и в официальной обстановке её не используют.</p>
     <div class="grid2" id="slangList"></div>
   </section>
 
   <!-- ПРАКТИКА -->
   <section class="view" data-view="practice" hidden>
-    <h1 class="h-pixel">Практика с ИИ</h1>
-    <p class="muted">Работает на claude.ai в Google Chrome. Остальной сайт работает и без этого.</p>
+    <h1 class="h-pixel"><span class="gold" data-i="h_prac">Практика с ИИ</span></h1>
+    <p class="muted" data-i="prac_p">Работает на claude.ai в Google Chrome. Остальной сайт работает и без этого.</p>
     <div class="grid2">
       <div class="card">
-        <h3>Проверка грамматики</h3>
-        <div class="field"><select id="gReg" aria-label="Стиль фразы"><option value="adult">Со взрослыми (сіз)</option><option value="friend">С друзьями (сен)</option></select></div>
-        <textarea id="gIn" placeholder="Например: Сіз қайдансыз?"></textarea>
-        <div class="row"><button class="btn primary" id="gBtn" type="button">Проверить</button></div>
-        <div class="out" id="gOut" aria-live="polite">Здесь появится исправление и объяснение.</div>
+        <h3 data-i="g_h">Проверка грамматики</h3>
+        <div class="field"><select id="gReg" aria-label="Стиль фразы" data-ia="a_greg"><option value="adult" data-i="g_o1">Со взрослыми (сіз)</option><option value="friend" data-i="g_o2">С друзьями (сен)</option></select></div>
+        <textarea id="gIn" placeholder="Например: Сіз қайдансыз?" data-ip="g_ph"></textarea>
+        <div class="row"><button class="btn primary" id="gBtn" type="button" data-i="g_btn">Проверить</button></div>
+        <div class="out" id="gOut" aria-live="polite" data-i="g_out">Здесь появится исправление и объяснение.</div>
       </div>
       <div class="card">
-        <h3>Проверка произношения</h3>
-        <div class="field"><select id="pTarget" aria-label="Фраза для произношения"></select></div>
+        <h3 data-i="p_h">Проверка произношения</h3>
+        <div class="field"><select id="pTarget" aria-label="Фраза для произношения" data-ia="a_ptarget"></select></div>
         <div class="row">
-          <button class="btn primary mic" id="pMic" type="button">Говорить</button>
-          <button class="btn" id="pStop" type="button">Стоп</button>
+          <button class="btn primary mic" id="pMic" type="button" data-i="p_mic">Говорить</button>
+          <button class="btn" id="pStop" type="button" data-i="p_stop">Стоп</button>
         </div>
-        <div class="out" id="pLive" aria-live="polite">Нажмите «Говорить» и разрешите микрофон.</div>
+        <div class="out" id="pLive" aria-live="polite" data-i="p_live">Нажмите «Говорить» и разрешите микрофон.</div>
         <div class="out" id="pVerdict" aria-live="polite" hidden></div>
-        <p class="notice" id="pNotice">Оценка ориентировочная: точность распознавания казахского зависит от браузера.</p>
+        <p class="notice" id="pNotice" data-i="p_notice">Оценка ориентировочная: точность распознавания казахского зависит от браузера.</p>
       </div>
     </div>
   </section>
 
   <!-- РЕСУРСЫ -->
   <section class="view" data-view="resources" hidden>
-    <h1 class="h-pixel">Ресурсы</h1>
+    <h1 class="h-pixel"><span class="gold" data-i="h_res">Ресурсы</span></h1>
     <div class="grid2">
-      <a class="card" href="https://sozdikqor.kz" target="_blank" rel="noopener" style="text-decoration:none"><h3>Sozdikqor.kz</h3><p class="muted">Словарь: значения, синонимы и примеры употребления.</p></a>
-      <a class="card" href="https://emle.kz" target="_blank" rel="noopener" style="text-decoration:none"><h3>Emle.kz</h3><p class="muted">Орфография: как правильно писать слова.</p></a>
-      <a class="card" href="https://tilmedia.kz" target="_blank" rel="noopener" style="text-decoration:none"><h3>TilMedia.kz</h3><p class="muted">Аудио, видео и тексты для практики на слух.</p></a>
-      <a class="card" href="https://termincom.kz" target="_blank" rel="noopener" style="text-decoration:none"><h3>Termincom.kz</h3><p class="muted">Термины по отраслям, для продвинутого уровня.</p></a>
+      <a class="card" href="https://sozdikqor.kz" target="_blank" rel="noopener" style="text-decoration:none"><h3>Sozdikqor.kz</h3><p class="muted" data-i="r1">Словарь: значения, синонимы и примеры употребления.</p></a>
+      <a class="card" href="https://emle.kz" target="_blank" rel="noopener" style="text-decoration:none"><h3>Emle.kz</h3><p class="muted" data-i="r2">Орфография: как правильно писать слова.</p></a>
+      <a class="card" href="https://tilmedia.kz" target="_blank" rel="noopener" style="text-decoration:none"><h3>TilMedia.kz</h3><p class="muted" data-i="r3">Аудио, видео и тексты для практики на слух.</p></a>
+      <a class="card" href="https://termincom.kz" target="_blank" rel="noopener" style="text-decoration:none"><h3>Termincom.kz</h3><p class="muted" data-i="r4">Термины по отраслям, для продвинутого уровня.</p></a>
     </div>
   </section>
 
   <!-- О САЙТЕ -->
   <section class="view" data-view="about" hidden>
-    <h1 class="h-pixel">О сайте</h1>
+    <h1 class="h-pixel"><span class="gold" data-i="h_about">О сайте</span></h1>
     <div class="card">
-      <p><b>Кто сделал сайт.</b> Сайт создан студентом, который поступил учиться в Республику Казахстан и сам не казах. Казахский язык для автора не родной, поэтому в текстах возможны ошибки.</p>
-      <p><b>Не для коммерческого использования.</b> Сайт сделан только для развлекательных и познавательных целей. Здесь нет рекламы, платных разделов и продаж.</p>
-      <p>Учебный проект для начинающих. Сайт не заменяет учителя и не выдаёт сертификатов. Тексты уроков и сленга стоит сверить с носителями языка. Проверка через ИИ даёт ориентир.</p>
-      <p>Данные (прогресс, интервалы повторения, расписание) хранятся только в этом браузере.</p>
+      <p data-i="a1"><b>Кто сделал сайт.</b> Сайт создан студенткой, которая поступила учиться в Республику Казахстан и сама не казашка. Казахский язык для автора не родной, поэтому в текстах возможны ошибки.</p>
+      <p data-i="a2"><b>Не для коммерческого использования.</b> Сайт сделан только для развлекательных и познавательных целей. Здесь нет рекламы, платных разделов и продаж.</p>
+      <p data-i="a3">Учебный проект для начинающих. Сайт не заменяет учителя и не выдаёт сертификатов. Тексты уроков и сленга стоит сверить с носителями языка. Проверка через ИИ даёт ориентир.</p>
+      <p data-i="a4">Данные (прогресс, интервалы повторения, расписание) хранятся только в этом браузере.</p>
     </div>
     <div class="card">
-      <h3>Настройки</h3>
+      <h3 data-i="set_h">Настройки</h3>
       <div class="field">
-        <label for="nameIn"><b>Имя</b></label>
-        <input type="text" id="nameIn" maxlength="40" placeholder="Например: Айдар">
+        <label for="nameIn" data-i="set_name"><b>Имя</b></label>
+        <input type="text" id="nameIn" maxlength="40" placeholder="Например: Айдар" data-ip="name_ph">
       </div>
       <div class="field">
-        <label for="setDone"><b>Пройдено дней</b> (если учились раньше)</label>
+        <label for="setDone" data-i="set_done"><b>Пройдено дней</b> (если учились раньше)</label>
         <input type="number" id="setDone" min="0" max="30" value="0">
       </div>
       <div class="row">
-        <button class="btn" id="saveProfile" type="button">Сохранить</button>
-        <button class="btn" id="resetProg" type="button">Сбросить прогресс</button>
-        <button class="btn" id="resetSched" type="button">Сбросить расписание</button>
+        <button class="btn" id="saveProfile" type="button" data-i="set_save">Сохранить</button>
+        <button class="btn" id="resetProg" type="button" data-i="set_rp">Сбросить прогресс</button>
+        <button class="btn" id="resetSched" type="button" data-i="set_rs">Сбросить расписание</button>
       </div>
       <div class="out" id="profOut" hidden></div>
     </div>
   </section>
 
 </main>
-<footer>Казахский для чайников · 30 дней<br>Сайт создан студентом, поступившим в РК и не являющимся казахом. Не для коммерческого использования: только для развлекательных и познавательных целей.</footer>
+<div class="orn-strip" aria-hidden="true"></div>
+<footer data-i="footer">Казахский для чайников · 30 дней<br>Сайт создан студенткой, поступившей в РК и не являющейся казашкой. Не для коммерческого использования: только для развлекательных и познавательных целей.</footer>
 
 <script>
 (function () {
   "use strict";
+  let LANG = "ru";
+  const T = (ru, en) => (LANG === "en" ? en : ru);
 
   // ============ ДАННЫЕ: 30 уроков ============
   // t — название, n — заметка по грамматике, w — слова [казахский, перевод, транскрипция], e — пример [казахский, перевод]
@@ -551,9 +693,36 @@
       d: [["А", "Бүгін күн суық екен.", "Сегодня, оказывается, холодно."], ["Б", "Иә, қар жауып тұр.", "Да, идёт снег."], ["А", "Ертең ауа райы қандай болады?", "Какая погода будет завтра?"], ["Б", "Ертең күн жылы болады.", "Завтра будет тепло."], ["А", "Жақсы екен!", "Вот хорошо!"]] }
   ];
 
+  // Английский перевод: порядок записей совпадает с русскими данными выше
+  const EN = {"lessons":[["Alphabet: special letters","Kazakh uses the Cyrillic alphabet plus letters that Russian doesn’t have: ә, ғ, қ, ң, ө, ұ, ү, і, һ. They change the meaning of a word, so it is worth telling them apart from day one.",["open “a” (as in “cat”)","throaty “g” sound","deep “k” sound","nasal “n” (as in “sing”)","rounded “o” (like German ö)","“u” with lips pushed forward (like German ü)"],"Father, city, scientist"],["Greetings","“Сіз” is the polite “you”; “сен” is for close people and peers. Use “сіз” with strangers and elders.",["hi / hello (informal)","hello (formal)","how are you? (polite)","thank you / thanks","yes","no"],"Hello! Thank you, I’m fine."],["Introductions","“Менің атым …” means “my name is …”. The word “мен” (I) at the start is often dropped, so “Менің атым” on its own is also correct.",["my name is","I","what is your name?","who","where from","I am Kazakh"],"My name is Aigul. I am Kazakh."],["Numbers 1–5","Numbers go before the noun, and the noun takes no ending: “үш кітап” — three books. The plural is not used after numbers.",["one","two","three","four","five"],"I have three books."],["Numbers 6–10","“Он” (ten) and “оң” (right) sound similar, but they are spelled differently and mean different things.",["six","seven","eight","nine","ten"],"I have ten tenge."],["Tens and a hundred","Numbers are built like this: “он бір” (11), “жиырма бір” (21). The ten comes first, then the unit.",["twenty","thirty","forty","fifty","hundred","eleven"],"This is one hundred tenge."],["Personal pronouns","Pronouns: мен (I), сен (you, informal), ол (he / she), біз (we), сендер (you, plural), олар (they). For the polite “you” use “сіз”.",["I","you (informal)","he / she","we","you (polite)","they"],"We are students."],["Family 1","Older and younger siblings have separate words: аға / іні, апа / қарындас. This matters in Kazakh culture.",["family","father","mother","older brother / elder brother","younger brother","older sister / elder sister","younger sister"],"I have a father and a mother."],["Family 2","The word “бала” (child) forms combinations: “ұл бала” — son, “қыз бала” — daughter. The words ұл and қыз are also used on their own.",["child","son","daughter / girl","wife / woman","husband","grandchild"],"I have a son and a daughter."],["Body parts","Possessive words go before the noun: “менің басым” — my head. Kazakh also adds personal endings to nouns.",["head","eye","ear","nose","hand / arm","leg / foot"],"I have a headache."],["Colors","Colors don’t change for gender: “қызыл көйлек” (a red dress) and “қызыл кітап” (a red book) use the same form.",["red","blue","green","white","black","yellow"],"My shirt is white."],["Describing things","Adjectives go before the noun: “үлкен үй” — a big house.",["big / large","small / little","new","old","good","bad"],"This is a new and big house."],["Food 1","The pronoun “мен” (I) is often dropped: “Шай ішемін” — I drink tea. The verbs “жеу” (to eat) and “ішу” (to drink) change with the person.",["bread","water","tea","milk","meat","apple"],"I drink tea."],["Food 2","“Көкөніс” (vegetables) and “жеміс” (fruit) are general categories that are handy to know alongside specific foods.",["potato / potatoes","onion","salt","sugar","vegetables","fruit"],"I need potatoes and onions."],["Jobs","In the present tense the verb “to be” merges with the noun: “студентпін” — I am a student. The ending depends on the person: мен …пін, сен …сің.",["student","teacher","doctor","pupil / schoolchild","worker","work / job"],"I am a teacher."],["Have and don’t have","“Менде бар” — I have. “Менде жоқ” — I don’t have. “Менде” literally means “at me”.",["there is / have","no / there is none","at me / I have","time","money","car"],"I have no time."],["Home and rooms","Possessive endings (“my house”, “our house”) come later. For now we learn the vocabulary: “менің үйім” — my house.",["house / home","room","kitchen","window","door","carpet / rug"],"My house is big."],["City and places","“Қала” (city) and “ауыл” (village) are the basis for talking about where you live. “Қалада” — in the city (the ending -да).",["city / town","village","street","shop / store","school","park"],"I live in the city."],["Directions","“Мұнда” (here) and “сонда” (there) show a place without movement. Movement uses other endings — we will learn them later.",["here","there","near / close","far","right","left"],"The shop is here, close by."],["Time of day","“Бүгін” (today) goes at the start of the phrase. Times of day: “таңертең” (in the morning), “күндіз” (in the daytime), “кешке” (in the evening).",["today","tomorrow","yesterday","in the morning","in the daytime / during the day","in the evening"],"This morning I am at work."],["Days of the week","In Kazakh, days of the week are written with a lowercase letter. Friday is “жұма”, Saturday is “сенбі”.",["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"Today is Friday."],["Weather","“Ауа райы” means weather. The verb “жауу” (to fall, of rain or snow) is used in the third person: “жаңбыр жауады” — it is raining.",["weather","sun / day","rain","snow","cold","hot"],"It is cold today."],["Present tense 1","In the present tense the endings change with the person: мен -мын/-мін (I), сен -сың/-сің (you). Example: “мен барамын” — I go.",["to go","to come","to write","to study / to read","to walk","to live / to get up"],"I study. I write in Kazakh."],["Present tense 2","For “I live” use the verb “тұру”. For “I work” use “жұмыс істеу” (literally “to do work”) — it is a compound verb.",["to work","to sleep","to play","to speak / to talk","to understand","to learn"],"I am learning Kazakh."],["Past tense","Past tense: “-ды/-ді/-ты/-ті” is added to the verb stem. “Мен бардым” — I went.",["went","came","saw","studied / read","yesterday","before / earlier"],"Yesterday I went to the shop."],["Future tense","The future is often expressed with the present tense plus a time word: “ертең мен барамын” — tomorrow I will go.",["tomorrow","later / afterwards","soon","still / yet","next week","I will go / I go"],"Tomorrow I will go to the shop."],["Question words","Question words go at the start of a question: “Сіз қайда тұрасыз?” — Where do you live? The particle “ба/бе” turns a statement into a question: “Сіз қазақсыз ба?” — Are you Kazakh?",["what","who","where","when","why","how"],"When did you come?"],["Shopping","The currency is the tenge (“теңге”). “Бұл қанша?” means “How much is this?”. Answer: “Бұл екі мың теңге” — this is two thousand tenge.",["how much / how many","price","tenge","to buy","cheap","expensive"],"How much is this? — Five thousand tenge."],["At a café","Requests sound polite with the verb form “-ңыз/-ңіз”: “беріңіз” — give (please), “әкеліңіз” — bring (please).",["menu","give (please)","bring (please)","bill / check","food / dish","thank you / thanks"],"Some water, please. Thank you."],["Wrap-up: greetings and goodbyes","Greetings by time of day: “қайырлы таң” (good morning), “қайырлы күн” (good afternoon), “қайырлы кеш” (good evening). Goodbyes: “сау болыңыз” (polite) and “сау бол” (informal).",["good morning","good afternoon / good day","good evening","goodbye (polite)","bye (informal)","see you"],"Good afternoon! Goodbye."]],"units":["Week 1: basics","Week 2: family and daily life","Week 3: home and time","Week 4: verbs and conversation"],"days":["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],"pron":{"1":[["“open a”","An open sound, like the “a” in “cat”. The lips are not rounded and the mouth is wide open.","father"],["“throaty g”","A “g” made deep in the throat, like the French “r” in “Paris”. The tongue does not trill.","scientist"],["“deep k”","A “k” made further back, closer to the throat. It sounds deeper than an ordinary “k”.","city"],["“nasal n”","An “n” with the air going through the nose, like the “ng” in “sing”.","new"],["“rounded o”","The lips are rounded as for “o”, but the sound is softer. Like German ö in “Löwe”.","river"],["“fronted u”","The lips are pushed forward and the tongue sits as for “ee”. Like German ü in “über”.","house"]],"2":[["“short i”","A very short, relaxed sound, close to the “i” in “bit”. The lips are not rounded.","matter, business"],["“deep u”","A short “u” made further back, close to the “u” in “put”. The lips are rounded and the throat is slightly tense.","son"],["“light h”","A light breath, like the English “h” in “hello”. It sounds soft, with no friction.","and, also"]]},"read":{"1":[["father","ә — open “a”"],["city","қ — deep “k”"],["scientist","ғ — throaty “g”"],["house","ү — fronted “u”"]],"2":[["daughter / girl","қ — deep “k”"],["autumn","ү — fronted “u”"],["son","ұ — deep “u”"],["and, also","һ — light breath"]],"3":[["river","ө — rounded “o”"],["new","ң — nasal “n”"],["wonderful","ғ — throaty “g”"],["song","ә — open “a”"]]},"sits":[["Directions","ask and show the way","Start with “Кешіріңіз” (excuse me): it is the polite way to address a passer-by.",["Excuse me, where is the bus stop?","How can I get to the city center?","Go straight.","Turn right.","Turn left.","Is it far from here?","No, it’s close, five minutes.","I am lost.","Please show me on the map."],["Excuse me, where is the pharmacy?","Go straight, then turn left.","Is it far from here?","No, it’s close.","Thank you very much!"]],["Shop","ask for an item and the price","The ending “-шы/-ші” in a request (“беріңізші”) softens it, like “please”.",["Do you have bread?","How much does this cost?","Is there a cheaper one?","Is there a bigger size?","Can I try it on?","Can I pay by card?","I’ll take this one.","I don’t need a bag.","Please give me the receipt."],["Hello! How much are these apples?","One kilo is eight hundred tenge.","Two kilos, please.","Here you are. Anything else?","No, thank you. Can I pay by card?","Yes, you can."]],["Airport","check-in, boarding, baggage","“Төлқұжат” — passport, “жүк” — baggage, “рейс” — flight.",["Where is check-in?","What time does the plane leave?","Is the flight delayed?","Where is boarding?","Here is my passport.","I have one bag.","Where do I collect my baggage?","Is there a window seat?","Where are the taxis?"],["Hello, where is check-in for the flight to Astana?","Here. Your passport, please.","Here you are.","Do you have any baggage?","Yes, one bag.","Have a good trip!"]],["University","classes, asking the teacher","Address a teacher as “ағай” (a man) or “апай” (a woman).",["May I come in?","May I ask a question?","Could you repeat that, please?","I didn’t understand.","What time does the class start?","What is the homework?","Where is the library?","When is the exam?","Which floor is the dean’s office on?"],["Excuse me, apai, may I come in?","Come in. Why are you late?","The bus was late.","All right, sit down."]],["Theater and cinema","tickets, seats, start time","“Қойылым” — performance, “орын” — seat, “қатар” — row.",["Two tickets, please.","What performance is on today?","What time does the performance start?","How much is a ticket?","Where is my seat?","Is this seat free?","Where is the cloakroom?","When is the intermission?","I really liked the performance."],["Hello, are there tickets for today’s performance?","Yes, there are. How many tickets do you need?","Two tickets, please.","Here you are. The performance starts at seven o’clock.","Thank you!"]],["Café","ordering and the bill","“Ас болсын!” is said to someone who is eating: it means “enjoy your meal”.",["The menu, please.","What do you recommend?","Tea for me, please.","Do you have tea with milk?","Is this spicy?","I don’t eat meat.","It’s very tasty!","Enjoy your meal!","The bill, please."],["Hello! The menu, please.","Here you are. What will you have?","Lagman and tea for me, please.","Okay. Enjoy your meal!","Thank you. The bill, please."]],["How are you","ask and talk about yourself","To elders and strangers say “Қалыңыз қалай?”, to friends — “Қалың қалай?”.",["How are you? (polite)","Fine, thank you. And you?","Not bad.","Everything is fine.","I am tired.","What’s new?","A lot of work.","I live in Almaty.","I am learning Kazakh.","Please speak more slowly."],["Hi! How are you?","Fine, thanks. And you?","Not bad. What’s new?","A lot of work. What are you doing at the weekend?","I’m meeting friends."]],["Weather","keep a simple chat going","For rain and snow people say “жауып тұр”: literally “is falling”.",["What is the weather like today?","It is warm today.","It is cold today.","It is raining.","It is snowing.","A strong wind is blowing.","It will be clear tomorrow.","Take an umbrella.","I like summer."],["It’s cold today, it turns out.","Yes, it is snowing.","What will the weather be like tomorrow?","It will be warm tomorrow.","That’s good!"]]],"phrases":[["Meeting","Hello, let’s get acquainted. My name is Yerlan."],["Meeting","Nice to meet you."],["Meeting","Where are you from?"],["Addressing","Hello, aga! (to a man older than you)"],["Addressing","Apa, could you help me?"],["Addressing","Excuse me, aqsaqal (respected elder)."],["Shop","How much does this cost?"],["Shop","May I take this?"],["Directions","Excuse me, where is the school?"],["Directions","Go straight, then turn right."],["Taxi","Stop here, please."],["Work","Send the project tomorrow."],["Goodbye","Sorry, I am late."],["Goodbye","Goodbye. See you."],["Meeting","Hi, how are you?"],["Chat","Fine, and you?"],["Plans","What are you doing today?"],["Plans","Let’s go to a café."],["Chat","I didn’t get it, say it again."],["Emotions","Great! That’s interesting."]],"slang":[["Drop it, you’ll be driving a Gazelle van","Do something else, this isn’t your thing.","A blogger decided to become a singer? — Таста, газель айдайсың."],["Take it, take it","Go on, keep going! Said when someone has started a good story.","— Bro, you won’t believe what happened yesterday… — Әкет әкет, тыңдап тұрмын!"],["Don’t panic","Used to calm someone down.","Саспа, бәрі жақсы болады. (Don’t worry, everything will be fine.)"],["Heavy, heavy","A reaction to a tough situation: “that’s rough”. Sometimes sarcastic.","— I lost 100 thousand yesterday… — Ауыр-ауыр…"],["I signed","I gave up on it, I don’t care anymore.","— Сессияға дайындалып жатырсың ба? — Жоқ, қол қойдым. (— Are you studying for the exams? — No, I’ve given up.)"],["Where is the exit?","You want the ground to swallow you up from embarrassment.","Nobody laughed at the joke… — Шығатын жері қаяқта?"],["Ceiling","The top level: either delight or extreme cringe.","— He makes 5 million a month! — Ооо, потолок!"],["It’s really in fashion","Easily, effortlessly.","Ол бәрін оңай жеңді, әшейін сән ғой. (He beat everyone easily.)"],["To laugh on credit","To force a laugh when the joke isn’t funny.","— Неге күлмей тұрсың? — Қарызға күліп тұрмын. (— Why aren’t you laughing? — I’m laughing on credit.)"],["To fry potatoes","The joke or meme landed and made people laugh.","In the comments: “Картоп жардың!” (You nailed it!)"],["9 thousand tenge","A meme about being short of money.","— How are you doing for money? — Тоғыз мың теңге."]]};
+
   // ============ ЧИСТАЯ ЛОГИКА (тестируется без браузера) ============
   const ALL = [];
   LESSONS.forEach((L, i) => L[ "w" ].forEach((w) => ALL.push({ kk: w[0], ru: w[1], tr: w[2], day: i + 1 })));
+  // Русские тексты запоминаем, чтобы переключать язык туда и обратно. Казахский не меняется.
+  const RU0 = {
+    lessons: LESSONS.map((L) => [L.t, L.n, L.w.map((w) => w[1]), L.e[1]]),
+    units: UNITS.map((u) => u[0]), days: DAYS_RU.map((d) => d[0]), pron: {}, read: {},
+    sits: SITS.map((x) => [x.name, x.sub, x.tip, x.p.map((p) => p[1]), x.d.map((l) => l[2])]),
+    phrases: PHRASES.map((p) => [p.tag, p.ru]), slang: SLANG.map((x) => [x.lit, x.mean, x.ex])
+  };
+  Object.keys(PRON).forEach((k) => { RU0.pron[k] = PRON[k].map((p) => [p.name, p.how, p.ex[1]]); });
+  Object.keys(READ).forEach((k) => { RU0.read[k] = READ[k].map((r) => [r.tr, r.note]); });
+  function setLang(lang) {
+    LANG = lang === "en" ? "en" : "ru";
+    const X = LANG === "en" ? EN : RU0;
+    LESSONS.forEach((L, i) => { const v = X.lessons[i]; L.t = v[0]; L.n = v[1]; L.w.forEach((w, j) => { w[1] = v[2][j]; }); L.e[1] = v[3]; });
+    UNITS.forEach((u, i) => { u[0] = X.units[i]; });
+    DAYS_RU.forEach((d, i) => { d[0] = X.days[i]; });
+    Object.keys(PRON).forEach((k) => PRON[k].forEach((p, i) => { const v = X.pron[k][i]; p.name = v[0]; p.how = v[1]; p.ex[1] = v[2]; }));
+    Object.keys(READ).forEach((k) => READ[k].forEach((r, i) => { const v = X.read[k][i]; r.tr = v[0]; r.note = v[1]; }));
+    SITS.forEach((x, i) => { const v = X.sits[i]; x.name = v[0]; x.sub = v[1]; x.tip = v[2]; x.p.forEach((p, j) => { p[1] = v[3][j]; }); x.d.forEach((l, j) => { l[2] = v[4][j]; }); });
+    PHRASES.forEach((p, i) => { p.tag = X.phrases[i][0]; p.ru = X.phrases[i][1]; });
+    SLANG.forEach((x, i) => { const v = X.slang[i]; x.lit = v[0]; x.mean = v[1]; x.ex = v[2]; });
+    ALL.length = 0;
+    LESSONS.forEach((L, i) => L.w.forEach((w) => ALL.push({ kk: w[0], ru: w[1], tr: w[2], day: i + 1 })));
+    return LANG;
+  }
 
   function today() { return Math.floor(Date.now() / 86400000); }
   function shuffle(a) {
@@ -569,10 +738,14 @@
     ru.split(/[\/()]/).forEach((p) => { const t = p.trim(); if (t) parts.push(t); });
     return parts;
   }
+  const NUMS = { "ноль": "0", "один": "1", "два": "2", "три": "3", "четыре": "4", "пять": "5", "шесть": "6", "семь": "7", "восемь": "8", "девять": "9", "десять": "10", "одиннадцать": "11", "двадцать": "20", "тридцать": "30", "сорок": "40", "пятьдесят": "50", "сто": "100",
+    "zero": "0", "one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9", "ten": "10", "eleven": "11", "twenty": "20", "thirty": "30", "forty": "40", "fifty": "50", "hundred": "100", "one hundred": "100" };
+  // Сравнение ответа: без регистра и знаков, «ё» = «е», в английском не важны to / the / a / in the
+  function cmp(v) { return norm(v).replace(/ё/g, "е").replace(/[’']/g, "").replace(/^(in the|to|the|a|an) /, ""); }
   function typeOk(input, ru) {
-    const n = norm(input);
+    const n = cmp(input);
     if (!n) return false;
-    return ruParts(ru).some((p) => norm(p) === n);
+    return ruParts(ru).some((p) => { const t = cmp(p); return t === n || NUMS[t] === n || (!!NUMS[n] && NUMS[n] === NUMS[t]); });
   }
   // Интервалы повторения: верно — интервал удваивается (1, 2, 4 ... до 30 дней), ошибка — снова через день
   function srsGrade(map, kk, ok, now) {
@@ -618,14 +791,14 @@
     words.forEach((w, i) => {
       if (i % 3 === 0) ex.push(mkChoice(w, "ru", ALL));
       else if (i % 3 === 1) ex.push(mkChoice(w, "kk", ALL));
-      else ex.push(mkType(w));
+      else ex.push(day === 1 ? mkChoice(w, "ru", ALL) : mkType(w));
     });
     pickReview(day, map, now, lessonKeys).forEach((w, i) => {
-      ex.push(i % 2 === 0 ? mkChoice(w, "ru", ALL) : mkType(w));
+      ex.push(i % 2 === 0 || w.day === 1 ? mkChoice(w, "ru", ALL) : mkType(w));
     });
     if (day === TOTAL) {
       const extra = shuffle(ALL.filter((w) => !lessonKeys.has(w.kk))).slice(0, 6);
-      extra.forEach((w, i) => ex.push(i % 2 === 0 ? mkType(w) : mkChoice(w, "kk", ALL)));
+      extra.forEach((w, i) => ex.push(i % 2 === 0 && w.day !== 1 ? mkType(w) : mkChoice(w, "kk", ALL)));
     }
     const list = shuffle(ex);
     list.splice(Math.min(list.length, 4), 0, mkBuild(L.e[0], L.e[1]));
@@ -666,7 +839,7 @@
     const mx = Math.max(x.length, y.length);
     return mx ? 1 - lev(x, y) / mx : 1;
   }
-  const Logic = { LESSONS, ALL, PRON, READ, SITS, buildPractice, shuffle, norm, similarity, typeOk, srsGrade, mkChoice, mkType, mkBuild, pickReview, buildSession, today, TOTAL, PASS };
+  const Logic = { LESSONS, ALL, PRON, READ, SITS, PHRASES, SLANG, UNITS, EN, setLang, getLang: () => LANG, buildPractice, shuffle, norm, similarity, typeOk, srsGrade, mkChoice, mkType, mkBuild, pickReview, buildSession, today, TOTAL, PASS };
 
   // Без браузера (тесты) — только логика
   if (typeof document === "undefined") { globalThis.KZ = Logic; return; }
@@ -684,13 +857,16 @@
   function save(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {} }
   function ymd(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
 
-  const K = { prog: "kz_v3_progress", sched: "kz_v3_schedule", srs: "kz_v3_srs", prof: "kz_v3_profile" };
+  const K = { prog: "kz_v3_progress", sched: "kz_v3_schedule", srs: "kz_v3_srs", prof: "kz_v3_profile", lang: "kz_v3_lang" };
   let prog = load(K.prog, { done: 0, lastDate: "", streak: 0 });
   if (typeof prog.done !== "number") prog = { done: 0, lastDate: "", streak: 0 };
   let srs = load(K.srs, {});
   let sched = load(K.sched, { days: [2, 4, 6], time: "19:00" });
   let prof = load(K.prof, { name: "" });
   let S = null; // текущий урок
+  const navLang = typeof navigator !== "undefined" && navigator.language ? String(navigator.language).toLowerCase() : "ru";
+  setLang(load(K.lang, null) || (navLang.indexOf("en") === 0 ? "en" : "ru"));
+  function goldHead(tag, text) { const h = el(tag); h.appendChild(el("span", "gold", text)); return h; }
 
   function saveProg() { save(K.prog, prog); }
   function bumpStreak() {
@@ -732,7 +908,7 @@
     return "locked";
   }
   function renderPlan() {
-    $("#progText").textContent = "Пройдено: " + Math.min(prog.done, TOTAL) + " из " + TOTAL;
+    $("#progText").textContent = T("Пройдено: ", "Completed: ") + Math.min(prog.done, TOTAL) + T(" из ", " of ") + TOTAL;
     const box = $("#units");
     box.innerHTML = "";
     UNITS.forEach(([name, from, to]) => {
@@ -745,10 +921,10 @@
         const b = el("button", "node " + st + (n % 7 === 0 ? " review" : ""));
         b.type = "button";
         if (st === "locked") b.classList.add("locked");
-        b.setAttribute("aria-label", "День " + n + ": " + LESSONS[i].t);
+        b.setAttribute("aria-label", T("День ", "Day ") + n + ": " + LESSONS[i].t);
         b.appendChild(el("span", "sq", st === "done" ? "✓" : String(n)));
         b.appendChild(el("span", "lbl", LESSONS[i].t));
-        if (n % 7 === 0) b.appendChild(el("span", "node-badge", "повтор недели"));
+        if (n % 7 === 0) b.appendChild(el("span", "node-badge", T("повтор недели", "weekly review")));
         b.addEventListener("click", () => { if (st !== "locked") startLesson(n); });
         grid.appendChild(b);
       }
@@ -818,21 +994,21 @@
     return renderIntroWord(body, it);
   }
   function renderIntroWord(body, w) {
-    body.appendChild(el("div", "q-label", "Новое слово · день " + S.day));
+    body.appendChild(el("div", "q-label", T("Новое слово · день ", "New word · day ") + S.day));
     body.appendChild(el("div", "big-word", w.kk));
     body.appendChild(el("div", "kk", w.ru));
     body.appendChild(el("p", "tr", w.tr));
     const row = el("div", "row");
     row.appendChild(soundBtn(w.kk));
     body.appendChild(row);
-    setAct("Далее", true, () => { S.introPos++; renderSession(); });
+    setAct(T("Далее", "Next"), true, () => { S.introPos++; renderSession(); });
   }
   function renderPron(body, it) {
     const p = it.p;
-    body.appendChild(el("div", "q-label", "Звук " + it.i + " из " + it.n + " · как читается"));
+    body.appendChild(el("div", "q-label", T("Звук ", "Sound ") + it.i + T(" из ", " of ") + it.n + T(" · как читается", " · how to say it")));
     body.appendChild(el("div", "big-word", p.ch + "  " + p.name));
     body.appendChild(el("p", null, p.how));
-    body.appendChild(el("p", "tr", "Пример: " + p.ex[0] + " — " + p.ex[1]));
+    body.appendChild(el("p", "tr", T("Пример: ", "Example: ") + p.ex[0] + " — " + p.ex[1]));
     const out = el("div", "out");
     out.hidden = true;
     const row = el("div", "row");
@@ -841,15 +1017,15 @@
     body.appendChild(row);
     body.appendChild(out);
     body.appendChild(el("p", "notice-small", speakNote()));
-    setAct("Далее", true, () => { S.introPos++; renderSession(); });
+    setAct(T("Далее", "Next"), true, () => { S.introPos++; renderSession(); });
   }
   function renderRead(body, it) {
     const r = it.r;
-    body.appendChild(el("div", "q-label", "Чтение · слово " + it.i + " из " + it.n));
+    body.appendChild(el("div", "q-label", T("Чтение · слово ", "Reading · word ") + it.i + T(" из ", " of ") + it.n));
     body.appendChild(el("div", "big-word", r.w));
     body.appendChild(el("p", "kk", r.syl));
     body.appendChild(el("p", "tr", r.tr));
-    body.appendChild(el("p", "notice-small", "Буква: " + r.note));
+    body.appendChild(el("p", "notice-small", T("Буква: ", "Letter: ") + r.note));
     const out = el("div", "out");
     out.hidden = true;
     const row = el("div", "row");
@@ -858,12 +1034,12 @@
     body.appendChild(row);
     body.appendChild(out);
     body.appendChild(el("p", "notice-small", speakNote()));
-    setAct("Далее", true, () => { S.introPos++; renderSession(); });
+    setAct(T("Далее", "Next"), true, () => { S.introPos++; renderSession(); });
   }
 
   function renderEx(body, ex) {
     if (ex.k === "choice") {
-      body.appendChild(el("div", "q-label", ex.dir === "ru" ? (S.mode === "practice" ? "Что значит эта фраза?" : "Что значит это слово?") : "Как сказать по-казахски?"));
+      body.appendChild(el("div", "q-label", ex.dir === "ru" ? (S.mode === "practice" ? T("Что значит эта фраза?", "What does this phrase mean?") : T("Что значит это слово?", "What does this word mean?")) : T("Как сказать по-казахски?", "How do you say it in Kazakh?")));
       body.appendChild(el("div", "big-word" + (ex.prompt.length > 16 ? " long" : ""), ex.prompt));
       if (ex.sub) body.appendChild(el("p", "tr", ex.sub));
       const grid = el("div", "opts-grid");
@@ -879,24 +1055,24 @@
           buttons[ex.ans].classList.add("right");
           if (!ok) b.classList.add("wrong");
           grade(ex, ok);
-          fbSet(ok, ok ? "Верно!" : "Правильно: " + ex.opts[ex.ans]);
-          setAct("Продолжить", true, nextEx);
+          fbSet(ok, ok ? T("Верно!", "Correct!") : T("Правильно: ", "Correct answer: ") + ex.opts[ex.ans]);
+          setAct(T("Продолжить", "Continue"), true, nextEx);
         });
         buttons.push(b);
         grid.appendChild(b);
       });
       body.appendChild(grid);
-      setAct("Выберите ответ", false, null);
+      setAct(T("Выберите ответ", "Choose an answer"), false, null);
       return;
     }
     if (ex.k === "type") {
-      body.appendChild(el("div", "q-label", "Напишите перевод по-русски"));
+      body.appendChild(el("div", "q-label", T("Напишите перевод по-русски", "Type the translation in English") + (NUMS[norm(ex.ans)] ? T(" (можно цифрой)", " (a digit is OK)") : "")));
       body.appendChild(el("div", "big-word" + (ex.prompt.length > 16 ? " long" : ""), ex.prompt));
       body.appendChild(el("p", "tr", ex.sub));
       const input = el("input", "sess-input");
       input.type = "text";
       input.autocomplete = "off";
-      input.placeholder = "Перевод на русский";
+      input.placeholder = NUMS[norm(ex.ans)] ? T("Словом или цифрой", "A word or a digit") : T("Перевод на русский", "English translation");
       body.appendChild(input);
       const check = () => {
         if (S.locked || !input.value.trim()) return;
@@ -904,18 +1080,18 @@
         input.disabled = true;
         const ok = typeOkLocal(input.value, ex.ans);
         grade(ex, ok);
-        fbSet(ok, ok ? "Верно!" : "Правильно: " + ex.ans);
-        setAct("Продолжить", true, nextEx);
+        fbSet(ok, ok ? T("Верно!", "Correct!") : T("Правильно: ", "Correct answer: ") + ex.ans);
+        setAct(T("Продолжить", "Continue"), true, nextEx);
       };
-      input.addEventListener("input", () => { setAct("Проверить", !!input.value.trim(), check); });
+      input.addEventListener("input", () => { setAct(T("Проверить", "Check"), !!input.value.trim(), check); });
       input.addEventListener("keydown", (e) => { if (e.key === "Enter") check(); });
-      setAct("Проверить", false, check);
+      setAct(T("Проверить", "Check"), false, check);
       setTimeout(() => input.focus(), 50);
       return;
     }
     if (ex.k === "build") {
-      body.appendChild(el("div", "q-label", "Соберите фразу"));
-      body.appendChild(el("p", "tr", "Перевод: " + ex.hint));
+      body.appendChild(el("div", "q-label", T("Соберите фразу", "Build the phrase")));
+      body.appendChild(el("p", "tr", T("Перевод: ", "Translation: ") + ex.hint));
       if (!ex.bank) { ex.bank = Logic.shuffle(ex.tokens.map((t, i) => ({ t: t, id: i }))); ex.placed = []; }
       const ansArea = el("div", "chips");
       const bankArea = el("div", "chips");
@@ -934,7 +1110,7 @@
           b.addEventListener("click", () => { ex.bank.splice(pos, 1); ex.placed.push(c); draw(); });
           bankArea.appendChild(b);
         });
-        setAct("Проверить", ex.bank.length === 0 && !S.locked, checkBuild);
+        setAct(T("Проверить", "Check"), ex.bank.length === 0 && !S.locked, checkBuild);
       };
       const checkBuild = () => {
         if (S.locked) return;
@@ -943,12 +1119,12 @@
         const ok = got === ex.tokens.join(" ");
         grade(ex, ok);
         body.querySelectorAll(".chip").forEach((b) => (b.disabled = true));
-        fbSet(ok, ok ? "Верно!" : "Правильно: " + ex.tokens.join(" "));
-        setAct("Продолжить", true, nextEx);
+        fbSet(ok, ok ? T("Верно!", "Correct!") : T("Правильно: ", "Correct answer: ") + ex.tokens.join(" "));
+        setAct(T("Продолжить", "Continue"), true, nextEx);
       };
-      body.appendChild(el("div", "q-label", "Ваш ответ"));
+      body.appendChild(el("div", "q-label", T("Ваш ответ", "Your answer")));
       body.appendChild(ansArea);
-      body.appendChild(el("div", "q-label", "Слова"));
+      body.appendChild(el("div", "q-label", T("Слова", "Words")));
       body.appendChild(bankArea);
       draw();
     }
@@ -971,32 +1147,32 @@
       }
     }
     const box = el("div", "finish");
-    box.appendChild(el("h2", null, passed ? "Урок пройден!" : "Пока не получилось"));
-    box.appendChild(el("div", "stat", Math.round(acc * 100) + "% правильно"));
+    box.appendChild(goldHead("h2", passed ? T("Урок пройден!", "Lesson passed!") : T("Пока не получилось", "Not quite yet")));
+    box.appendChild(el("div", "stat", Math.round(acc * 100) + T("% правильно", "% correct")));
     box.appendChild(el("p", null, passed
-      ? "Слова добавлены в повторение. Через день вернём те, что могут забыться."
-      : "Нужно минимум " + Math.round(PASS * 100) + "%. Повторите урок: ошибки помогают запомнить."));
+      ? T("Слова добавлены в повторение. Через день вернём те, что могут забыться.", "The words are added to review. In a day we’ll bring back the ones you might forget.")
+      : T("Нужно минимум ", "You need at least ") + Math.round(PASS * 100) + T("%. Повторите урок: ошибки помогают запомнить.", "%. Repeat the lesson: mistakes help you remember.")));
     const row = el("div", "row");
-    const back = el("button", "btn", "К плану");
+    const back = el("button", "btn", T("К плану", "To the plan"));
     back.type = "button";
     back.addEventListener("click", () => { S = null; location.hash = "#plan"; });
     row.appendChild(back);
     if (passed && S.day < TOTAL) {
-      const nx = el("button", "btn primary", "Следующий урок");
+      const nx = el("button", "btn primary", T("Следующий урок", "Next lesson"));
       nx.type = "button";
       nx.addEventListener("click", () => startLesson(S.day + 1));
       row.appendChild(nx);
     } else if (!passed) {
-      const again = el("button", "btn primary", "Повторить урок");
+      const again = el("button", "btn primary", T("Повторить урок", "Repeat lesson"));
       again.type = "button";
       again.addEventListener("click", () => startLesson(S.day));
       row.appendChild(again);
     } else {
-      box.appendChild(el("p", null, "Курс пройден: 30 дней позади. Повторяйте фразы и сленг, чтобы закрепить."));
+      box.appendChild(el("p", null, T("Курс пройден: 30 дней позади. Повторяйте фразы и сленг, чтобы закрепить.", "Course complete: 30 days are behind you. Keep reviewing the phrases and slang to make it stick.")));
     }
     box.appendChild(row);
     body.appendChild(box);
-    setAct("Готово", false, null);
+    setAct(T("Готово", "Done"), false, null);
     $("#sessFb").textContent = "";
     $("#sessFb").className = "fb";
   }
@@ -1025,7 +1201,7 @@
     showView("lesson");
   }
   function trainBtn() {
-    const b = el("button", "btn small primary", "► Тренировать фразы");
+    const b = el("button", "btn small primary", T("► Тренировать фразы", "► Practice phrases"));
     b.type = "button";
     b.addEventListener("click", () => startPractice(sitIdx));
     return b;
@@ -1049,7 +1225,7 @@
     }
     const s = SITS[sitIdx];
     const top = el("div", "row");
-    const back = el("button", "btn small", "← Все ситуации");
+    const back = el("button", "btn small", T("← Все ситуации", "← All situations"));
     back.type = "button";
     back.addEventListener("click", () => { sitIdx = null; renderPlaces(); });
     top.appendChild(back);
@@ -1073,10 +1249,10 @@
       box.appendChild(c);
     });
     const d = el("div", "card");
-    d.appendChild(el("h3", null, "Диалог"));
+    d.appendChild(el("h3", null, T("Диалог", "Dialogue")));
     s.d.forEach((l) => {
       const line = el("div", "dlg-line");
-      line.appendChild(el("span", "who" + (l[0] === "Б" ? " b" : ""), l[0]));
+      line.appendChild(el("span", "who" + (l[0] === "Б" ? " b" : ""), T(l[0], l[0] === "Б" ? "B" : "A")));
       const t = el("div");
       t.appendChild(el("p", "kk", l[1]));
       t.appendChild(el("p", "tr", l[2]));
@@ -1084,7 +1260,7 @@
       d.appendChild(line);
     });
     const play = soundBtn(s.d.map((l) => l[1]).join(" "));
-    play.textContent = "▶ Послушать диалог";
+    play.textContent = T("▶ Послушать диалог", "▶ Listen to the dialogue");
     const r2 = el("div", "row");
     r2.appendChild(play);
     r2.appendChild(trainBtn());
@@ -1095,21 +1271,21 @@
     if (!S.finished) { S.finished = true; if (acc >= PASS) confetti(); }
     const sit = S.sit;
     const box = el("div", "finish");
-    box.appendChild(el("h2", null, "Тренировка окончена"));
-    box.appendChild(el("div", "stat", Math.round(acc * 100) + "% правильно"));
-    box.appendChild(el("p", null, acc >= PASS ? "Хорошо! Теперь скажите эти фразы вслух." : "Перечитайте фразы и попробуйте ещё раз."));
+    box.appendChild(goldHead("h2", T("Тренировка окончена", "Practice finished")));
+    box.appendChild(el("div", "stat", Math.round(acc * 100) + T("% правильно", "% correct")));
+    box.appendChild(el("p", null, acc >= PASS ? T("Хорошо! Теперь скажите эти фразы вслух.", "Good! Now say these phrases out loud.") : T("Перечитайте фразы и попробуйте ещё раз.", "Read the phrases again and try once more.")));
     const row = el("div", "row");
-    const back = el("button", "btn", "К фразам");
+    const back = el("button", "btn", T("К фразам", "To the phrases"));
     back.type = "button";
     back.addEventListener("click", () => { S = null; location.hash = "#places"; });
-    const again = el("button", "btn primary", "Ещё раз");
+    const again = el("button", "btn primary", T("Ещё раз", "Again"));
     again.type = "button";
     again.addEventListener("click", () => startPractice(sit));
     row.appendChild(back);
     row.appendChild(again);
     box.appendChild(row);
     body.appendChild(box);
-    setAct("Готово", false, null);
+    setAct(T("Готово", "Done"), false, null);
     $("#sessFb").textContent = "";
     $("#sessFb").className = "fb";
   }
@@ -1148,15 +1324,15 @@
     $("#timeIn").value = sched.time || "19:00";
     const out = $("#schedOut");
     out.innerHTML = "";
-    if (!sched.days.length) { out.appendChild(el("p", "muted", "Выберите дни недели и сохраните.")); return; }
+    if (!sched.days.length) { out.appendChild(el("p", "muted", T("Выберите дни недели и сохраните.", "Choose days of the week and save."))); return; }
     const rows = nextSlots(10);
-    if (!rows.length) { out.appendChild(el("p", "muted", "Курс уже пройден.")); return; }
+    if (!rows.length) { out.appendChild(el("p", "muted", T("Курс уже пройден.", "The course is already complete."))); return; }
     const t = el("table", "sched");
-    t.innerHTML = "<thead><tr><th>Дата</th><th>Время</th><th>День</th></tr></thead>";
+    t.innerHTML = "<thead><tr><th>" + T("Дата", "Date") + "</th><th>" + T("Время", "Time") + "</th><th>" + T("День", "Day") + "</th></tr></thead>";
     const tb = el("tbody");
     rows.forEach((r) => {
       const tr = el("tr");
-      tr.appendChild(el("td", null, r.d.toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long" })));
+      tr.appendChild(el("td", null, r.d.toLocaleDateString(T("ru-RU", "en-GB"), { weekday: "long", day: "numeric", month: "long" })));
       tr.appendChild(el("td", null, sched.time));
       tr.appendChild(el("td", null, r.n + ". " + LESSONS[r.n - 1].t));
       tb.appendChild(tr);
@@ -1171,7 +1347,9 @@
   });
 
   // ---------- Разговор и сленг ----------
+  let curReg = "adult";
   function renderPhrases(reg) {
+    curReg = reg;
     const box = $("#phrases");
     box.innerHTML = "";
     PHRASES.filter((p) => p.reg === reg).forEach((p) => {
@@ -1191,9 +1369,9 @@
     box.innerHTML = "";
     SLANG.forEach((s) => {
       const c = el("div", "card");
-      c.appendChild(el("span", "tag slang", "неформально"));
-      c.appendChild(el("h3", null, s.w));
-      c.appendChild(el("p", "muted", "Дословно: " + s.lit));
+      c.appendChild(el("span", "tag slang", T("неформально", "informal")));
+      c.appendChild(el("p", "kk", s.w));
+      c.appendChild(el("p", "muted", T("Дословно: ", "Literally: ") + s.lit));
       c.appendChild(el("p", null, s.mean));
       c.appendChild(el("p", "muted", s.ex));
       box.appendChild(c);
@@ -1212,21 +1390,21 @@
     saveProg();
     const out = $("#profOut");
     out.hidden = false;
-    out.textContent = "Сохранено." + (prof.name ? " Привет, " + prof.name + "!" : "");
+    out.textContent = T("Сохранено.", "Saved.") + (prof.name ? T(" Привет, ", " Hi, ") + prof.name + "!" : "");
   });
   $("#resetProg").addEventListener("click", () => {
-    if (window.confirm("Сбросить весь прогресс и серию?")) {
+    if (window.confirm(T("Сбросить весь прогресс и серию?", "Reset all progress and the streak?"))) {
       prog = { done: 0, lastDate: "", streak: 0 };
       srs = {};
       saveProg();
       save(K.srs, srs);
       $("#setDone").value = "0";
       $("#profOut").hidden = false;
-      $("#profOut").textContent = "Прогресс сброшен.";
+      $("#profOut").textContent = T("Прогресс сброшен.", "Progress reset.");
     }
   });
   $("#resetSched").addEventListener("click", () => {
-    if (window.confirm("Сбросить расписание?")) { sched = { days: [], time: "19:00" }; save(K.sched, sched); renderSchedule(); }
+    if (window.confirm(T("Сбросить расписание?", "Reset the schedule?"))) { sched = { days: [], time: "19:00" }; save(K.sched, sched); renderSchedule(); }
   });
 
   // ---------- ИИ (необязательно) ----------
@@ -1242,17 +1420,19 @@
   $("#gBtn").addEventListener("click", async () => {
     const text = $("#gIn").value.trim();
     const out = $("#gOut");
-    if (!text) { out.textContent = "Сначала напишите фразу."; return; }
+    if (!text) { out.textContent = T("Сначала напишите фразу.", "Type a phrase first."); return; }
     const btn = $("#gBtn");
     btn.disabled = true;
-    out.textContent = "Проверяю…";
-    const style = $("#gReg").value === "adult" ? "формальный (сіз, вежливо, со взрослыми)" : "дружеский (сен, неформально)";
-    const prompt = `Ты преподаватель казахского языка для взрослых начинающих, не носителей. Проверь фразу на грамматику, падежи, личные окончания и вежливость. Стиль: ${style}. Ответь ТОЛЬКО JSON: {"ok": true или false, "corrected": "исправленная фраза", "explanation": "объяснение на русском простыми словами, не более трёх коротких предложений"}. Фраза: """${text}"""`;
+    out.textContent = T("Проверяю…", "Checking…");
+    const adult = $("#gReg").value === "adult";
+    const style = adult ? T("формальный (сіз, вежливо, со взрослыми)", "formal (сіз, polite, with adults)") : T("дружеский (сен, неформально)", "friendly (сен, informal)");
+    const prompt = T(`Ты преподаватель казахского языка для взрослых начинающих, не носителей. Проверь фразу на грамматику, падежи, личные окончания и вежливость. Стиль: ${style}. Ответь ТОЛЬКО JSON: {"ok": true или false, "corrected": "исправленная фраза", "explanation": "объяснение на русском простыми словами, не более трёх коротких предложений"}. Фраза: """${text}"""`,
+      `You are a Kazakh language teacher for adult beginners who are not native speakers. Check the phrase for grammar, cases, personal endings and politeness. Style: ${style}. Reply with JSON ONLY: {"ok": true or false, "corrected": "corrected phrase", "explanation": "explanation in English in simple words, no more than three short sentences"}. Phrase: """${text}"""`);
     try {
       const r = await askJSON(prompt);
-      out.textContent = (r.ok ? "Всё верно." : "Есть ошибки.") + "\nИсправление: " + (r.corrected || "—") + "\n" + (r.explanation || "");
+      out.textContent = (r.ok ? T("Всё верно.", "All correct.") : T("Есть ошибки.", "There are mistakes.")) + T("\nИсправление: ", "\nCorrection: ") + (r.corrected || "—") + "\n" + (r.explanation || "");
     } catch (e) {
-      out.textContent = "ИИ-проверка недоступна. Откройте страницу на claude.ai в Chrome и войдите в аккаунт.";
+      out.textContent = T("ИИ-проверка недоступна. Откройте страницу на claude.ai в Chrome и войдите в аккаунт.", "The AI check is unavailable. Open the page on claude.ai in Chrome and sign in.");
     } finally { btn.disabled = false; }
   });
 
@@ -1265,8 +1445,8 @@
     return sy.getVoices().some((v) => /^kk/i.test(v.lang));
   }
   function speakNote() {
-    if (!window.speechSynthesis) return "В этом окне нет озвучки (так бывает в приложении Claude на телефоне). Откройте страницу в браузере Chrome.";
-    return hasKkVoice() ? "" : "Казахского голоса на устройстве нет: слово прочитает русский голос, звуки ә, ғ, қ, ң, ө, ү, ұ, і будут неточными.";
+    if (!window.speechSynthesis) return T("В этом окне нет озвучки (так бывает в приложении Claude на телефоне). Откройте страницу в браузере Chrome.", "This window has no speech (this happens in the Claude app on a phone). Open the page in the Chrome browser.");
+    return hasKkVoice() ? "" : T("Казахского голоса на устройстве нет: слово прочитает русский голос, звуки ә, ғ, қ, ң, ө, ү, ұ, і будут неточными.", "There is no Kazakh voice on this device: a Russian voice will read the word if one is installed, so the sounds ә, ғ, қ, ң, ө, ү, ұ, і will be inaccurate.");
   }
   const RU_MAP = { "ә": "э", "ғ": "г", "қ": "к", "ң": "н", "ө": "о", "ұ": "у", "ү": "у", "і": "и", "һ": "х" };
   function toRu(t) {
@@ -1280,7 +1460,7 @@
   }
   function speak(text, b) {
     const sy = window.speechSynthesis;
-    if (!sy || typeof SpeechSynthesisUtterance === "undefined") { if (b) flash(b, "Нет звука: откройте в Chrome"); return; }
+    if (!sy || typeof SpeechSynthesisUtterance === "undefined") { if (b) flash(b, T("Нет звука: откройте в Chrome", "No sound: open in Chrome")); return; }
     try { sy.cancel(); } catch (e) {}
     const voices = sy.getVoices ? sy.getVoices() : [];
     const kk = voices.find((x) => /^kk/i.test(x.lang));
@@ -1293,18 +1473,18 @@
     let started = false;
     u.onstart = () => { started = true; };
     u.onend = () => { started = true; };
-    u.onerror = () => { started = true; if (b) flash(b, "Нет звука на устройстве"); };
+    u.onerror = () => { started = true; if (b) flash(b, T("Нет звука на устройстве", "No sound on this device")); };
     sy.speak(u);
-    if (b) setTimeout(() => { if (!started) flash(b, "Нет звука на устройстве"); }, 2500);
+    if (b) setTimeout(() => { if (!started) flash(b, T("Нет звука на устройстве", "No sound on this device")); }, 2500);
   }
   function soundBtn(text) {
-    const b = el("button", "btn small", "▶ Послушать");
+    const b = el("button", "btn small", T("▶ Послушать", "▶ Listen"));
     b.type = "button";
     b.addEventListener("click", () => speak(text, b));
     return b;
   }
   function micBtn(target, out) {
-    const b = el("button", "btn small mic", "🎙 Повторить вслух");
+    const b = el("button", "btn small mic", T("🎙 Повторить вслух", "🎙 Say it aloud"));
     b.type = "button";
     b.dataset.on = "0";
     b.addEventListener("click", () => micCheck(b, target, out));
@@ -1321,16 +1501,17 @@
       throw e;
     });
   }
-  const NO_MIC = "Голосовая проверка здесь недоступна: она не работает в приложении Claude на телефоне, в Safari и Firefox. Откройте страницу в Chrome на компьютере. Пока повторяйте вслух сами.";
+  const noMic = () => T("Голосовая проверка здесь недоступна: она не работает в приложении Claude на телефоне, в Safari и Firefox. Откройте страницу в Chrome на компьютере. Пока повторяйте вслух сами.", "Voice check isn’t available here: it doesn’t work in the Claude phone app, Safari or Firefox. Open the page in Chrome on a computer. For now, repeat aloud on your own.");
+  let noDict = false;
   function micErr(e) {
     const c = e && e.code;
-    if (c === "nomic") return NO_MIC;
-    if (c === "retry") return "Распознавание казахского недоступно. Нажмите ещё раз: сравню по звучанию, оценка будет грубее.";
-    if (c === "not_granted") return "Доступ к микрофону запрещён. Разрешите его в меню Permissions этой страницы и в настройках браузера.";
-    if (c === "dismissed" || c === "stopped") return "Запись отменена. Нажмите кнопку ещё раз.";
-    if (c === "unavailable") return "Голосовой ввод недоступен для этого аккаунта или языка.";
-    if (c === "rate_limited") return "Слишком много попыток подряд. Подождите немного.";
-    return "Не удалось включить микрофон. Попробуйте ещё раз.";
+    if (c === "nomic") return noMic();
+    if (c === "retry") return T("Распознавание казахского недоступно. Нажмите ещё раз: сравню по звучанию, оценка будет грубее.", "Kazakh recognition is unavailable. Press again: I’ll compare by sound, and the score will be rougher.");
+    if (c === "not_granted") return T("Доступ к микрофону запрещён. Разрешите его в меню Permissions этой страницы и в настройках браузера.", "Microphone access is denied. Allow it in this page’s Permissions menu and in the browser settings.");
+    if (c === "dismissed" || c === "stopped") return T("Запись отменена. Нажмите кнопку ещё раз.", "Recording cancelled. Press the button again.");
+    if (c === "unavailable") return T("Голосовой ввод недоступен для этого аккаунта или языка.", "Voice input is unavailable for this account or language.");
+    if (c === "rate_limited") return T("Слишком много попыток подряд. Подождите немного.", "Too many attempts in a row. Wait a little.");
+    return T("Не удалось включить микрофон. Попробуйте ещё раз.", "Couldn’t turn on the microphone. Try again.");
   }
   function spokenScore(said, target) {
     return Math.round(Math.max(Logic.similarity(said, target), Logic.similarity(said, toRu(target))) * 100);
@@ -1343,37 +1524,38 @@
   }
   async function aiTips(target, said) {
     try {
-      const r = await askJSON('Ученик изучает казахский и пытался произнести "' + target + '". Распознано: "' + said + '". Дай один-два коротких совета на русском, как улучшить произношение конкретных звуков казахского (ә, ғ, қ, ң, ө, ү, і, ұ, һ), если они есть в слове. Ответь ТОЛЬКО JSON: {"tips": "..."}');
+      const r = await askJSON(T('Ученик изучает казахский и пытался произнести "' + target + '". Распознано: "' + said + '". Дай один-два коротких совета на русском, как улучшить произношение конкретных звуков казахского (ә, ғ, қ, ң, ө, ү, і, ұ, һ), если они есть в слове. Ответь ТОЛЬКО JSON: {"tips": "..."}',
+        'A learner is studying Kazakh and tried to say "' + target + '". Recognized: "' + said + '". Give one or two short tips in English on how to improve the pronunciation of the specific Kazakh sounds (ә, ғ, қ, ң, ө, ү, і, ұ, һ) if the word has them. Reply with JSON ONLY: {"tips": "..."}'));
       return r.tips || "";
     } catch (e) { return ""; }
   }
   function micCheck(b, target, out) {
     if (!dict) {
       out.hidden = false;
-      out.textContent = NO_MIC;
+      out.textContent = noMic();
       return;
     }
     if (b.dataset.on === "1") {
       b.dataset.on = "0";
-      b.textContent = "🎙 Повторить вслух";
+      b.textContent = T("🎙 Повторить вслух", "🎙 Say it aloud");
       b.classList.remove("listening");
       stopMic().then(async (said) => {
         out.hidden = false;
-        if (!said) { out.textContent = "Ничего не услышал. Скажите слово чётче и медленнее."; return; }
+        if (!said) { out.textContent = T("Ничего не услышал. Скажите слово чётче и медленнее.", "I didn’t hear anything. Say the word more clearly and slowly."); return; }
         const pct = spokenScore(said, target);
-        out.textContent = "Вы сказали: «" + said + "». Совпадение: " + pct + "%. " + (pct >= 60 ? "Хорошо!" : "Попробуйте ещё раз, медленнее.");
+        out.textContent = T("Вы сказали: «", "You said: “") + said + T("». Совпадение: ", "”. Match: ") + pct + "%. " + (pct >= 60 ? T("Хорошо!", "Good!") : T("Попробуйте ещё раз, медленнее.", "Try again, more slowly."));
         const tips = await aiTips(target, said);
         if (tips) out.textContent += "\n" + tips;
       });
     } else {
       b.dataset.on = "1";
-      b.textContent = "■ Стоп";
+      b.textContent = T("■ Стоп", "■ Stop");
       b.classList.add("listening");
       out.hidden = false;
-      out.textContent = "Говорите…";
+      out.textContent = T("Говорите…", "Speak…");
       startMic({ live: (t) => { out.textContent = t; } }).catch((e) => {
         b.dataset.on = "0";
-        b.textContent = "🎙 Повторить вслух";
+        b.textContent = T("🎙 Повторить вслух", "🎙 Say it aloud");
         b.classList.remove("listening");
         out.textContent = micErr(e);
       });
@@ -1384,14 +1566,15 @@
     const d = await getNs("dictation");
     if (!d) {
       $("#pMic").disabled = true; $("#pStop").disabled = true;
-      $("#pNotice").textContent = NO_MIC;
+      noDict = true;
+      $("#pNotice").textContent = noMic();
       return;
     }
     dict = d;
     d.onPartial(({ text }) => { if (micCb && micCb.live) micCb.live((heard + " " + text).trim()); });
     d.onFinal(({ text }) => { heard += " " + text; if (micCb && micCb.live) micCb.live(heard.trim()); });
     d.onState(({ state, reason }) => {
-      if (micCb && state === "idle" && reason === "hidden" && micCb.live) micCb.live("Запись остановлена: вы ушли со вкладки.");
+      if (micCb && state === "idle" && reason === "hidden" && micCb.live) micCb.live(T("Запись остановлена: вы ушли со вкладки.", "Recording stopped: you left the tab."));
     });
   })();
   $("#pMic").addEventListener("click", () => {
@@ -1404,14 +1587,39 @@
     const said = await stopMic();
     const v = $("#pVerdict");
     v.hidden = false;
-    if (!said) { v.textContent = "Ничего не услышал. Говорите чётко."; return; }
+    if (!said) { v.textContent = T("Ничего не услышал. Говорите чётко.", "I didn’t hear anything. Speak clearly."); return; }
     const pct = spokenScore(said, $("#pTarget").value);
-    v.textContent = "Совпадение: " + pct + "%.";
+    v.textContent = T("Совпадение: ", "Match: ") + pct + "%.";
     const tips = await aiTips($("#pTarget").value, said);
     if (tips) v.textContent += " " + tips;
   });
 
+  // ---------- Язык интерфейса ----------
+  const UI_EN = {"brand1":"Kazakh","brand2":"for beginners","streak":"Streak","m_home":"Home","m_plan":"Study plan","m_sched":"Schedule","m_places":"Situations: directions, shop, airport","m_talk":"Conversation: сіз and сен","m_slang":"Youth slang","m_practice":"AI practice","m_res":"Resources","m_about":"About","kicker":"course · 30 days · from zero","t1":"KAZAKH","t2":"for beginners","start":"<span class=\"blink\">►</span> Start learning","q_plan":"Plan","q_places":"Situations","q_talk":"Conversation","q_slang":"Slang","n_h":"WHY THIS SITE?","n_lead":"Kazakh is the <mark>state language</mark> of Kazakhstan. You want to understand it and answer, but starting from zero is hard.","n_small":"Unfamiliar letters, new sounds, cases. The site takes you step by step: <mark>one lesson a day</mark>, and words come back for review until they stick. The course was made by a student who is learning the language herself and <mark>didn’t want to pay for courses</mark>.","s_h":"HOW A LESSON WORKS","f1":"Sounds","f2":"Words","f3":"Exercises","f4":"Review","bubble":"One lesson a day, about 15 minutes. Every 7th day is a weekly review.","info1":"<b>What’s inside:</b> 30 lessons, a day map, a schedule, situations (directions, shop, airport, university, theater, café), small talk about how you are and the weather, polite and friendly speech, youth slang.","info2":"<b>Progress:</b> saved in this browser. No account needed, no paid sections.","h_plan":"Study plan","plan_note":"Tap a day to start. Only the current day and completed days are open. To pass a lesson you need 60% correct answers on the first try.","h_sched":"Schedule","sch_days":"<b>Days of the week</b>","sch_time":"<b>Time</b>","sch_save":"Save","sch_up":"Upcoming lessons","sch_note":"The site doesn’t send reminders. Add the lessons to your phone’s calendar or alarm.","h_places":"Situations","places_p":"Ready-made phrases for talking to people: ask the way, buy something, check a detail, keep a conversation going. The phrases are polite, using “сіз”.","h_talk":"Conversation","talk_p":"With adults use “сіз” and the forms of address “аға”, “апа”, “ақсақал”. With friends “сен” is fine.","seg_adult":"With adults","seg_friend":"With friends","h_slang":"Youth slang","slang_p":"Examples from a Tengrinews article (28 February 2025). Informal speech: it isn’t used with adults or in formal settings.","h_prac":"AI practice","prac_p":"Works on claude.ai in Google Chrome. The rest of the site works without it.","g_h":"Grammar check","g_o1":"With adults (сіз)","g_o2":"With friends (сен)","g_btn":"Check","g_out":"The correction and explanation will appear here.","p_h":"Pronunciation check","p_mic":"Speak","p_stop":"Stop","p_live":"Press “Speak” and allow the microphone.","p_notice":"The score is approximate: recognition accuracy for Kazakh depends on the browser.","h_res":"Resources","r1":"Dictionary: meanings, synonyms and usage examples (in Kazakh).","r2":"Spelling: how to write words correctly.","r3":"Audio, video and texts for listening practice.","r4":"Terms by field, for an advanced level.","h_about":"About","a1":"<b>Who made the site.</b> The site was created by a student who came to study in the Republic of Kazakhstan and is not Kazakh herself. Kazakh is not the author’s native language, so the texts may contain mistakes.","a2":"<b>Not for commercial use.</b> The site is made only for entertainment and educational purposes. There are no ads, paid sections or sales here.","a3":"A learning project for beginners. The site doesn’t replace a teacher and doesn’t issue certificates. The lesson and slang texts should be checked with native speakers. The AI check gives only a rough guide.","a4":"Your data (progress, review intervals, schedule) is stored only in this browser.","set_h":"Settings","set_name":"<b>Name</b>","set_done":"<b>Days completed</b> (if you studied before)","set_save":"Save","set_rp":"Reset progress","set_rs":"Reset schedule","footer":"Kazakh for Beginners · 30 days<br>The site was created by a student who enrolled to study in Kazakhstan and is not Kazakh. Not for commercial use: for entertainment and educational purposes only.","g_ph":"For example: Сіз қайдансыз?","name_ph":"For example: Aidar","a_menu":"Open menu","a_exit":"Leave the lesson","a_mascot":"Pixel teapot","a_streak":"Days in a row","a_quick":"Quick links","a_nav":"Main menu","a_seg":"Who you are talking to","a_greg":"Phrase style","a_ptarget":"Phrase to pronounce"};
+  function applyUI() {
+    const en = LANG === "en";
+    if (document.documentElement) document.documentElement.lang = LANG;
+    document.title = T("Казахский для чайников", "Kazakh for Beginners");
+    $$("[data-i]").forEach((n) => { if (n.dataset.ru == null) n.dataset.ru = n.innerHTML; n.innerHTML = en && UI_EN[n.dataset.i] ? UI_EN[n.dataset.i] : n.dataset.ru; });
+    $$("[data-ip]").forEach((n) => { if (n.dataset.ruP == null) n.dataset.ruP = n.getAttribute("placeholder") || ""; n.setAttribute("placeholder", en && UI_EN[n.dataset.ip] ? UI_EN[n.dataset.ip] : n.dataset.ruP); });
+    $$("[data-ia]").forEach((n) => { if (n.dataset.ruA == null) n.dataset.ruA = n.getAttribute("aria-label") || ""; n.setAttribute("aria-label", en && UI_EN[n.dataset.ia] ? UI_EN[n.dataset.ia] : n.dataset.ruA); });
+    $$(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === LANG)));
+    if (noDict) $("#pNotice").textContent = noMic();
+  }
+  function switchLang(lang) {
+    if (lang === LANG) return;
+    setLang(lang);
+    save(K.lang, LANG);
+    applyUI();
+    renderPhrases(curReg);
+    renderSlang();
+    if (S) { if (S.mode === "practice") startPractice(S.sit); else startLesson(S.day); return; }
+    showView(location.hash.slice(1) || "home");
+  }
+  $$(".lang button").forEach((b) => b.addEventListener("click", () => switchLang(b.dataset.lang)));
+
   // ---------- Старт ----------
+  applyUI();
   renderPhrases("adult");
   renderSlang();
   showView(location.hash.slice(1) || "home");
