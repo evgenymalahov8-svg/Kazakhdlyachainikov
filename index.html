@@ -43,8 +43,11 @@
     <li><a href="#shelf">Выбор языка</a></li>
     <li><a href="#about">О проекте</a></li>
   </ul>
-  <p class="menu-h">Курсы</p>
-  <ul class="menu-list" id="menuCourses"></ul>
+  <p class="menu-h">Помощь</p>
+  <ul class="menu-list">
+    <li><a href="profile/index.html">Профиль</a></li>
+    <li><a href="support/index.html">Чат поддержки</a></li>
+  </ul>
 </nav>
 
 <main>
@@ -110,7 +113,6 @@
   var L = window.LDC, open = L.LANGS.filter(function (l) { return l.status === "open"; });
   // быстрые ссылки и меню
   document.getElementById("quick").innerHTML = open.map(function (l) { return '<a href="' + l.path + '">' + l.name + "</a>"; }).join("") + '<a href="#about">О проекте</a>';
-  document.getElementById("menuCourses").innerHTML = open.map(function (l) { return '<li><a href="' + l.path + '">' + l.course + "</a></li>"; }).join("");
   // приветствие и шкафчик
   var name = (L.profile().name || "").trim();
   if (name) document.getElementById("hello").textContent = "Сәлем, " + name + "! Выбери свой чайник";

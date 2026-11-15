@@ -168,12 +168,11 @@
     }
   }
   function hud() {
-    var l = levelOf(prog.xp);
-    $("#hudLvl").textContent = "LV " + l.lv;
-    $("#hudXp").style.width = l.into + "%";
-    $("#hudStreak").textContent = liveStreak();
+    var st = liveStreak();
+    $("#hudXp").textContent = prog.xp;
+    $("#hudStreak").textContent = st;
+    $("#hudHeart").className = "heart " + (prog.lastDay === today() ? "on" : "off");
   }
-  $("#logoPot").innerHTML = LDC.teapotSVG("en", "Чайник с британским флагом");
 
   // меню
   var menuBtn = $("#menuBtn"), drawer = $("#drawer"), scrim = $("#scrim");
@@ -181,6 +180,7 @@
   menuBtn.addEventListener("click", function () { setMenu(!drawer.classList.contains("open")); });
   scrim.addEventListener("click", function () { setMenu(false); });
   drawer.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu(false); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && drawer.classList.contains("open")) setMenu(false); });
 
   // ---------- маршрутизация ----------
   var S = null; // активная сессия
@@ -247,7 +247,7 @@
       h("p", { class: "note" }, ["XP: " + prog.xp + " · до уровня " + (l.lv + 1) + " осталось " + (100 - l.into) + " XP · серия: " + liveStreak() + " дн."])
     ]);
     function cell(b, s) { return h("div", { class: "cell" }, [h("b", { text: String(b) }), h("span", { text: s })]); }
-    app.appendChild(h("div", { class: "view" }, [h("h1", { class: "h1" }, ["Карта мира"]), h("p", { class: "lead" }, ["Цель курса — уровень A2: понимать простую речь, рассказывать о себе, спрашивать дорогу, говорить о прошлом и планах."]), hero, player]));
+    app.appendChild(h("div", { class: "view" }, [h("div", { class: "city-head" }, [h("h1", { class: "h1" }, ["Карта мира"]), h("p", { class: "lead" }, ["Цель курса — уровень A2: понимать простую речь, рассказывать о себе, спрашивать дорогу, говорить о прошлом и планах."])]), hero, player]));
     var v = app.firstChild;
     EN.worlds.forEach(function (W, wi) {
       var ls = LESSONS.filter(function (L) { return L.world === wi + 1; });
@@ -744,7 +744,7 @@
     var v = h("div", { class: "view" }, [h("h1", { class: "h1" }, ["Грамматика"]), h("p", { class: "lead" }, ["Все правила курса по порядку. Каждое объясняет не только «как», но и «почему». Под каждым правилом — кнопка тренировки."])]);
     LESSONS.forEach(function (L) {
       var det = h("details", { class: "pbox light" }, [
-        h("summary", { style: "cursor:pointer;font-family:var(--px);font-size:19px" }, [L.id + ". " + L.g.t]),
+        h("summary", { style: "cursor:pointer;font-family:var(--px);font-size:11px;line-height:1.7" }, [L.id + ". " + L.g.t]),
         h("div", { class: "rule", html: L.g.html }),
         h("div", { class: "row" }, [h("button", { class: "btn teal", type: "button", onclick: function () { startTrain("Грамматика: " + L.g.t, shuffle(L.g.tasks.map(function (t) { return gramTask(t, L); }).filter(Boolean)), "#grammar"); } }, ["⚔ Потренировать (" + L.g.tasks.length + ")"])])
       ]);

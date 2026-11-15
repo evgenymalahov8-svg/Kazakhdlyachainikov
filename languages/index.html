@@ -27,11 +27,14 @@
   <p class="menu-h">Платформа</p>
   <ul class="menu-list">
     <li><a href="../index.html">Главная</a></li>
-    <li><a href="index.html" aria-current="page">Выбор языка</a></li>
+    <li><a href="../index.html#shelf" aria-current="page">Выбор языка</a></li>
     <li><a href="../index.html#about">О проекте</a></li>
   </ul>
-  <p class="menu-h">Курсы</p>
-  <ul class="menu-list" id="menuCourses"></ul>
+  <p class="menu-h">Помощь</p>
+  <ul class="menu-list">
+    <li><a href="../profile/index.html">Профиль</a></li>
+    <li><a href="../support/index.html">Чат поддержки</a></li>
+  </ul>
 </nav>
 
 <main>
@@ -54,7 +57,6 @@
 (function () {
   var L = window.LDC;
   L.renderShelf(document.getElementById("shelfBox"), "../");
-  document.getElementById("menuCourses").innerHTML = L.LANGS.filter(function (l) { return l.status === "open"; }).map(function (l) { return '<li><a href="../' + l.path + '">' + l.course + "</a></li>"; }).join("");
   var burger = document.getElementById("burger"), drawer = document.getElementById("menu"), scrim = document.getElementById("scrim");
   function setMenu(o) { drawer.classList.toggle("open", o); scrim.hidden = !o; burger.setAttribute("aria-expanded", String(o)); burger.setAttribute("aria-label", o ? "Закрыть меню" : "Открыть меню"); }
   burger.addEventListener("click", function () { setMenu(!drawer.classList.contains("open")); });
