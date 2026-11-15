@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Английский для чайников — английский с нуля за 30 уровней</title>
+<meta name="description" content="Английский для чайников: бесплатный курс английского с нуля до уровня A2 за 30 уровней. Слова с транскрипцией IPA, британское и американское произношение, грамматика с объяснениями на русском, аудирование и практика. Часть некоммерческого проекта «Языки для чайников».">
+<meta name="keywords" content="английский для чайников, английский с нуля, английский для начинающих, транскрипция IPA, языки для чайников">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="Английский для чайников">
+<meta property="og:description" content="Английский с нуля в стиле пиксельной RPG: 30 уровней, IPA, аудирование, практика.">
+<meta property="og:locale" content="ru_RU">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../assets/portal.css">
+</head>
+<body>
+<div class="pf-bar"><a href="../">Языки для чайников</a><span class="sep">›</span><span>Английский</span><a class="pf-switch" href="../languages/">Сменить язык</a></div>
+<header class="hud">
+  <a class="logo" href="#map" aria-label="Английский для чайников — карта">
+    <span id="logoPot"></span>
+    <span><b>ENGLISH</b><small>для чайников</small></span>
+  </a>
+  <div class="stats">
+    <span class="stat" title="Уровень игрока"><i aria-hidden="true">★</i><span id="hudLvl">LV 1</span><span class="xpbar hide-sm" aria-hidden="true"><span id="hudXp" style="width:0"></span></span></span>
+    <span class="stat hide-sm" title="Дней подряд"><i aria-hidden="true">🔥</i><span id="hudStreak">0</span></span>
+  </div>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="drawer" aria-label="Открыть меню"><span></span></button>
+</header>
+<div class="scrim" id="scrim" hidden></div>
+<nav class="drawer" id="drawer" aria-label="Меню курса">
+  <h2>Путь</h2>
+  <a href="#map"><span class="ic">🗺</span>Карта уровней</a>
+  <a href="#practice"><span class="ic">⚔</span>Тренировка и ошибки</a>
+  <a href="#cards"><span class="ic">🃏</span>Карточки слов</a>
+  <h2>Справочник</h2>
+  <a href="#words"><span class="ic">📖</span>Словарь</a>
+  <a href="#grammar"><span class="ic">📜</span>Грамматика</a>
+  <a href="#sounds"><span class="ic">🔊</span>Звуки и IPA</a>
+  <a href="#listen"><span class="ic">🎧</span>Аудирование</a>
+  <h2>Игрок</h2>
+  <a href="#profile"><span class="ic">⚙</span>Профиль и настройки</a>
+  <a href="#about"><span class="ic">ℹ</span>О курсе</a>
+  <h2>Платформа</h2>
+  <a href="../languages/"><span class="ic">←</span>Все языки</a>
+  <a href="../"><span class="ic">⌂</span>Языки для чайников</a>
+</nav>
+
+<main id="app" aria-live="polite"></main>
+
+<footer>
+  Английский для чайников · часть проекта <a href="../">«Языки для чайников»</a><br>
+  Сайт создан студенткой, поступившей в РК и не являющейся казашкой. Не для коммерческого использования: только для развлекательных и познавательных целей.<br>
+  Автор: Сулустанова Анжелина.
+</footer>
+
+<script src="../assets/platform.js"></script>
+<script src="data1.js"></script>
+<script src="data2.js"></script>
+<script src="data3.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
