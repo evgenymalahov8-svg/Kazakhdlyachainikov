@@ -44,31 +44,57 @@
     ja: function (x, y, w, h) { var dx = x - (w - 1) / 2, dy = y - (h - 1) / 2; return dx * dx + dy * dy <= 5 ? "#bc002d" : "#ffffff"; }
   };
 
-  // ---------- Пиксельный чайник: чёрный маскот + флажок на древке ----------
-  // Сетка 32×32: флаг 14×8 в рамке, древко стоит на крышке, ниже — маскот казахского курса в масштабе 2:1.
-  var TW = 32, TH = 32;
-  var MASCOT = [[7,0,2,1],[5,1,6,1],[4,2,8,1],[3,3,10,4],[4,7,8,1],[5,8,6,1],[1,3,2,1],[1,4,1,2],[1,6,2,1],[13,4,1,2],[14,3,1,2],[15,2,1,2]];
+  // ---------- Пиксельный чайник 24×18 ----------
+  // Корпус — эллипс; внутри него флаг; глаза и ротик поверх.
+  var TW = 24, TH = 18;
+  function teapotGrid(langId) {
+    var g = [], x, y, flag = FLAGS[langId] || FLAGS.kz;
+    for (y = 0; y < TH; y++) { g.push([]); for (x = 0; x < TW; x++) g[y].push(null); }
+    var bx0 = 5, bx1 = 18, by0 = 5, by1 = 15; // корпус
+    var cx = (bx0 + bx1) / 2, cy = (by0 + by1) / 2, rx = (bx1 - bx0) / 2 + 0.5, ry = (by1 - by0) / 2 + 0.5;
+    var inBody = function (x, y) { var a = (x - cx) / rx, b = (y - cy) / ry; return a * a + b * b <= 1; };
+    for (y = by0; y <= by1; y++) for (x = bx0; x <= bx1; x++) if (inBody(x, y)) g[y][x] = "o";
+    // контур: пиксели корпуса у края
+    var fx0 = 99, fx1 = -1, fy0 = 99, fy1 = -1;
+    for (y = by0; y <= by1; y++) for (x = bx0; x <= bx1; x++) {
+      if (!g[y][x]) continue;
+      var edge = !inBody(x - 1, y) || !inBody(x + 1, y) || !inBody(x, y - 1) || !inBody(x, y + 1);
+      if (!edge) { g[y][x] = "f"; fx0 = Math.min(fx0, x); fx1 = Math.max(fx1, x); fy0 = Math.min(fy0, y); fy1 = Math.max(fy1, y); }
+    }
+    var fw = fx1 - fx0 + 1, fh = fy1 - fy0 + 1;
+    for (y = fy0; y <= fy1; y++) for (x = fx0; x <= fx1; x++) if (g[y][x] === "f") g[y][x] = flag(x - fx0, y - fy0, fw, fh);
+    for (y = 0; y < TH; y++) for (x = 0; x < TW; x++) if (g[y][x] === "o") g[y][x] = "#111111";
+    // крышка и шишечка
+    for (x = 10; x <= 13; x++) g[1][x] = "#111111";
+    for (x = 8; x <= 15; x++) { g[2][x] = "#111111"; g[3][x] = "#111111"; }
+    g[0][11] = g[0][12] = "#111111";
+    for (x = 9; x <= 14; x++) g[3][x] = x === 9 || x === 14 ? "#111111" : "#f0479a";
+    // ручка слева
+    [[4, 7], [3, 7], [2, 7], [2, 8], [1, 8], [1, 9], [1, 10], [1, 11], [2, 11], [2, 12], [3, 12], [4, 12], [3, 8], [2, 9], [2, 10], [3, 11]].forEach(function (p) { if (!g[p[1]][p[0]]) g[p[1]][p[0]] = "#111111"; });
+    [[2, 9], [2, 10]].forEach(function (p) { g[p[1]][p[0]] = null; });
+    // носик справа
+    [[19, 10], [19, 11], [20, 9], [20, 10], [21, 8], [21, 9], [22, 6], [22, 7], [22, 8], [23, 6]].forEach(function (p) { g[p[1]][p[0]] = "#111111"; });
+    // лицо
+    var ey = Math.round(cy) - 1;
+    [[9, ey], [14, ey]].forEach(function (p) { g[p[1]][p[0]] = "#ffffff"; g[p[1] + 1][p[0]] = "#111111"; });
+    g[ey + 3][11] = g[ey + 3][12] = "#f0479a";
+    // донышко
+    for (x = 8; x <= 15; x++) g[16][x] = "#111111";
+    for (x = 9; x <= 14; x++) g[17][x] = "rgba(0,0,0,.25)";
+    return g;
+  }
   function teapotSVG(langId, label) {
-    var flag = FLAGS[langId] || FLAGS.kz, parts = [], OY = 12;
-    function r(x, y, w, h, c) { parts.push('<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + c + '"/>'); }
-    // древко и рамка флага
-    r(14, 0, 2, 12, "#5a3a1a"); r(14, 0, 2, 1, "#ffd23f");
-    r(16, 0, 16, 10, "#111111");
-    var fw = 14, fh = 8, x, y;
-    for (y = 0; y < fh; y++) {
-      x = 0;
-      while (x < fw) {
-        var c = flag(x, y, fw, fh), s0 = x;
-        while (x < fw && flag(x, y, fw, fh) === c) x++;
-        r(17 + s0, 1 + y, x - s0, 1, c);
+    var g = teapotGrid(langId), parts = [];
+    for (var y = 0; y < TH; y++) {
+      var x = 0;
+      while (x < TW) {
+        var c = g[y][x];
+        if (!c) { x++; continue; }
+        var s = x; while (x < TW && g[y][x] === c) x++;
+        parts.push('<rect x="' + s + '" y="' + y + '" width="' + (x - s) + '" height="1" fill="' + c + '"/>');
       }
     }
-    // чайник
-    MASCOT.forEach(function (m) { r(m[0] * 2, OY + m[1] * 2, m[2] * 2, m[3] * 2, "#111111"); });
-    r(12, OY + 8, 2, 2, "#ffffff"); r(18, OY + 8, 2, 2, "#ffffff");
-    r(14, OY + 12, 4, 2, "#f0479a");
-    r(10, OY + 18, 12, 2, "rgba(0,0,0,.18)");
-    return '<svg class="tp-svg" viewBox="0 0 ' + TW + " " + (TH - 2) + '" shape-rendering="crispEdges" role="img" aria-label="' + (label || "Пиксельный чайник") + '">' + parts.join("") + "</svg>";
+    return '<svg class="tp-svg" viewBox="0 0 ' + TW + " " + TH + '" shape-rendering="crispEdges" role="img" aria-label="' + (label || "Пиксельный чайник") + '">' + parts.join("") + "</svg>";
   }
 
   // ---------- Хранилище ----------
@@ -275,9 +301,10 @@
       }
       pot.className = "shelf-pot";
       var p = open ? progressOf(l) : null;
-      pot.innerHTML = '<span class="pot-tag">' + (open ? "Открыт" : "Скоро") + "</span>" + teapotSVG(l.id, l.name) +
+      pot.innerHTML = teapotSVG(l.id, l.name) +
         '<span class="plate"><b>' + l.name + '</b><i lang="' + (l.id === "kz" ? "kk" : l.id === "more" ? "ru" : l.id) + '">' + l.hello + "</i>" +
-        (p ? '<em>' + (p.done ? "Пройдено " + p.done + "/" + p.total : "Начать с нуля") + "</em>" : open ? "" : "<em>" + (l.id === "more" ? "добавим позже" : "курс готовится") + "</em>") + "</span>";
+        '<small>' + (open ? l.note : l.id === "more" ? "Скоро новый вкус…" : "Пока заваривается…") + "</small>" +
+        '<em>' + (open ? (p && p.done ? "Продолжить · " + p.done + "/" + p.total + " →" : "Начать приключение →") : "Скоро") + "</em></span>";
       slot.appendChild(pot);
       grid.appendChild(slot);
     });
