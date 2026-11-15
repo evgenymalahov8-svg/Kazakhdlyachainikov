@@ -299,3 +299,5 @@ textarea.sess-input { font-size: 17px; line-height: 1.5; resize: vertical; }
 .prog-body { padding: 4px 16px 14px; }
 .prog-days { margin: 8px 0 0; padding-left: 2.6em; line-height: 1.7; }
 .op-box .btn { margin-top: 4px; }
+.unit.w6 { background: linear-gradient(#e9fbe6, #b9ecc9); }
+.prog-mod.ready .cefr { background: var(--green); color: var(--white); }
