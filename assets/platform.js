@@ -8,10 +8,10 @@
   // ---------- Реестр языков ----------
   // status: "open" — курс есть; "soon" — карточка «скоро».
   var LANGS = [
-    { id: "kz", name: "Казахский", course: "Казахский для чайников", path: "kazakh/", status: "open",
+    { id: "kz", name: "Казахский", course: "Казахский для чайников", path: "kazakh/index.html", status: "open",
       hello: "Сәлем!", note: "30 дней с нуля, словарь, сленг, ситуации",
       progress: { key: "kz_v3_progress", field: "done", total: 30 }, theme: "#6fc6f2" },
-    { id: "en", name: "Английский", course: "Английский для чайников", path: "english/", status: "open",
+    { id: "en", name: "Английский", course: "Английский для чайников", path: "english/index.html", status: "open",
       hello: "Hello!", note: "30 уровней с нуля, IPA, британский и американский",
       progress: { key: "en_v1_progress", field: "done", total: 30 }, theme: "#1b1f4b" },
     { id: "de", name: "Немецкий", course: "Немецкий для чайников", path: "", status: "soon", hello: "Hallo!", theme: "#ffce00" },
