@@ -466,3 +466,34 @@
 @keyframes tpHit { 0% { transform: scale(1); } 30% { transform: scale(1.18, .82); } 60% { transform: scale(.9, 1.12) translateY(-8px); } 100% { transform: scale(1); } }
 .choose-foot { margin-top: 34px; font-size: 13px; color: #b9b6dc; }
 .choose-foot a { color: var(--yellow); }
+
+/* ---- Пиксельный шкафчик с чайниками-языками ---- */
+.shelf-band { text-align: center; }
+.shelf-band .h-shelf { font-family: var(--pixel); font-size: clamp(16px, 3.4vw, 24px); line-height: 1.5; margin: 0 0 8px; }
+.shelf-band .sub-shelf { max-width: 560px; margin: 0 auto 34px; color: var(--muted); }
+.cupboard { position: relative; max-width: 720px; margin: 30px auto 34px; padding: 0 14px 14px; background: #a8683d; border: 4px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); }
+.cupboard::before { content: ""; position: absolute; left: -16px; right: -16px; top: -24px; height: 16px; background: #8f5630; border: 4px solid var(--ink); box-shadow: inset 0 4px 0 #c98852; }
+.cupboard .feet { position: absolute; left: 10px; right: 10px; bottom: -22px; height: 18px; pointer-events: none; }
+.cupboard .feet::before, .cupboard .feet::after { content: ""; position: absolute; bottom: 0; width: 22px; height: 18px; background: #8f5630; border: 4px solid var(--ink); border-top: 0; }
+.cupboard .feet::before { left: 0; } .cupboard .feet::after { right: 0; }
+.shelf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 12px; padding-top: 14px; }
+@media (max-width: 560px) { .shelf-grid { grid-template-columns: repeat(2, 1fr); gap: 0 10px; } .cupboard { padding: 0 10px 10px; } }
+.slot { position: relative; background: #f6e3c4; box-shadow: inset 6px 6px 0 rgba(120, 70, 30, .18); padding: 18px 6px 0; margin-bottom: 14px; display: flex; align-items: flex-end; justify-content: center; min-height: 190px; }
+.slot::after { content: ""; position: absolute; left: -6px; right: -6px; bottom: -14px; height: 14px; background: #8f5630; border-top: 4px solid #c98852; border-bottom: 4px solid var(--ink); }
+.shelf-pot { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none; color: var(--ink); padding: 8px 4px 8px; width: 100%; cursor: pointer; }
+.shelf-pot .tp-svg { width: 112px; height: 84px; image-rendering: pixelated; transition: transform .12s steps(2), filter .12s; }
+.slot:not(.is-soon) .shelf-pot .tp-svg { animation: bob 1.4s steps(2) infinite; }
+.slot:nth-child(2n) .shelf-pot .tp-svg { animation-delay: .7s; }
+.shelf-pot:hover .tp-svg, .shelf-pot:focus-visible .tp-svg { transform: translateY(-6px); filter: drop-shadow(0 0 6px #ffe45c) drop-shadow(0 0 2px #fff); }
+.shelf-pot:focus-visible { outline: 3px dashed var(--pink); outline-offset: -3px; }
+.plate { display: grid; gap: 2px; background: var(--white); border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); padding: 5px 8px; min-width: 120px; }
+.plate b { font-family: var(--pixel); font-size: 10px; line-height: 1.5; }
+.plate i { font-style: normal; font-family: var(--pixel); font-size: 8px; color: var(--pink); }
+.plate em { font-style: normal; font-size: 12px; font-weight: 700; color: #2e9a3a; }
+.pot-tag { position: absolute; top: -10px; right: 2px; z-index: 1; font-family: var(--pixel); font-size: 7px; background: var(--pink); color: var(--white); border: 3px solid var(--ink); padding: 4px 5px; transform: rotate(6deg); }
+.slot.is-soon .shelf-pot { cursor: default; }
+.slot.is-soon .tp-svg { filter: grayscale(.45) opacity(.75); }
+.slot.is-soon .shelf-pot:hover .tp-svg { transform: none; filter: grayscale(.45) opacity(.75); }
+.slot.is-soon .pot-tag { background: #8b87b3; }
+.slot.is-soon .plate em { color: var(--muted); }
+@media (max-width: 380px) { .shelf-pot .tp-svg { width: 92px; height: 69px; } .plate { min-width: 0; width: 100%; } .slot { min-height: 170px; } }

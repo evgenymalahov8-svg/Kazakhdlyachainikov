@@ -8,7 +8,7 @@
   // Старые ссылки казахского курса (/#plan, /#words …) ведут в его новый раздел.
   (function () {
     var h = location.hash.slice(1);
-    if (h && h !== "home" && h !== "top" && /^[a-z0-9-]+$/i.test(h)) location.replace("kazakh/index.html#" + h);
+    if (h && ["home", "top", "shelf", "about"].indexOf(h) < 0 && /^[a-z0-9-]+$/i.test(h)) location.replace("kazakh/index.html#" + h);
   })();
 </script>
 <meta name="google-site-verification" content="9FLcp8ronQXt1HrMMBbQ4hMsTtxATs3dVO6RfaXjYgo" />
@@ -29,7 +29,7 @@
 <header class="top">
   <a class="brand" href="index.html"><span>Языки</span><span>для чайников</span></a>
   <nav class="top-nav" aria-label="Разделы">
-    <a href="languages/index.html">Выбрать язык</a>
+    <a href="#shelf">Выбрать язык</a>
   </nav>
   <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Открыть меню">
     <span></span><span></span><span></span>
@@ -40,7 +40,7 @@
   <p class="menu-h">Платформа</p>
   <ul class="menu-list">
     <li><a href="index.html" aria-current="page">Главная</a></li>
-    <li><a href="languages/index.html">Выбор языка</a></li>
+    <li><a href="#shelf">Выбор языка</a></li>
     <li><a href="#about">О проекте</a></li>
   </ul>
   <p class="menu-h">Курсы</p>
@@ -52,15 +52,22 @@
     <div class="band sky">
       <p class="kicker">курсы · с нуля · бесплатно</p>
       <h1 class="mega"><span class="gold">ЯЗЫКИ</span><span class="sub">для чайников</span></h1>
-      <div class="mascots" id="mascots" aria-hidden="true"></div>
-      <div><a class="btn start" href="languages/index.html"><span class="blink">►</span> Выбрать язык</a></div>
+      <svg class="mascot" viewBox="0 0 16 10" shape-rendering="crispEdges" role="img" aria-label="Пиксельный чайник">
+        <g fill="#111"><rect x="7" y="0" width="2" height="1"/><rect x="5" y="1" width="6" height="1"/><rect x="4" y="2" width="8" height="1"/><rect x="3" y="3" width="10" height="4"/><rect x="4" y="7" width="8" height="1"/><rect x="5" y="8" width="6" height="1"/>
+        <rect x="1" y="3" width="2" height="1"/><rect x="1" y="4" width="1" height="2"/><rect x="1" y="6" width="2" height="1"/>
+        <rect x="13" y="4" width="1" height="2"/><rect x="14" y="3" width="1" height="2"/><rect x="15" y="2" width="1" height="2"/></g>
+        <g fill="#fff"><rect x="6" y="4" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/></g>
+        <rect x="7" y="6" width="2" height="1" fill="#f0479a"/>
+      </svg>
+      <div><a class="btn start" href="#shelf"><span class="blink">►</span> Выбрать язык</a></div>
       <nav class="quick" aria-label="Курсы" id="quick"></nav>
     </div>
     <div class="px-edge e-sky-paper" aria-hidden="true"></div>
 
-    <div class="band plain">
-      <p class="lead-home" id="hello">Привет! Здесь твои курсы.</p>
-      <div class="course-cards" id="courses"></div>
+    <div class="band plain shelf-band" id="shelf">
+      <h2 class="h-shelf" id="hello">Сәлем! Hello! Выбери свой чайник</h2>
+      <p class="sub-shelf">У каждого языка свой чайник с флагом. Нажми на открытый — и портал перенесёт тебя в курс. Прогресс по каждому языку хранится отдельно.</p>
+      <div class="cupboard"><div id="shelfBox"></div><span class="feet" aria-hidden="true"></span></div>
     </div>
 
     <div class="px-edge e-paper-night" aria-hidden="true"></div>
@@ -86,11 +93,11 @@
     <div class="px-edge e-sun" aria-hidden="true"></div>
     <div class="band plain">
       <div class="info-list">
-        <div><b>Курсы:</b> «Казахский для чайников» и «Английский для чайников». Немецкий, французский и японский появятся позже.</div>
+        <div><b>Курсы:</b> «Казахский для чайников» и «Английский для чайников». Немецкий, испанский, японский и другие языки появятся позже.</div>
         <div><b>Прогресс:</b> сохраняется в этом браузере, отдельно для каждого языка, и не синхронизируется между устройствами. Платных разделов нет.</div>
         <div><b>Кто сделал:</b> студентка, которая поступила учиться в Республику Казахстан и сама не казашка. Казахский и английский для автора не родные, поэтому в текстах возможны ошибки. Сайт не заменяет учителя и не выдаёт сертификатов.</div>
       </div>
-      <div style="text-align:center;margin-top:26px"><a class="btn start" href="languages/index.html"><span class="blink">►</span> Выбрать язык</a></div>
+      <div style="text-align:center;margin-top:26px"><a class="btn start" href="#shelf"><span class="blink">►</span> Выбрать язык</a></div>
     </div>
   </section>
 </main>
@@ -101,24 +108,14 @@
 <script>
 (function () {
   var L = window.LDC, open = L.LANGS.filter(function (l) { return l.status === "open"; });
-  // маскоты
-  document.getElementById("mascots").innerHTML = open.map(function (l) { return L.teapotSVG(l.id, l.name); }).join("");
   // быстрые ссылки и меню
-  document.getElementById("quick").innerHTML = open.map(function (l) { return '<a href="' + l.path + '">' + l.course + "</a>"; }).join("");
+  document.getElementById("quick").innerHTML = open.map(function (l) { return '<a href="' + l.path + '">' + l.name + "</a>"; }).join("") + '<a href="#about">О проекте</a>';
   document.getElementById("menuCourses").innerHTML = open.map(function (l) { return '<li><a href="' + l.path + '">' + l.course + "</a></li>"; }).join("");
-  // приветствие
+  // приветствие и шкафчик
   var name = (L.profile().name || "").trim();
-  if (name) document.getElementById("hello").textContent = "Привет, " + name + "! Здесь твои курсы.";
-  // карточки курсов с настоящим прогрессом
-  document.getElementById("courses").innerHTML = open.map(function (l) {
-    var p = L.progressOf(l), pct = p ? Math.round(p.done / p.total * 100) : 0;
-    var started = p && p.done > 0;
-    return '<div class="card course-card">' + L.teapotSVG(l.id, l.name) +
-      '<div><h3>' + l.course + '</h3><p class="muted">' + l.note + '</p>' +
-      '<div class="pbar" role="progressbar" aria-valuemin="0" aria-valuemax="' + p.total + '" aria-valuenow="' + p.done + '" aria-label="Пройдено уроков"><i style="width:' + pct + '%"></i></div>' +
-      '<p class="notice-small">Пройдено: ' + p.done + ' из ' + p.total + '</p>' +
-      '<a class="btn small primary" href="' + l.path + '">► ' + (started ? "Продолжить" : "Начать") + '</a></div></div>';
-  }).join("");
+  if (name) document.getElementById("hello").textContent = "Сәлем, " + name + "! Выбери свой чайник";
+  L.renderShelf(document.getElementById("shelfBox"), "");
+  window.addEventListener("pageshow", function () { var x = document.querySelectorAll(".portal-layer"); for (var i = 0; i < x.length; i++) x[i].remove(); var h = document.querySelectorAll(".tp-hit"); for (var j = 0; j < h.length; j++) h[j].classList.remove("tp-hit"); });
   // меню
   var burger = document.getElementById("burger"), drawer = document.getElementById("menu"), scrim = document.getElementById("scrim");
   function setMenu(o) { drawer.classList.toggle("open", o); scrim.hidden = !o; burger.setAttribute("aria-expanded", String(o)); burger.setAttribute("aria-label", o ? "Закрыть меню" : "Открыть меню"); }

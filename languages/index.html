@@ -34,47 +34,26 @@
   <ul class="menu-list" id="menuCourses"></ul>
 </nav>
 
-<main class="choose">
-  <h1 class="mega2"><span class="gold">ВЫБЕРИ ЧАЙНИК</span></h1>
-  <p class="choose-sub">У каждого языка свой чайник. Нажми на него — и портал перенесёт тебя в курс.</p>
-  <div class="pots" id="pots"></div>
-  <p class="choose-foot">Прогресс по каждому языку хранится отдельно. Анимацию можно пропустить кнопкой «Пропустить» или клавишей Esc. <a href="../index.html">← На главную</a></p>
+<main>
+  <div class="band sky">
+    <p class="kicker">выбор языка</p>
+    <h1 class="mega"><span class="gold">ЧАЙНИКИ</span><span class="sub">выбери свой язык</span></h1>
+  </div>
+  <div class="px-edge e-sky-paper" aria-hidden="true"></div>
+  <div class="band plain shelf-band">
+    <p class="sub-shelf">У каждого языка свой чайник с флагом. Нажми на открытый — и портал перенесёт тебя в курс. Анимацию можно пропустить кнопкой «Пропустить» или клавишей Esc.</p>
+    <div class="cupboard"><div id="shelfBox"></div><span class="feet" aria-hidden="true"></span></div>
+    <p><a class="btn small" href="../index.html">← На главную</a></p>
+  </div>
 </main>
+<div class="orn-strip" aria-hidden="true"></div>
+<footer>Языки для чайников · не для коммерческого использования: только для развлекательных и познавательных целей.<br>Автор: Сулустанова Анжелина.</footer>
 
 <script src="../assets/platform.js"></script>
 <script>
 (function () {
-  var L = window.LDC, box = document.getElementById("pots");
-  L.LANGS.forEach(function (l) {
-    var open = l.status === "open", node;
-    if (open) {
-      node = document.createElement("a");
-      node.href = "../" + l.path;
-      node.setAttribute("aria-label", l.course + ": открыть курс");
-    } else {
-      node = document.createElement("div");
-      node.setAttribute("aria-label", l.course + ": скоро");
-    }
-    node.className = "pot" + (open ? "" : " soon");
-    var p = open ? L.progressOf(l) : null;
-    node.innerHTML = L.teapotSVG(l.id, l.name) +
-      '<span class="pot-name">' + l.name + "</span>" +
-      '<span class="pot-hello" lang="' + (l.id === "kz" ? "kk" : l.id) + '">' + l.hello + "</span>" +
-      '<span class="pot-note">' + (open ? l.note : "Курс готовится") + "</span>" +
-      (p ? '<span class="pot-prog">' + (p.done ? "Пройдено " + p.done + " / " + p.total : "Начать с нуля") + "</span>" : "") +
-      '<span class="pot-badge">' + (open ? "Открыт" : "Скоро") + "</span>";
-    if (open) {
-      node.style.textDecoration = "none";
-      node.addEventListener("click", function (e) {
-        // обычный клик — через портал; Ctrl/⌘-клик и средняя кнопка — как обычная ссылка
-        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
-        e.preventDefault();
-        if (document.querySelector(".portal-layer")) return;
-        L.portal(node, node.href, { color: l.theme });
-      });
-    }
-    box.appendChild(node);
-  });
+  var L = window.LDC;
+  L.renderShelf(document.getElementById("shelfBox"), "../");
   document.getElementById("menuCourses").innerHTML = L.LANGS.filter(function (l) { return l.status === "open"; }).map(function (l) { return '<li><a href="../' + l.path + '">' + l.course + "</a></li>"; }).join("");
   var burger = document.getElementById("burger"), drawer = document.getElementById("menu"), scrim = document.getElementById("scrim");
   function setMenu(o) { drawer.classList.toggle("open", o); scrim.hidden = !o; burger.setAttribute("aria-expanded", String(o)); burger.setAttribute("aria-label", o ? "Закрыть меню" : "Открыть меню"); }

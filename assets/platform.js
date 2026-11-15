@@ -15,8 +15,9 @@
       hello: "Hello!", note: "30 уровней с нуля, IPA, британский и американский",
       progress: { key: "en_v1_progress", field: "done", total: 30 }, theme: "#1b1f4b" },
     { id: "de", name: "Немецкий", course: "Немецкий для чайников", path: "", status: "soon", hello: "Hallo!", theme: "#ffce00" },
-    { id: "fr", name: "Французский", course: "Французский для чайников", path: "", status: "soon", hello: "Salut !", theme: "#0055a4" },
-    { id: "ja", name: "Японский", course: "Японский для чайников", path: "", status: "soon", hello: "こんにちは", theme: "#bc002d" }
+    { id: "es", name: "Испанский", course: "Испанский для чайников", path: "", status: "soon", hello: "¡Hola!", theme: "#f1bf00" },
+    { id: "ja", name: "Японский", course: "Японский для чайников", path: "", status: "soon", hello: "こんにちは", theme: "#bc002d" },
+    { id: "more", name: "Новый язык", course: "", path: "", status: "soon", hello: "…", theme: "#a77bff" }
   ];
 
   // ---------- Флаги (функция цвета для пикселя x,y в поле w×h) ----------
@@ -38,6 +39,8 @@
     },
     de: function (x, y, w, h) { var b = Math.floor(y * 3 / h); return ["#111111", "#dd0000", "#ffce00"][b]; },
     fr: function (x, y, w, h) { var b = Math.floor(x * 3 / w); return ["#0055a4", "#ffffff", "#ef4135"][b]; },
+    es: function (x, y, w, h) { var q = y / h; return q < 0.25 || q >= 0.75 ? "#aa151b" : (x === 2 && y === Math.floor(h / 2) ? "#aa151b" : "#f1bf00"); },
+    more: function (x, y, w, h) { return ["#ff6fa5", "#ffd23f", "#7ee07b", "#59b8ff", "#a77bff"][Math.floor(y * 5 / h)]; },
     ja: function (x, y, w, h) { var dx = x - (w - 1) / 2, dy = y - (h - 1) / 2; return dx * dx + dy * dy <= 5 ? "#bc002d" : "#ffffff"; }
   };
 
@@ -268,5 +271,40 @@
     requestAnimationFrame(frame);
   }
 
-  window.LDC = { LANGS: LANGS, FLAGS: FLAGS, teapotSVG: teapotSVG, portal: portal, arrive: arrive, profile: profile, setProfile: setProfile, progressOf: progressOf, load: load, save: save };
+  // ---------- Пиксельный шкафчик с чайниками ----------
+  // base — путь к корню сайта от текущей страницы ("" или "../").
+  function renderShelf(box, base) {
+    box.innerHTML = "";
+    var grid = document.createElement("div");
+    grid.className = "shelf-grid";
+    LANGS.forEach(function (l) {
+      var open = l.status === "open", slot = document.createElement("div");
+      slot.className = "slot" + (open ? "" : " is-soon");
+      var pot;
+      if (open) {
+        pot = document.createElement("a");
+        pot.href = base + l.path;
+        pot.setAttribute("aria-label", l.course + ": открыть курс");
+        pot.addEventListener("click", function (e) {
+          if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+          e.preventDefault();
+          if (document.querySelector(".portal-layer")) return;
+          portal(pot, pot.href, { color: l.theme });
+        });
+      } else {
+        pot = document.createElement("div");
+        pot.setAttribute("aria-label", (l.course || l.name) + ": скоро");
+      }
+      pot.className = "shelf-pot";
+      var p = open ? progressOf(l) : null;
+      pot.innerHTML = '<span class="pot-tag">' + (open ? "Открыт" : "Скоро") + "</span>" + teapotSVG(l.id, l.name) +
+        '<span class="plate"><b>' + l.name + '</b><i lang="' + (l.id === "kz" ? "kk" : l.id === "more" ? "ru" : l.id) + '">' + l.hello + "</i>" +
+        (p ? '<em>' + (p.done ? "Пройдено " + p.done + "/" + p.total : "Начать с нуля") + "</em>" : open ? "" : "<em>" + (l.id === "more" ? "добавим позже" : "курс готовится") + "</em>") + "</span>";
+      slot.appendChild(pot);
+      grid.appendChild(slot);
+    });
+    box.appendChild(grid);
+  }
+
+  window.LDC = { renderShelf: renderShelf, LANGS: LANGS, FLAGS: FLAGS, teapotSVG: teapotSVG, portal: portal, arrive: arrive, profile: profile, setProfile: setProfile, progressOf: progressOf, load: load, save: save };
 })();

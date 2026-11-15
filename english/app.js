@@ -616,7 +616,7 @@
   }
   function mistakesList(ms) {
     var seen = {}, list = ms.filter(function (m) { var k = m.q + "|" + m.right; if (seen[k]) return false; seen[k] = 1; return true; }).slice(0, 8);
-    return h("div", { class: "pbox light", style: "text-align:left;margin-top:16px" }, [h("h3", { class: "h2", style: "color:#1a9c88" }, ["Разбор ошибок"])].concat(list.map(function (m) {
+    return h("div", { class: "pbox light", style: "text-align:left;margin-top:16px" }, [h("h3", { class: "h2", style: "color:var(--blue)" }, ["Разбор ошибок"])].concat(list.map(function (m) {
       return h("p", {}, [h("span", { class: "muted" }, [m.q === "🔊" ? "На слух" : m.q]), " → ", h("b", { lang: "en" }, [m.right || "—"])]);
     })));
   }
@@ -713,7 +713,7 @@
         card.appendChild(h("div", {}, [h("p", { class: "note" }, ["Карточка " + (CS.i + 1) + " из " + CS.list.length + " · нажмите, чтобы перевернуть"]), h("div", { class: "q-big", style: "color:#1c1a33;text-shadow:none", lang: front ? "en" : "ru" }, [front ? w.en : w.ru])]));
         if (front) speak(w.en);
       } else {
-        card.appendChild(h("div", {}, [h("div", { class: "q-big", style: "color:#1c1a33;text-shadow:none", lang: "en" }, [w.en]), h("p", {}, [h("span", { class: "ipa", style: "color:#1a9c88", text: w.uk + (w.us !== w.uk ? "  ·  US " + w.us : "") })]), h("p", { class: "q-title" }, [w.ru]), h("p", { class: "muted", lang: "en" }, [w.ex]), h("p", { class: "muted" }, [w.exru])]));
+        card.appendChild(h("div", {}, [h("div", { class: "q-big", style: "color:#1c1a33;text-shadow:none", lang: "en" }, [w.en]), h("p", {}, [h("span", { class: "ipa", style: "color:var(--blue)", text: w.uk + (w.us !== w.uk ? "  ·  US " + w.us : "") })]), h("p", { class: "q-title" }, [w.ru]), h("p", { class: "muted", lang: "en" }, [w.ex]), h("p", { class: "muted" }, [w.exru])]));
         speak(w.en);
       }
     }
@@ -775,7 +775,7 @@
       v.appendChild(g);
     });
     EN.soundTopics.forEach(function (t) {
-      var sec = h("section", { class: "pbox light" }, [h("h2", { class: "h2", style: "color:#1a9c88" }, [t.t]), h("div", { class: "rule", html: t.html })]);
+      var sec = h("section", { class: "pbox light" }, [h("h2", { class: "h2", style: "color:var(--blue)" }, [t.t]), h("div", { class: "rule", html: t.html })]);
       sec.querySelectorAll("[data-say]").forEach(function (b) { b.addEventListener("click", function () { speak(b.getAttribute("data-say"), b.getAttribute("data-acc") || null); }); });
       v.appendChild(sec);
     });
