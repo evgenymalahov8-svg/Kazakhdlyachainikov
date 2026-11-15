@@ -1,0 +1,9 @@
+/* Слой анимации-портала (подключается на всех страницах платформы) */
+.portal-layer { position: fixed; inset: 0; z-index: 1000; overflow: hidden; }
+.portal-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; image-rendering: pixelated; image-rendering: crisp-edges; pointer-events: none; }
+.portal-arrive { z-index: 1000; }
+.portal-pot { position: fixed; transform-origin: 50% 50%; will-change: transform, opacity; image-rendering: pixelated; pointer-events: none; }
+.portal-skip { position: fixed; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 2; font-family: "Press Start 2P", "Courier New", monospace; font-size: 10px; background: #fff; color: #111; border: 3px solid #111; box-shadow: 4px 4px 0 #111; padding: 10px 12px; cursor: pointer; }
+.portal-skip:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 #111; }
+.portal-fade { animation: pfade .25s linear both; }
+@keyframes pfade { from { opacity: 0; } to { opacity: 1; } }

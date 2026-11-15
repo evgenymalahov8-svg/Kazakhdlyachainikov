@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Выбор языка — Языки для чайников</title>
+<meta name="description" content="Выберите курс: Казахский для чайников или Английский для чайников. Бесплатно, с нуля. Некоммерческий студенческий проект.">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/platform.css">
+<link rel="stylesheet" href="../assets/portal.css">
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="../"><span>Языки</span><span>для чайников</span></a>
+  <nav class="top-nav" aria-label="Разделы">
+    <a href="../">Главная</a>
+  </nav>
+  <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Открыть меню">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+<div class="scrim" id="scrim" hidden></div>
+<nav class="drawer" id="menu" aria-label="Главное меню">
+  <p class="menu-h">Платформа</p>
+  <ul class="menu-list">
+    <li><a href="../">Главная</a></li>
+    <li><a href="./" aria-current="page">Выбор языка</a></li>
+    <li><a href="../#about">О проекте</a></li>
+  </ul>
+  <p class="menu-h">Курсы</p>
+  <ul class="menu-list" id="menuCourses"></ul>
+</nav>
+
+<main class="choose">
+  <h1 class="mega2"><span class="gold">ВЫБЕРИ ЧАЙНИК</span></h1>
+  <p class="choose-sub">У каждого языка свой чайник. Нажми на него — и портал перенесёт тебя в курс.</p>
+  <div class="pots" id="pots"></div>
+  <p class="choose-foot">Прогресс по каждому языку хранится отдельно. Анимацию можно пропустить кнопкой «Пропустить» или клавишей Esc. <a href="../">← На главную</a></p>
+</main>
+
+<script src="../assets/platform.js"></script>
+<script>
+(function () {
+  var L = window.LDC, box = document.getElementById("pots");
+  L.LANGS.forEach(function (l) {
+    var open = l.status === "open", node;
+    if (open) {
+      node = document.createElement("a");
+      node.href = "../" + l.path;
+      node.setAttribute("aria-label", l.course + ": открыть курс");
+    } else {
+      node = document.createElement("div");
+      node.setAttribute("aria-label", l.course + ": скоро");
+    }
+    node.className = "pot" + (open ? "" : " soon");
+    var p = open ? L.progressOf(l) : null;
+    node.innerHTML = L.teapotSVG(l.id, l.name) +
+      '<span class="pot-name">' + l.name + "</span>" +
+      '<span class="pot-hello" lang="' + (l.id === "kz" ? "kk" : l.id) + '">' + l.hello + "</span>" +
+      '<span class="pot-note">' + (open ? l.note : "Курс готовится") + "</span>" +
+      (p ? '<span class="pot-prog">' + (p.done ? "Пройдено " + p.done + " / " + p.total : "Начать с нуля") + "</span>" : "") +
+      '<span class="pot-badge">' + (open ? "Открыт" : "Скоро") + "</span>";
+    if (open) {
+      node.style.textDecoration = "none";
+      node.addEventListener("click", function (e) {
+        // обычный клик — через портал; Ctrl/⌘-клик и средняя кнопка — как обычная ссылка
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+        e.preventDefault();
+        if (document.querySelector(".portal-layer")) return;
+        L.portal(node, node.href, { color: l.theme });
+      });
+    }
+    box.appendChild(node);
+  });
+  document.getElementById("menuCourses").innerHTML = L.LANGS.filter(function (l) { return l.status === "open"; }).map(function (l) { return '<li><a href="../' + l.path + '">' + l.course + "</a></li>"; }).join("");
+  var burger = document.getElementById("burger"), drawer = document.getElementById("menu"), scrim = document.getElementById("scrim");
+  function setMenu(o) { drawer.classList.toggle("open", o); scrim.hidden = !o; burger.setAttribute("aria-expanded", String(o)); burger.setAttribute("aria-label", o ? "Закрыть меню" : "Открыть меню"); }
+  burger.addEventListener("click", function () { setMenu(!drawer.classList.contains("open")); });
+  scrim.addEventListener("click", function () { setMenu(false); });
+  drawer.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu(false); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") setMenu(false); });
+  // при возврате кнопкой «Назад» убрать остатки портала
+  window.addEventListener("pageshow", function () { var x = document.querySelectorAll(".portal-layer"); for (var i = 0; i < x.length; i++) x[i].remove(); var h = document.querySelectorAll(".tp-hit"); for (var j = 0; j < h.length; j++) h[j].classList.remove("tp-hit"); });
+})();
+</script>
+</body>
+</html>
