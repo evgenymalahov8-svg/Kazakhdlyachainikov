@@ -212,3 +212,5 @@ footer a { color: var(--teal); }
 .sparkle { position: fixed; width: 8px; height: 8px; pointer-events: none; z-index: 60; animation: spark 0.9s steps(6) forwards; }
 @keyframes spark { to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+/* узкие экраны: таблицы правил прокручиваются внутри, а не растягивают страницу */
+@media (max-width: 480px) { .rule table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; font-size: 14px; } .rule th, .rule td { padding: 5px 6px; } }
