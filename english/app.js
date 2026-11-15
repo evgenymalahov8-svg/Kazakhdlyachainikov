@@ -31,7 +31,7 @@
 
   // ---------- состояние ----------
   var K = { prog: "en_v1_progress", srs: "en_v1_srs", set: "en_v1_settings", miss: "en_v1_miss" };
-  var prog = Object.assign({ done: 0, passed: {}, xp: 0, streak: 0, lastDay: 0, resume: {}, blocksDone: {} }, load(K.prog, {}) || {});
+  var prog = Object.assign({ done: 0, passed: {}, xp: 0, streak: 0, lastDay: 0, resume: {}, blocksDone: {}, hw: {}, best: 0 }, load(K.prog, {}) || {});
   var srs = load(K.srs, {}) || {};
   var settings = Object.assign({ accent: "uk", rate: 0.9 }, load(K.set, {}) || {});
   var miss = load(K.miss, {}) || {};
@@ -198,14 +198,19 @@
   }
   // серия: при первой активности дня сердце «собирается»
   var _touch = touchStreak;
-  touchStreak = function () { var was = prog.lastDay; _touch(); if (was !== prog.lastDay) setTimeout(heartFx, 200); };
+  touchStreak = function () { var was = prog.lastDay; _touch(); prog.best = Math.max(prog.best || 0, prog.streak); if (was !== prog.lastDay) setTimeout(heartFx, 200); };
 
   // ---------- меню: разделы-аккордеоны, как в казахском ----------
   var MENU = [
-    ["Учёба", [["map", "Карта уровней"], ["practice", "Тренировка и ошибки"], ["cards", "Карточки слов"]]],
-    ["Справочник", [["words", "Словарь"], ["grammar", "Грамматика"], ["sounds", "Звуки и IPA"], ["listen", "Аудирование"]]]
+    ["Главная", [["map", "Карта мира и обзор"], ["progress", "Мой прогресс"]]],
+    ["Основной курс", [["map", "Английский с нуля — 30 уровней"], ["next", "Продолжение — 31–180"], ["grammar", "Грамматика"], ["hw", "Домашние задания"], ["listen", "Аудирование"]]],
+    ["Словарь", [["words", "Все слова"], ["cards", "Карточки для запоминания"], ["speech", "Разговорная речь и сленг"], ["formal", "Официальный английский"], ["sounds", "Звуки и IPA"]]],
+    ["Практика", [["practice", "Тренировка и ошибки"]]],
+    ["Дополнительные курсы", [["ielts", "Подготовка к IELTS"]]]
   ];
-  var SERVICE = [["profile", "Профиль и настройки"], ["about", "О курсе"]];
+  var SERVICE = [["support", "Поддержка · Support"], ["profile", "Профиль и данные"], ["about", "О курсе"]];
+  var HP_MAX = 5;
+  var HEART_SVG = '<svg viewBox="0 0 9 8" shape-rendering="crispEdges"><path d="' + HEART.map(function (r, y) { return r.split("").map(function (c, x) { return c === "1" ? "M" + x + " " + y + "h1v1h-1z" : ""; }).join(""); }).join("") + '"/></svg>';
   var menuSecs = [], menuLinks = [];
   var menuBtn = $("#menuBtn"), drawer = $("#drawer"), scrim = $("#scrim");
   function setMenu(o) { drawer.classList.toggle("open", o); scrim.hidden = !o; menuBtn.setAttribute("aria-expanded", String(o)); menuBtn.setAttribute("aria-label", o ? "Закрыть меню" : "Открыть меню"); }
@@ -238,7 +243,7 @@
 
   // ---------- маршрутизация ----------
   var S = null;
-  var ROUTES = { map: viewMap, words: viewWords, cards: viewCards, grammar: viewGrammar, sounds: viewSounds, listen: viewListen, practice: viewPractice, profile: viewProfile, about: viewAbout };
+  var ROUTES = { map: viewMap, progress: viewProgress, next: viewNext, hw: viewHw, words: viewWords, cards: viewCards, speech: viewSpeech, formal: viewFormal, grammar: viewGrammar, sounds: viewSounds, listen: viewListen, practice: viewPractice, ielts: viewIelts, support: viewSupport, profile: viewProfile, about: viewAbout };
   function route() {
     var hs = location.hash.slice(1) || "map";
     if (synth) synth.cancel();
@@ -250,10 +255,10 @@
       if (!isOpen(id)) { toast("Уровень " + id + " откроется, когда вы пройдёте уровень " + (id - 1) + "."); location.replace("#map"); return; }
       if (!S || S.kind !== "level" || S.id !== id) S = levelSession(id);
       markMenu("map"); renderSession();
-    } else if (hs === "train" && S && S.kind === "train") {
+    } else if (hs === "train" && S && (S.kind === "train" || S.kind === "hw")) {
       renderSession();
     } else {
-      if (hs !== "train") S = null;
+      if (hs !== "train") S = null; else if (!S) { location.replace("#map"); return; }
       var fn = ROUTES[hs] || viewMap;
       markMenu(ROUTES[hs] ? hs : "map");
       var v = el("section", "view"); app.appendChild(v);
@@ -397,7 +402,7 @@
     B.push({ id: "boss", steps: [{ k: "info", kicker: "Финал уровня", title: "Босс-тест", html: "<p>" + boss.length + " заданий без подсказок. Нужно <b>80%</b> правильных ответов с первой попытки. Ошибки не возвращаются — после теста увидите разбор.</p><p class='muted'>1★ — от 80%, 2★ — от 90%, 3★ — без ошибок.</p>" }].concat(shuffle(boss)) });
 
     var startBlock = Math.min(prog.resume[id] || 0, B.length - 1);
-    return { kind: "level", id: id, L: L, blocks: B, bi: startBlock, pos: 0, queue: B[startBlock].steps.slice(), first: {}, retried: {}, ok: 0, total: 0, bossOk: 0, bossTotal: 0, mistakes: [] };
+    return { kind: "level", id: id, L: L, blocks: B, bi: startBlock, pos: 0, queue: B[startBlock].steps.slice(), first: {}, retried: {}, ok: 0, total: 0, bossOk: 0, bossTotal: 0, mistakes: [], hp: HP_MAX };
   }
   function trainSession(title, steps, back) {
     return { kind: "train", title: title, blocks: [{ id: "train", steps: steps }], bi: 0, pos: 0, queue: steps.slice(), first: {}, retried: {}, ok: 0, total: 0, mistakes: [], back: back || "#practice" };
@@ -417,10 +422,11 @@
     var view = el("section", "view sess");
     var top = el("div", "sess-top");
     var x = el("button", "icon-btn", "✕"); x.type = "button"; x.setAttribute("aria-label", "Выйти");
-    x.addEventListener("click", function () { var to = S.kind === "level" ? "#map" : S.back; S = null; location.hash = to; });
+    x.addEventListener("click", function () { var to = S.kind === "level" ? "#map" : S.back || "#map"; S = null; location.hash = to; });
     var bar = el("div", "sess-bar"), fill = el("div"); fill.style.width = Math.round(overallPct() * 100) + "%"; bar.appendChild(fill);
     top.appendChild(x); top.appendChild(bar);
     top.appendChild(el("span", "sess-count", Math.min(S.pos + 1, S.queue.length) + " / " + S.queue.length));
+    if (S.kind === "level") top.appendChild(heartsRow(S.hp, HP_MAX));
     view.appendChild(top);
     var body = el("div", "sess-body");
     body.appendChild(el("span", "blk", S.kind === "level" ? "Уровень " + S.id + " · блок " + (S.bi + 1) + " из " + S.blocks.length + " · " + BLOCK_NAMES[blk.id] : S.title));
@@ -437,7 +443,8 @@
   function renderStep(st, body, fb, act) {
     function setAct(label, enabled, fn) { act.textContent = label; act.disabled = !enabled; act.onclick = fn || null; }
     function next() { S.pos++; renderSession(); }
-    function result(ok, right, why) {
+    function result(ok, right, why, partial) {
+      S.scored = S.scored || {}; S.score = S.score || 0;
       var id = stepId(st);
       if (!(id in S.first)) {
         S.first[id] = ok;
@@ -446,11 +453,22 @@
         if (!ok) { var mk = st.wkey ? "w:" + st.wkey : st.gkey ? "g:" + st.gkey : null; if (mk) miss[mk] = (miss[mk] || 0) + 1; S.mistakes.push({ q: st.listen ? "На слух" : st.q || st.ru || "", right: right }); }
         else if (st.wkey && miss["w:" + st.wkey]) miss["w:" + st.wkey] = Math.max(0, miss["w:" + st.wkey] - 1);
       }
-      if (!ok && !st.boss && !S.retried[id]) { S.retried[id] = 1; S.queue.push(st); }
+      if (!(id in S.scored) && st.pts) { S.scored[id] = 1; S.score += partial != null ? partial : ok ? st.pts : 0; }
+      if (!ok && !st.boss && !st.hw && !S.retried[id]) { S.retried[id] = 1; S.queue.push(st); }
+      var hpOut = false;
+      if (!ok && S.kind === "level") { S.hp = Math.max(0, S.hp - 1); hpOut = S.hp === 0; var hr = $(".sess-top .hp"); if (hr) hr.replaceWith(heartsRow(S.hp, HP_MAX)); }
       fb.className = "fb " + (ok ? "ok" : "bad");
       fb.innerHTML = (ok ? pickOne(["Верно!", "Отлично!", "Так держать!", "Great!"]) : "Неверно." + (right ? " Правильно: <b>" + esc(right) + "</b>" : "")) +
-        (why ? "<span class='why'>" + why + "</span>" : "") + (!ok && !st.boss ? "<span class='why'>Задание вернётся в конце блока.</span>" : "");
-      setAct("Дальше", true, next); act.focus();
+        (why ? "<span class='why'>" + why + "</span>" : "") + (!ok && !st.boss && !st.hw ? "<span class='why'>Задание вернётся в конце блока.</span>" : "");
+      setAct("Дальше", true, next);
+      if (hpOut) {
+        fb.innerHTML += "<span class='why'><b>ХП закончились.</b> " + (st.boss ? "Босс-тест не пройден — попробуйте ещё раз." : "Блок начнётся заново с полными сердцами.") + "</span>";
+        setAct(st.boss ? "К результатам" : "Начать блок заново", true, function () {
+          if (st.boss) { var bossN = S.blocks[S.bi].steps.filter(function (x) { return x.boss; }).length; S.bossTotal = bossN; prog.resume[S.id] = S.blocks.length - 1; saveAll(); renderLevelFinish(S.bossOk / bossN, false, 0, 0); }
+          else { S = levelSession(S.id); renderSession(); }
+        });
+      }
+      act.focus();
     }
     if (st.kicker) body.appendChild(el("p", "q-label", st.kicker));
 
@@ -583,6 +601,26 @@
         var rw = el("div", "row"); rw.appendChild(btn("▶ Весь диалог", "small", function () { speakLines(st.lines); })); body.appendChild(rw);
         setAct("Дальше", true, next);
       }
+    } else if (st.k === "write") {
+      body.appendChild(el("h2", null, st.title));
+      body.appendChild(el("p", "notice-small", "Минимум " + st.minW + " слов и хотя бы " + st.minUse + " слова урока. Слова урока подсвечиваются, когда вы их используете."));
+      var wc = el("div", "chips"); var wchips = st.words.map(function (w) { var c = el("span", "chip", w); c.lang = "en"; wc.appendChild(c); return c; }); body.appendChild(wc);
+      var ta = el("textarea", "sess-input"); ta.rows = 6; ta.lang = "en"; ta.spellcheck = false; ta.placeholder = "Пишите по-английски…"; ta.setAttribute("aria-label", "Ваш текст"); body.appendChild(ta);
+      var cnt = el("p", "notice-small"); body.appendChild(cnt);
+      var stat = function () {
+        var text = ta.value.toLowerCase(), words = (ta.value.match(/[A-Za-z']+/g) || []).length, used = 0;
+        st.words.forEach(function (w, i) { var on = new RegExp("(^|[^a-z])" + w.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "([^a-z]|$)").test(text); wchips[i].classList.toggle("ghost", on); if (on) used++; });
+        cnt.textContent = "Слов: " + words + " / " + st.minW + " · слов урока: " + used + " / " + st.minUse;
+        return { words: words, used: used };
+      };
+      ta.addEventListener("input", function () { var r0 = stat(); if (act.textContent === "Проверить") act.disabled = r0.words < 3; });
+      stat();
+      setAct("Проверить", false, function () {
+        var r1 = stat(); ta.disabled = true;
+        var part = st.pts * (Math.min(1, r1.words / st.minW) * 0.5 + Math.min(1, r1.used / st.minUse) * 0.5);
+        var ok = r1.words >= st.minW && r1.used >= st.minUse;
+        result(ok, null, (ok ? "Требования выполнены. " : "Не хватает: " + (r1.words < st.minW ? "слов (" + r1.words + "/" + st.minW + ") " : "") + (r1.used < st.minUse ? "слов урока (" + r1.used + "/" + st.minUse + ")" : "") + ". ") + "Пример: <i lang='en'>" + esc(st.model) + "</i>", Math.round(part * 10) / 10);
+      });
     } else if (st.k === "drill") {
       body.appendChild(el("h2", null, st.title));
       body.appendChild(el("p", "muted", "Нажмите на слово, послушайте и повторите вслух 2–3 раза. Если браузер умеет распознавать речь, проверьте себя кнопкой «Повторить вслух»."));
@@ -605,13 +643,14 @@
   function finishBlock() {
     var blk = S.blocks[S.bi];
     if (S.kind === "train") { renderTrainFinish(); return; }
+    if (S.kind === "hw") { renderHwFinish(); return; }
     var id = S.id;
     touchStreak();
     if (blk.id !== "boss") {
       var key = id + ":" + blk.id;
       if (!prog.blocksDone[key]) { prog.blocksDone[key] = 1; addXp(10); }
       prog.resume[id] = S.bi + 1; saveAll();
-      S.bi++; S.pos = 0; S.queue = S.blocks[S.bi].steps.slice();
+      S.bi++; S.pos = 0; S.queue = S.blocks[S.bi].steps.slice(); S.hp = HP_MAX;
       renderSession(); return;
     }
     var acc = S.bossTotal ? S.bossOk / S.bossTotal : 0, pass = acc >= 0.8;
@@ -928,6 +967,213 @@
     z.appendChild(zb); v.appendChild(z);
   }
   function viewAbout(v) { pageHead(v, "О курсе"); var c = card(null, "rule"); c.innerHTML = EN.about; v.appendChild(c); }
+
+  // ======================================================================
+  // МОЙ ПРОГРЕСС: поинты (XP), уровень, серия, ХП — как в казахском
+  // ======================================================================
+  var XP_RULES = [["Блок уровня (один раз)", "10"], ["Прохождение уровня", "50"], ["Каждая звезда за босс-тест", "10"], ["Домашнее задание от 60 баллов (один раз)", "20"], ["Верный ответ в тренировке", "2"], ["Сессия карточек от 10 слов", "5"]];
+  function heartsRow(n, max) { var s = el("span", "hp"); s.setAttribute("aria-label", "ХП: " + n + " из " + max); for (var i = 0; i < max; i++) { var h = el("span", "heart " + (i < n ? "on" : "off")); h.innerHTML = HEART_SVG; s.appendChild(h); } return s; }
+  function viewProgress(v) {
+    pageHead(v, "Мой прогресс");
+    var hwN = Object.keys(prog.hw || {}).filter(function (k) { return prog.hw[k] >= 60; }).length;
+    v.appendChild(statGrid([[prog.done + " / " + TOTAL, "уровней пройдено"], [totalStars() + " ★", "звёзд из " + TOTAL * 3], [hwN, "ДЗ от 60 баллов"], [learnedWords().length, "слов в карточках"]]));
+    var c1 = card("Английский с нуля — 30 уровней");
+    c1.appendChild(meter(prog.done / TOTAL * 100));
+    c1.appendChild(el("p", null, prog.done < TOTAL ? "Следующий уровень: " + (prog.done + 1) + " — " + LESSONS[prog.done].en + " (" + LESSONS[prog.done].ru + ")" : "Все 30 уровней пройдены."));
+    c1.appendChild(el("p", "notice-small", "Продолжение 31–180 пока в разработке, его прогресс будет отдельным."));
+    var r1 = el("div", "row"); r1.appendChild(aBtn("#level-" + nextLevel(), "► Продолжить", "primary")); r1.appendChild(aBtn("#next", "Продолжение 31–180")); c1.appendChild(r1);
+    v.appendChild(c1);
+    var c2 = card("Серия: дни подряд");
+    c2.appendChild(statGrid([[liveStreak(), "дней подряд сейчас"], [prog.best || liveStreak(), "лучшая серия"]]));
+    c2.appendChild(el("p", null, "Серия показывает, сколько дней подряд вы занимаетесь. За один день она растёт на один, сколько бы заданий вы ни сделали."));
+    c2.appendChild(el("p", "notice-small", "День засчитывается, когда вы прошли блок уровня, домашнее задание, тренировку или сессию карточек. Если пропустить день, серия начнётся заново, а XP и пройденные уровни сохранятся."));
+    v.appendChild(c2);
+    var l = levelOf(prog.xp), c3 = card("Поинты (XP): награда за задания");
+    c3.appendChild(statGrid([[prog.xp, "XP"], [l.lv, "уровень игрока"]]));
+    c3.appendChild(meter(l.into, "xp"));
+    c3.appendChild(el("p", null, "Поинты даются за выполненные задания. Они не сгорают и не зависят от серии. Каждые 100 XP — новый уровень игрока."));
+    var tb = el("table", "plain"), hd = el("tr"); ["За что", "XP"].forEach(function (x) { hd.appendChild(el("th", null, x)); }); tb.appendChild(hd);
+    XP_RULES.forEach(function (r) { var tr = el("tr"); tr.appendChild(el("td", null, r[0])); tr.appendChild(el("td", null, r[1])); tb.appendChild(tr); });
+    c3.appendChild(tb); v.appendChild(c3);
+    var c4 = card("ХП: сердца в уроке");
+    c4.appendChild(heartsRow(HP_MAX, HP_MAX));
+    c4.appendChild(el("p", null, "В каждом блоке уровня у вас " + HP_MAX + " сердец (ХП). Ошибка снимает одно сердце. Если сердца закончились, блок начинается заново с полными ХП, а пройденные блоки сохраняются."));
+    c4.appendChild(el("p", "notice-small", "В тренировках, карточках и домашних заданиях ХП не тратятся: там можно спокойно ошибаться."));
+    v.appendChild(c4);
+  }
+
+  // ======================================================================
+  // ПРОДОЛЖЕНИЕ 31–180 — как в казахском
+  // ======================================================================
+  function viewNext(v) {
+    pageHead(v, "Продолжение — 31–180 уровней", "Необязательное продолжение после основного курса. Уровни CEFR — ориентир, а не гарантия: многое зависит от регулярности и практики.");
+    var s = el("div", "soon-box"); s.appendChild(el("p", null, "Раздел в разработке. Уровни 31–180 появятся после проверки основного курса. Прогресс в них будет отдельным.")); v.appendChild(s);
+    var tb = el("table", "plain"), hd = el("tr"); ["Уровни", "Ориентир", "Темы"].forEach(function (x) { hd.appendChild(el("th", null, x)); }); tb.appendChild(hd);
+    EN.next.forEach(function (r) { var tr = el("tr"); r.forEach(function (x) { tr.appendChild(el("td", null, x)); }); tb.appendChild(tr); });
+    v.appendChild(tb);
+    var r = el("div", "row"); r.appendChild(aBtn("#map", "К курсу из 30 уровней", "primary")); r.appendChild(aBtn("#ielts", "Подготовка к IELTS")); v.appendChild(r);
+  }
+
+  // ======================================================================
+  // ДОМАШНИЕ ЗАДАНИЯ — после уровня, самое сложное: всё пишется самому
+  // ======================================================================
+  function hwSession(id) {
+    var L = LESSONS[id - 1], ws = wordsOf(L), steps = [];
+    pick(ws, 5).forEach(function (w) { steps.push({ k: "type", hw: true, kicker: "ДЗ · лексика: напишите по-английски", q: w.ru, answers: [w.en], wkey: w.en, pts: 6, why: w.en + " " + w.uk }); });
+    var gt = L.g.tasks.filter(function (t) { return t[0] === "t"; }).map(function (t) { return { k: "type", hw: true, kicker: "ДЗ · грамматика: переведите", q: t[1], answers: t[2].split("|"), why: t[3], pts: 6 }; });
+    var gc = L.g.tasks.filter(function (t) { return t[0] === "c" && t[1].indexOf("___") >= 0; }).map(function (t) { var o = t[2].split("|"); return { k: "type", hw: true, kicker: "ДЗ · грамматика: впишите пропущенное", q: t[1], answers: [t[1].replace("___", o[t[3]])], why: t[4], pts: 6, gapWord: o[t[3]] }; });
+    steps = steps.concat(pick(gt, 2), pick(gc, 5 - Math.min(2, gt.length)));
+    var tr = L.s.map(function (s) { return { k: "type", hw: true, kicker: "ДЗ · перевод предложения", q: s[1], answers: [s[0]].concat(s[2] ? s[2].split("|") : []), why: "Образец: " + s[0], pts: 20 / L.s.length }; });
+    steps = steps.concat(tr);
+    var minW = Math.min(60, 15 + id);
+    steps.push({ k: "write", hw: true, kicker: "ДЗ · письмо", title: "Напишите 3–5 предложений на тему «" + L.topic + "»", words: ws.map(function (w) { return w.en; }), minW: minW, minUse: 3, pts: 20, model: pick(ws, 3).map(function (w) { return w.ex; }).join(" ") });
+    var total = steps.reduce(function (a, s) { return a + s.pts; }, 0);
+    return { kind: "hw", id: id, L: L, title: "Домашнее задание · уровень " + id, blocks: [{ id: "hw", steps: steps }], bi: 0, pos: 0, queue: steps.slice(), first: {}, retried: {}, ok: 0, total: 0, mistakes: [], score: 0, maxScore: total, back: "#hw" };
+  }
+  function viewHw(v) {
+    pageHead(v, "Домашние задания", "Самое сложное задание уровня: вариантов ответа нет, всё пишется по-английски. Открывается после прохождения уровня.");
+    var tb = el("table", "plain"), hd = el("tr"); ["Блок", "Баллы"].forEach(function (x) { hd.appendChild(el("th", null, x)); }); tb.appendChild(hd);
+    [["Лексика: 5 слов урока написать по-английски", "30"], ["Грамматика: 5 заданий по правилу уровня", "30"], ["Перевод предложений", "20"], ["Письмо: 3–5 предложений со словами урока", "20"]].forEach(function (r) { var t = el("tr"); t.appendChild(el("td", null, r[0])); t.appendChild(el("td", null, r[1])); tb.appendChild(t); });
+    v.appendChild(tb);
+    v.appendChild(el("p", "notice-small", "80–100 — хорошо, 60–79 — повторить материал, 0–59 — переделать задание."));
+    var t = el("div", "tiles");
+    LESSONS.forEach(function (L) {
+      var sc = (prog.hw || {})[L.id];
+      if (prog.passed[L.id]) t.appendChild(tileBtn("Уровень " + L.id + ": " + L.en, sc != null ? "Лучший результат: " + sc + " / 100" : "Открыто", function () { S = hwSession(L.id); location.hash = "#train"; if (location.hash === "#train") route(); }, sc >= 80 ? "passed" : ""));
+      else t.appendChild(tileBtn("Уровень " + L.id + ": " + L.en, "Закрыто: пройдите уровень и босс-тест", null, "locked"));
+    });
+    v.appendChild(t);
+  }
+  function renderHwFinish() {
+    var id = S.id, sc = Math.round(S.score / S.maxScore * 100), v = finishShell();
+    prog.hw = prog.hw || {};
+    var first = !prog.hwXp || !prog.hwXp[id];
+    if (prog.hw[id] == null || sc > prog.hw[id]) prog.hw[id] = sc;
+    var gained = 0;
+    if (sc >= 60 && first) { prog.hwXp = prog.hwXp || {}; prog.hwXp[id] = 1; gained = 20; addXp(20); }
+    touchStreak(); saveAll();
+    var c = card(null, "finish");
+    c.appendChild(el("h2", null, sc >= 80 ? "Отличное ДЗ!" : sc >= 60 ? "ДЗ засчитано" : "Нужно переделать"));
+    c.appendChild(el("span", "stat", sc + " / 100")); if (gained) c.appendChild(el("span", "stat", "+" + gained + " XP"));
+    c.appendChild(el("p", null, sc >= 80 ? "Материал уровня усвоен." : sc >= 60 ? "Повторите правило и слова уровня — и попробуйте снова на 80+." : "Повторите уровень и попробуйте ещё раз."));
+    var r = el("div", "row"); r.style.justifyContent = "center";
+    r.appendChild(aBtn("#hw", "К заданиям", "primary")); r.appendChild(btn("Ещё раз", "", function () { S = hwSession(id); renderSession(); }));
+    c.appendChild(r); v.appendChild(c);
+    if (S.mistakes.length) v.appendChild(mistakesCard(S.mistakes));
+    if (sc >= 80) confetti();
+  }
+
+  // ======================================================================
+  // РАЗГОВОРНАЯ РЕЧЬ И СЛЕНГ · ОФИЦИАЛЬНЫЙ АНГЛИЙСКИЙ
+  // ======================================================================
+  var ACC_NAME = { uk: "Британия", us: "США" };
+  function viewSpeech(v) {
+    pageHead(v, "Разговорная речь и сленг", "Так говорят друзья, коллеги и в сериалах. В письме и на экзамене это не используют — для этого есть раздел «Официальный английский».");
+    var s = el("div", "soon-box"); s.appendChild(el("p", null, "Сленг уместен только с друзьями и знакомыми. С преподавателем, начальником и незнакомыми людьми лучше говорить нейтрально.")); v.appendChild(s);
+    var r = el("div", "row"); r.appendChild(btn("► Тренировка: что значит фраза? (8)", "primary", function () {
+      var pool = EN.slang, steps = pick(pool, 8).map(function (p) { var opts = shuffle([p[1]].concat(pick(pool.filter(function (x) { return x !== p; }), 3).map(function (x) { return x[1]; }))); return { k: "choice", kicker: "Что значит фраза?", q: p[0], audio: p[0], opts: opts, a: opts.indexOf(p[1]), why: "Пример: " + p[2] }; });
+      startTrain("Сленг и разговорная речь", steps, "#speech");
+    })); v.appendChild(r);
+    var c = card("Фразы");
+    EN.slang.forEach(function (p) {
+      var row = el("div", "wrow"), m = el("div", "wmain"), a = el("div", "wact");
+      var b = el("b", null, p[0]); b.lang = "en"; m.appendChild(b); m.appendChild(el("div", null, p[1]));
+      var ex = el("div", "notice-small", p[2]); ex.lang = "en"; m.appendChild(ex);
+      if (p[3]) m.appendChild(el("span", "tag", ACC_NAME[p[3]]));
+      a.appendChild(playBtn(p[0], p[3] || null, "▶")); row.appendChild(m); row.appendChild(a); c.appendChild(row);
+    });
+    v.appendChild(c);
+    var r2 = el("div", "row"); r2.appendChild(aBtn("#formal", "Официальный английский →")); v.appendChild(r2);
+  }
+  function viewFormal(v) {
+    pageHead(v, "Официальный английский", "Как говорить и писать вежливо: письма, учёба, работа, официальные просьбы.");
+    var c0 = card("Три правила вежливости"); var rl = el("div", "rule"); rl.innerHTML = EN.formalNote; c0.appendChild(rl); v.appendChild(c0);
+    var r = el("div", "row"); r.appendChild(btn("► Тренировка: выберите официальный вариант (8)", "primary", function () {
+      var steps = pick(EN.registerPairs, 8).map(function (p) { var wrong = pick(EN.registerPairs.filter(function (x) { return x !== p; }), 1)[0][0]; var opts = shuffle([p[1], p[0], wrong]); return { k: "choice", kicker: "Выберите официальный (вежливый) вариант", q: p[2].split(" — ")[0], opts: opts, a: opts.indexOf(p[1]), why: "Разговорно: " + p[0] + " → официально: " + p[1] }; });
+      startTrain("Официальный английский", steps, "#formal");
+    })); v.appendChild(r);
+    var c1 = card("Разговорно → официально");
+    var tb = el("table", "plain"), hd = el("tr"); ["Разговорно", "Официально", "Перевод"].forEach(function (x) { hd.appendChild(el("th", null, x)); }); tb.appendChild(hd);
+    EN.registerPairs.forEach(function (p) { var t = el("tr"); var a = el("td", null, p[0]); a.lang = "en"; var b = el("td"); var bb = el("b", null, p[1]); bb.lang = "en"; b.appendChild(bb); b.appendChild(document.createElement("br")); b.appendChild(playBtn(p[1], null, "▶")); t.appendChild(a); t.appendChild(b); t.appendChild(el("td", null, p[2])); tb.appendChild(t); });
+    c1.appendChild(tb); v.appendChild(c1);
+    var c2 = card("Фразы для писем и e-mail");
+    EN.formalPhrases.forEach(function (p) { var row = el("div", "wrow"), m = el("div", "wmain"), a = el("div", "wact"); var b = el("b", null, p[0]); b.lang = "en"; m.appendChild(b); m.appendChild(el("div", "notice-small", p[1])); a.appendChild(playBtn(p[0], null, "▶")); row.appendChild(m); row.appendChild(a); c2.appendChild(row); });
+    v.appendChild(c2);
+    var r2 = el("div", "row"); r2.appendChild(aBtn("#speech", "← Разговорная речь и сленг")); v.appendChild(r2);
+  }
+
+  // ======================================================================
+  // ПОДГОТОВКА К IELTS
+  // ======================================================================
+  function viewIelts(v) {
+    var I = EN.ielts;
+    pageHead(v, "Подготовка к IELTS", "Формат экзамена, баллы, советы, связки для эссе и устной части, тренировка.");
+    var c0 = card("Что такое IELTS"); var r0 = el("div", "rule"); r0.innerHTML = I.intro; c0.appendChild(r0); v.appendChild(c0);
+    var c1 = card("Четыре части экзамена");
+    var tb = el("table", "plain"), hd = el("tr"); ["Часть", "Время", "Что внутри"].forEach(function (x) { hd.appendChild(el("th", null, x)); }); tb.appendChild(hd);
+    I.format.forEach(function (r) { var t = el("tr"); r.forEach(function (x) { t.appendChild(el("td", null, x)); }); tb.appendChild(t); });
+    c1.appendChild(tb); v.appendChild(c1);
+    var c2 = card("Баллы (band)");
+    var tb2 = el("table", "plain"); I.bands.forEach(function (r) { var t = el("tr"); t.appendChild(el("td", null, r[0])); t.appendChild(el("td", null, r[1])); tb2.appendChild(t); }); c2.appendChild(tb2); v.appendChild(c2);
+    var c3 = card("Советы по частям");
+    I.tips.forEach(function (t) { var b = el("div", "brk"); b.appendChild(el("b", null, t[0])); b.appendChild(document.createTextNode(t[1])); c3.appendChild(b); });
+    v.appendChild(c3);
+    var c4 = card("Связки для эссе и Speaking");
+    I.linking.forEach(function (p) { var row = el("div", "wrow"), m = el("div", "wmain"), a = el("div", "wact"); var b = el("b", null, p[0]); b.lang = "en"; m.appendChild(b); m.appendChild(el("div", "notice-small", p[1] + " · " + p[2])); a.appendChild(playBtn(p[0].replace(/…/g, ""), null, "▶")); row.appendChild(m); row.appendChild(a); c4.appendChild(row); });
+    v.appendChild(c4);
+    var c5 = card("Speaking Part 1: вопросы и образцы ответов");
+    c5.appendChild(el("p", "notice-small", "Послушайте вопрос, ответьте вслух 2–3 предложениями, потом сравните с образцом."));
+    I.speaking.forEach(function (q) {
+      var b = el("div", "brk"); var qq = el("div", null, q[0]); qq.lang = "en"; qq.style.fontWeight = "800"; b.appendChild(qq);
+      var out = el("p", "notice-small"); var r = el("div", "row"); r.appendChild(playBtn(q[0], null, "▶ Вопрос"));
+      var mb = micBtn(q[1], out); if (mb) r.appendChild(mb);
+      var ans = el("p", "tr", q[1]); ans.lang = "en"; ans.hidden = true;
+      r.appendChild(btn("Образец ответа", "small", function () { ans.hidden = !ans.hidden; if (!ans.hidden) speak(q[1]); }));
+      b.appendChild(r); b.appendChild(ans); b.appendChild(out); c5.appendChild(b);
+    });
+    v.appendChild(c5);
+    var c6 = card("Writing Task 2"); var r6 = el("div", "rule"); r6.innerHTML = I.essay; c6.appendChild(r6); v.appendChild(c6);
+    var r = el("div", "row"); r.appendChild(btn("► Тест: формат IELTS и связки (" + I.quiz.length + ")", "primary", function () {
+      startTrain("IELTS: формат и связки", shuffle(I.quiz.map(function (q) { var o = q[1].split("|"), right = o[q[2]], sh = shuffle(o); return { k: "choice", kicker: "IELTS", q: q[0], opts: sh, a: sh.indexOf(right), why: q[3] }; })), "#ielts");
+    })); v.appendChild(r);
+  }
+
+  // ======================================================================
+  // ПОДДЕРЖКА: чат-помощник на русском и английском
+  // ======================================================================
+  var FAQ = [
+    { k: ["прогресс", "сохран", "пропал", "progress", "save", "lost"], ru: "Прогресс хранится в этом браузере. Чтобы не потерять его, откройте «Профиль и настройки» → «Создать код» и сохраните код в заметках.", en: "Your progress is stored in this browser. To keep it safe, open “Profile and settings” → “Make a code” and save the code in your notes." },
+    { k: ["телефон", "устройств", "перенес", "phone", "device", "transfer"], ru: "На старом устройстве создайте код в «Профиле», на новом вставьте его и нажмите «Загрузить».", en: "Make a code in “Profile” on your old device, then paste it on the new one and press “Load”." },
+    { k: ["звук", "озвуч", "голос", "sound", "audio", "voice", "hear"], ru: "Озвучка идёт через голос браузера. Лучше всего — Chrome, Edge или Safari. Британский или американский голос выбирается в «Профиле».", en: "Audio uses your browser's voice. Chrome, Edge or Safari work best. Choose a British or American voice in “Profile”." },
+    { k: ["микрофон", "произнош", "вслух", "microphone", "mic", "pronunciation", "speak"], ru: "Кнопка «Повторить вслух» работает там, где браузер распознаёт речь (Chrome, Edge). Разрешите доступ к микрофону.", en: "The “Say it aloud” button works where the browser supports speech recognition (Chrome, Edge). Allow microphone access." },
+    { k: ["хп", "сердц", "жизн", "hp", "heart", "lives"], ru: "В каждом блоке уровня 5 сердец (ХП). Ошибка снимает одно. Когда они кончаются, блок начинается заново.", en: "Each lesson block gives you 5 hearts (HP). A mistake costs one. When they run out, the block starts again." },
+    { k: ["xp", "очк", "поинт", "уровень игрока", "points", "level"], ru: "XP даются за блоки, уровни, звёзды, ДЗ, тренировки и карточки. Каждые 100 XP — новый уровень игрока. Подробно — в «Моём прогрессе».", en: "You get XP for blocks, levels, stars, homework, practice and flashcards. Every 100 XP is a new player level. See “My progress”." },
+    { k: ["дз", "домашн", "homework"], ru: "Домашнее задание открывается после прохождения уровня. Там всё пишется самому: слова, грамматика, перевод и короткое письмо. 80+ — отлично.", en: "Homework opens after you pass a level. You type everything yourself: words, grammar, translation and a short text. 80+ is great." },
+    { k: ["ielts", "айлс", "экзамен", "exam"], ru: "Раздел «Подготовка к IELTS» объясняет формат, баллы и даёт связки, вопросы Speaking и тест. Для самого экзамена обычно нужен уровень B1–C1.", en: "The “IELTS preparation” section explains the format and bands and gives linking words, Speaking questions and a quiz. The exam itself usually needs B1–C1." },
+    { k: ["31", "180", "продолж", "дальше", "continue", "advanced"], ru: "Продолжение 31–180 в разработке. Пока можно повторять уровни, делать ДЗ и готовиться к IELTS.", en: "Levels 31–180 are in development. For now you can review levels, do homework and prepare for IELTS." },
+    { k: ["бесплат", "цена", "плат", "free", "price", "pay"], ru: "Сайт бесплатный и некоммерческий: только для развлекательных и познавательных целей.", en: "The site is free and non-commercial: for fun and learning only." },
+    { k: ["ошибк", "опечат", "mistake", "typo", "error"], ru: "Если нашли ошибку в уроке, запомните номер уровня и слово. Отправить сообщение отсюда пока нельзя: живой поддержки нет.", en: "If you find a mistake in a lesson, note the level number and the word. Messages can't be sent from here yet: there is no live support." }
+  ];
+  function viewSupport(v) {
+    pageHead(v, "Поддержка · Support", "Чат-помощник отвечает на частые вопросы на русском и на английском. Пишите на любом из языков.");
+    var s = el("div", "soon-box"); s.appendChild(el("p", null, "Живых операторов пока нет, сообщения никуда не отправляются: помощник отвечает сам, прямо в браузере. There is no live operator yet: the helper answers by itself.")); v.appendChild(s);
+    var c = card(null), log = el("div", "chat-log"); log.setAttribute("role", "log"); log.setAttribute("aria-live", "polite");
+    var chips = el("div", "chat-chips"), form = el("form", "chat-form"), inp = el("input", "pg-field"); inp.placeholder = "Напишите вопрос… / Type your question…"; inp.setAttribute("aria-label", "Вопрос");
+    var send = btn("►", "primary"); send.type = "submit"; form.appendChild(inp); form.appendChild(send);
+    c.appendChild(log); c.appendChild(chips); c.appendChild(form); v.appendChild(c);
+    function add(who, text) { var d = el("div", "msg " + who, text); log.appendChild(d); log.scrollTop = log.scrollHeight; }
+    function answer(q) {
+      var t = q.toLowerCase().replace(/ё/g, "е"), lat = !/[а-я]/.test(t), best = null, sc = 0;
+      FAQ.forEach(function (f) { var n = 0; f.k.forEach(function (k) { if (t.indexOf(k) >= 0) n++; }); if (n > sc) { sc = n; best = f; } });
+      if (/^(привет|здравств|сәлем|салем|hello|hi|hey)\b/.test(t)) return lat ? "Hello! Ask me about progress, audio, the microphone, HP, XP, homework or IELTS." : "Привет! Спросите про прогресс, озвучку, микрофон, ХП, XP, домашние задания или IELTS.";
+      if (best) return lat ? best.en : best.ru;
+      return lat ? "Sorry, I don't know the answer to that yet. Try asking in a different way or tap a question below." : "Не нашёл ответа на этот вопрос. Спросите по-другому или выберите вопрос из подсказок ниже.";
+    }
+    function ask(q) { add("me", q); setTimeout(function () { add("bot", answer(q)); }, 300); }
+    ["Как сохранить прогресс?", "Что такое ХП?", "How do I get XP?", "No sound", "IELTS"].forEach(function (q) { var b = el("button", "chip-q", q); b.type = "button"; b.addEventListener("click", function () { ask(q); }); chips.appendChild(b); });
+    form.addEventListener("submit", function (e) { e.preventDefault(); var q = inp.value.trim(); if (!q) return; inp.value = ""; ask(q); });
+    add("bot", "Сәлем! Hello! Я помощник курса «Английский для чайников». I'm the course helper — ask in Russian or English.");
+  }
 
   // ---------- старт ----------
   (function () { var n = 0; while (n < TOTAL && prog.passed[n + 1]) n++; prog.done = n; })();
