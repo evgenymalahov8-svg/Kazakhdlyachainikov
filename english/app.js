@@ -203,10 +203,10 @@
   // ---------- меню: разделы-аккордеоны, как в казахском ----------
   var MENU = [
     ["Главная", [["map", "Карта мира и обзор"], ["progress", "Мой прогресс"]]],
-    ["Основной курс", [["map", "Английский с нуля — 30 уровней"], ["next", "Продолжение — 31–180"], ["grammar", "Грамматика"], ["hw", "Домашние задания"], ["listen", "Аудирование"]]],
+    ["Основной курс", [["map", "Английский с нуля — 30 уровней"], ["next", "Продолжение 31–180 (до B1)"], ["grammar", "Грамматика"], ["hw", "Домашние задания"], ["listen", "Аудирование"]]],
     ["Словарь", [["words", "Все слова"], ["cards", "Карточки для запоминания"], ["speech", "Разговорная речь и сленг"], ["formal", "Официальный английский"], ["sounds", "Звуки и IPA"]]],
     ["Практика", [["practice", "Тренировка и ошибки"]]],
-    ["Дополнительные курсы", [["ielts", "Подготовка к IELTS"]]]
+    ["Дополнительные курсы", [["b2", "Углублённый курс B2"], ["ielts", "Подготовка к IELTS"]]]
   ];
   var SERVICE = [["support", "Поддержка · Support"], ["profile", "Профиль и данные"], ["about", "О курсе"]];
   var HP_MAX = 5;
@@ -243,7 +243,7 @@
 
   // ---------- маршрутизация ----------
   var S = null;
-  var ROUTES = { map: viewMap, progress: viewProgress, next: viewNext, hw: viewHw, words: viewWords, cards: viewCards, speech: viewSpeech, formal: viewFormal, grammar: viewGrammar, sounds: viewSounds, listen: viewListen, practice: viewPractice, ielts: viewIelts, support: viewSupport, profile: viewProfile, about: viewAbout };
+  var ROUTES = { map: viewMap, progress: viewProgress, next: viewNext, b2: viewB2, hw: viewHw, words: viewWords, cards: viewCards, speech: viewSpeech, formal: viewFormal, grammar: viewGrammar, sounds: viewSounds, listen: viewListen, practice: viewPractice, ielts: viewIelts, support: viewSupport, profile: viewProfile, about: viewAbout };
   function route() {
     var hs = location.hash.slice(1) || "map";
     if (synth) synth.cancel();
@@ -1005,13 +1005,36 @@
   // ======================================================================
   // ПРОДОЛЖЕНИЕ 31–180 — как в казахском
   // ======================================================================
+  function programView(v, data, start, perMod, title, lead, note) {
+    pageHead(v, title, lead);
+    var s = el("div", "soon-box"); s.appendChild(el("p", null, note)); v.appendChild(s);
+    var n = start;
+    data.forEach(function (m, mi) {
+      var c = el("div", "card prog-mod"); var from = n, to = n + m[4].length - 1;
+      var hd = el("button", "prog-head"); hd.type = "button"; hd.setAttribute("aria-expanded", "false");
+      hd.innerHTML = "<span class='wk-num'>Модуль " + (mi + 1) + " · " + (perMod === 10 ? "уровни " : "уроки ") + from + "–" + to + "</span><b>" + esc(m[0]) + "</b><span class='cefr'>" + m[1] + "</span>";
+      c.appendChild(hd);
+      var body = el("div", "prog-body"); body.hidden = true;
+      body.appendChild(el("p", null, "<b>Вы сможете:</b> " + esc(m[2])));
+      body.appendChild(el("p", null, "<b>Грамматика:</b> " + esc(m[3])));
+      var ol = el("ol", "prog-days"); ol.start = from;
+      m[4].forEach(function (t) { ol.appendChild(el("li", null, esc(t))); });
+      body.appendChild(ol); c.appendChild(body);
+      hd.addEventListener("click", function () { body.hidden = !body.hidden; hd.setAttribute("aria-expanded", String(!body.hidden)); c.classList.toggle("open", !body.hidden); });
+      v.appendChild(c); n = to + 1;
+    });
+  }
   function viewNext(v) {
-    pageHead(v, "Продолжение — 31–180 уровней", "Необязательное продолжение после основного курса. Уровни CEFR — ориентир, а не гарантия: многое зависит от регулярности и практики.");
-    var s = el("div", "soon-box"); s.appendChild(el("p", null, "Раздел в разработке. Уровни 31–180 появятся после проверки основного курса. Прогресс в них будет отдельным.")); v.appendChild(s);
-    var tb = el("table", "plain"), hd = el("tr"); ["Уровни", "Ориентир", "Темы"].forEach(function (x) { hd.appendChild(el("th", null, x)); }); tb.appendChild(hd);
-    EN.next.forEach(function (r) { var tr = el("tr"); r.forEach(function (x) { tr.appendChild(el("td", null, x)); }); tb.appendChild(tr); });
-    v.appendChild(tb);
-    var r = el("div", "row"); r.appendChild(aBtn("#map", "К курсу из 30 уровней", "primary")); r.appendChild(aBtn("#ielts", "Подготовка к IELTS")); v.appendChild(r);
+    programView(v, EN.b1, 31, 10, "Продолжение — 31–180 до уровня B1",
+      "150 уровней, 15 модулей по 10 уровней. Цель — уровень B1: свободно говорить на знакомые темы, понимать основное в фильмах и новостях, писать письма и короткие эссе.",
+      "Программа утверждена, уровни пишутся и будут открываться по модулям. Прогресс в них будет отдельным. Нажмите на модуль, чтобы увидеть темы по дням.");
+    var r = el("div", "row"); r.appendChild(aBtn("#map", "К курсу из 30 уровней", "primary")); r.appendChild(aBtn("#b2", "Дальше: курс B2")); v.appendChild(r);
+  }
+  function viewB2(v) {
+    programView(v, EN.b2, 1, 5, "Углублённый курс B2",
+      "Дополнительный курс после B1: 9 модулей, 45 уроков, примерно 90 дней. Сложная грамматика, академический и деловой английский, идиомы, подготовка к IELTS 6.0–6.5.",
+      "Курс в разработке. Начинать его стоит после итогового экзамена B1 (уровень 180). Нажмите на модуль, чтобы увидеть уроки.");
+    var r = el("div", "row"); r.appendChild(aBtn("#next", "Программа 31–180", "primary")); r.appendChild(aBtn("#ielts", "Подготовка к IELTS")); v.appendChild(r);
   }
 
   // ======================================================================
@@ -1152,11 +1175,12 @@
     { k: ["ielts", "айлс", "экзамен", "exam"], ru: "Раздел «Подготовка к IELTS» объясняет формат, баллы и даёт связки, вопросы Speaking и тест. Для самого экзамена обычно нужен уровень B1–C1.", en: "The “IELTS preparation” section explains the format and bands and gives linking words, Speaking questions and a quiz. The exam itself usually needs B1–C1." },
     { k: ["31", "180", "продолж", "дальше", "continue", "advanced"], ru: "Продолжение 31–180 в разработке. Пока можно повторять уровни, делать ДЗ и готовиться к IELTS.", en: "Levels 31–180 are in development. For now you can review levels, do homework and prepare for IELTS." },
     { k: ["бесплат", "цена", "плат", "free", "price", "pay"], ru: "Сайт бесплатный и некоммерческий: только для развлекательных и познавательных целей.", en: "The site is free and non-commercial: for fun and learning only." },
-    { k: ["ошибк", "опечат", "mistake", "typo", "error"], ru: "Если нашли ошибку в уроке, запомните номер уровня и слово. Отправить сообщение отсюда пока нельзя: живой поддержки нет.", en: "If you find a mistake in a lesson, note the level number and the word. Messages can't be sent from here yet: there is no live support." }
+    { k: ["оператор", "человек", "живой", "operator", "human", "telegram", "телеграм"], ru: "Живой оператор отвечает в Telegram: @tnunr0. Кнопка «Написать оператору» — вверху этой страницы.", en: "A live operator answers on Telegram: @tnunr0. Use the button at the top of this page." },
+    { k: ["ошибк", "опечат", "mistake", "typo", "error"], ru: "Если нашли ошибку в уроке, запомните номер уровня и слово. и напишите оператору в Telegram: @tnunr0.", en: "If you find a mistake in a lesson, note the level number and the word. and message the operator on Telegram: @tnunr0." }
   ];
   function viewSupport(v) {
     pageHead(v, "Поддержка · Support", "Чат-помощник отвечает на частые вопросы на русском и на английском. Пишите на любом из языков.");
-    var s = el("div", "soon-box"); s.appendChild(el("p", null, "Живых операторов пока нет, сообщения никуда не отправляются: помощник отвечает сам, прямо в браузере. There is no live operator yet: the helper answers by itself.")); v.appendChild(s);
+    var s = el("div", "soon-box op-box"); s.innerHTML = "<p><b>Живой оператор · Live operator</b></p><p>Помощник ниже отвечает сам. Если нужен человек, напишите оператору в Telegram — ответ придёт туда, а не на сайт. Need a person? Message the operator on Telegram.</p><p><a class='btn primary small' href='https://t.me/tnunr0' target='_blank' rel='noopener'>Написать оператору · @tnunr0</a></p>"; v.appendChild(s);
     var c = card(null), log = el("div", "chat-log"); log.setAttribute("role", "log"); log.setAttribute("aria-live", "polite");
     var chips = el("div", "chat-chips"), form = el("form", "chat-form"), inp = el("input", "pg-field"); inp.placeholder = "Напишите вопрос… / Type your question…"; inp.setAttribute("aria-label", "Вопрос");
     var send = btn("►", "primary"); send.type = "submit"; form.appendChild(inp); form.appendChild(send);

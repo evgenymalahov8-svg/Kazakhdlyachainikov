@@ -287,3 +287,15 @@ textarea.sess-input { font-size: 17px; line-height: 1.5; resize: vertical; }
 .chat-form { display: flex; gap: 8px; align-items: center; }
 .chat-form .pg-field { margin: 0; }
 .tile:disabled:hover, .tile.locked:hover { background: var(--white); }
+
+/* Программа 31–180 и B2 */
+.prog-mod { padding: 0; }
+.prog-head { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; width: 100%; text-align: left; background: none; border: 0; padding: 14px 16px; cursor: pointer; font: inherit; color: var(--ink); }
+.prog-head .wk-num { grid-column: 1 / -1; font: 9px/1.5 "Press Start 2P", monospace; color: var(--muted); }
+.prog-head b { font-size: 17px; }
+.prog-head .cefr { align-self: center; font: 10px "Press Start 2P", monospace; background: var(--yellow); border: 2px solid var(--ink); padding: 5px 7px; }
+.prog-head:hover, .prog-head:focus-visible { background: #fff4c9; outline: none; }
+.prog-mod.open .prog-head { border-bottom: 3px dashed var(--ink); }
+.prog-body { padding: 4px 16px 14px; }
+.prog-days { margin: 8px 0 0; padding-left: 2.6em; line-height: 1.7; }
+.op-box .btn { margin-top: 4px; }
