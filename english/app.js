@@ -4,6 +4,7 @@
   "use strict";
   var EN = window.EN, LDC = window.LDC;
   var LESSONS = EN.lessons.slice().sort(function (a, b) { return a.id - b.id; });
+  LESSONS.forEach(function (L) { var x = EN.v2 && EN.v2[L.id]; if (x) { L.task = x.task; L.can = x.can; L.speak = x.speak; L.writeTask = x.write; } });
   var TOTAL = LESSONS.length;
   var app = document.getElementById("app");
 
@@ -400,10 +401,11 @@
       var rsteps = [{ k: "info", kicker: "Разминка · 5 минут", title: "Сначала вспомним прошлое", html: "<p>Слова и правила из прошлых уровней возвращаются через 1, 3, 7 и 14 дней. Ошибочные — раньше, уверенные — реже. Отвечайте без подсказок.</p>" }];
       rsteps = rsteps.concat(reviewTasks(L, 5));
       [1, 3, 7, 14].forEach(function (d) { var P0 = LESSONS[id - 1 - d]; if (P0) { var t = gramTask(pick(P0.g.tasks, 1)[0], P0); if (t) { t.kicker = "Повторение · уровень " + P0.id; rsteps.push(t); } } });
+      var PV = LESSONS[id - 2]; if (PV && PV.speak) { var sq = pick(PV.speak, 1)[0]; rsteps.push({ k: "aloud", soft: true, kicker: "Повторение вслух · уровень " + PV.id, q: sq[0], ru: sq[1], sample: sq[2] }); }
       B.push({ id: "review", steps: rsteps });
     }
     // 1. Слова: знакомство по 5 слов → сразу практика
-    var wsteps = [{ k: "info", kicker: "Уровень " + L.id + " · цель", title: L.en + " — " + L.ru, html: "<p>" + L.goal + "</p><p class='muted'>Сначала 10 новых слов. Слушайте каждое в британском и американском варианте, смотрите транскрипцию. После каждых пяти слов — практика.</p>" }];
+    var wsteps = [{ k: "info", kicker: "Уровень " + L.id + " · " + (L.task ? "новые слова" : "цель"), title: L.task ? "Слова из диалога" : L.en + " — " + L.ru, html: (L.task ? "<p>Вы уже слышали эти слова в диалоге. Теперь разберём каждое.</p>" : "<p>" + L.goal + "</p>") + "<p class='muted'>10 слов: слушайте каждое в британском и американском варианте, смотрите транскрипцию. После каждых пяти слов — практика.</p>" }];
     [g1, g2].forEach(function (g) {
       g.forEach(function (w) { wsteps.push({ k: "word", w: w }); });
       if (g.length >= 3) wsteps.push({ k: "match", kicker: "Соедините пары", pairs: g.map(function (w) { return [w.en, ru1(w)]; }) });
@@ -424,14 +426,16 @@
     B.push({ id: "grammar", steps: gsteps });
     // 4. Аудирование: сначала на слух, потом вопросы, потом текст
     var D = L.d, lsteps = [{ k: "dialog", kicker: "Аудирование", title: D.t, lines: D.l, hideText: true }];
+    if (L.task) lsteps.unshift({ k: "info", kicker: "Уровень " + L.id + " · задача урока", title: L.task, html: "<p>К концу уровня вы сделаете это сами, без подсказок.</p><ul>" + L.can.map(function (c) { return "<li>" + c + "</li>"; }).join("") + "</ul><p class='muted'>Сначала послушайте живой диалог — правила будут потом. Удобно заниматься тремя подходами по 30 минут: 1) разминка, диалог и слова; 2) звуки и грамматика; 3) практика, задача урока и босс-тест.</p>" });
     D.q.forEach(function (q) { var o = q[1].split("|"), right = o[q[2]], sh = shuffle(o); lsteps.push({ k: "choice", kicker: "Вопрос по диалогу", q: q[0], opts: sh, a: sh.indexOf(right), replay: D.l, why: q[3] || "" }); });
     lsteps.push({ k: "dialog", kicker: "Текст диалога", title: D.t, lines: D.l, hideText: false });
-    B.push({ id: "listen", steps: lsteps });
+    if (L.task) B.splice(id > 1 ? 1 : 0, 0, { id: "listen", steps: lsteps }); else B.push({ id: "listen", steps: lsteps });
     // 5. Практика: свои предложения + повторение старых слов
     var psteps = sentenceTasks(L);
-    psteps = shuffle(psteps);
+    psteps = L.task ? psteps.sort(function (x, y) { var o = { choice: 0, match: 0, build: 1, type: 2 }; return (o[x.k] || 0) - (o[y.k] || 0); }) : shuffle(psteps);
+    if (L.speak) L.speak.forEach(function (q) { psteps.push({ k: "aloud", soft: true, kicker: "Ответьте вслух", q: q[0], ru: q[1], sample: q[2] }); });
     // Задача урока: применить самостоятельно
-    psteps.push({ k: "write", soft: true, kicker: "Задача урока", title: L.goal, words: L.w.map(function (w) { return w[0]; }), minW: 15, minUse: 2, model: L.d.l.map(function (x) { return x[1]; }).slice(0, 4).join(" ") });
+    psteps.push({ k: "write", soft: true, kicker: "Задача урока", title: L.writeTask || L.goal, words: L.w.map(function (w) { return w[0]; }), minW: 15, minUse: 2, model: L.d.l.map(function (x) { return x[1]; }).slice(0, 4).join(" ") });
     B.push({ id: "practice", steps: psteps });
     // 6. Босс-тест: без подсказок, 80% для прохождения
     var boss = [];
@@ -666,6 +670,19 @@
         var part = st.pts * (Math.min(1, r1.words / st.minW) * 0.5 + Math.min(1, r1.used / st.minUse) * 0.5);
         var ok = r1.words >= st.minW && r1.used >= st.minUse;
         result(ok, null, (ok ? "Требования выполнены. " : "Не хватает: " + (r1.words < st.minW ? "слов (" + r1.words + "/" + st.minW + ") " : "") + (r1.used < st.minUse ? "слов урока (" + r1.used + "/" + st.minUse + ")" : "") + ". ") + "Пример: <i lang='en'>" + esc(st.model) + "</i>", Math.round(part * 10) / 10);
+      });
+    } else if (st.k === "aloud") {
+      var qh = el("h2", null, esc(st.q)); qh.lang = "en"; body.appendChild(qh);
+      body.appendChild(el("p", "muted", st.ru + ". Послушайте вопрос и ответьте вслух полным предложением. Потом сравните с примером."));
+      var ar = el("div", "row"); ar.appendChild(playBtn(st.q, "uk", "Вопрос")); body.appendChild(ar);
+      setTimeout(function () { speak(st.q); }, 300);
+      var smp = el("div", "why-box"); smp.hidden = true; smp.innerHTML = "<b>Пример ответа:</b> <span lang='en'>" + esc(st.sample) + "</span>"; body.appendChild(smp);
+      setAct("Я ответил(а) — показать пример", true, function () {
+        smp.hidden = false; smp.appendChild(playBtn(st.sample, "uk", "Послушать"));
+        var self = el("div", "row"); body.appendChild(el("p", "notice-small", "Оцените себя честно: получилось ответить целым предложением?"));
+        self.appendChild(btn("Получилось", "primary small", function () { self.remove(); result(true, null, "Отлично. Такие ответы — главная цель уровня."); }));
+        self.appendChild(btn("Ещё потренируюсь", "small", function () { self.remove(); result(false, null, "Повторите пример вслух 2–3 раза. Вопрос вернётся в разминке следующего уровня."); }));
+        body.appendChild(self); setAct("Оцените себя", false);
       });
     } else if (st.k === "drill") {
       body.appendChild(el("h2", null, st.title));
@@ -1049,7 +1066,7 @@
     var can = card("Что я умею");
     can.appendChild(el("p", "notice-small", "Умение засчитывается, когда пройден босс-тест уровня и выполнена задача урока. Прохождение страницы ещё не значит, что тема освоена — повторение вернёт слабые места."));
     var ul = el("ul", "can-list");
-    LESSONS.forEach(function (L) { var li = el("li", prog.passed[L.id] ? "on" : "", (prog.passed[L.id] ? "✓ " : "○ ") + esc(L.goal)); ul.appendChild(li); });
+    LESSONS.forEach(function (L) { (L.can || [L.goal]).forEach(function (c) { ul.appendChild(el("li", prog.passed[L.id] ? "on" : "", (prog.passed[L.id] ? "✓ " : "○ ") + esc(c))); }); });
     can.appendChild(ul); v.appendChild(can);
   }
 
