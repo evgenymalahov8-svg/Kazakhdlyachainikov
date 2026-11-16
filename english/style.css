@@ -267,3 +267,37 @@ main::after { content: ""; display: block; height: 160px; background: url("data:
 footer { position: relative; z-index: 1; text-align: center; padding: 22px 14px 30px; font-size: 13px; color: var(--ink); background: #e9e3ff; }
 footer a { color: var(--ink); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ХП, заметки «в разработке», чат поддержки */
+.sess-top .hp { display: inline-flex; gap: 3px; flex: none; }
+.hp .heart { width: 16px; height: 14px; }
+.card .hp .heart { width: 26px; height: 23px; }
+.card .hp { display: flex; gap: 6px; margin-bottom: 10px; }
+@media (max-width: 420px) { .sess-top { gap: 8px; } .sess-top .hp .heart { width: 12px; height: 11px; } .sess-count { min-width: 0; } }
+.soon-box { background: var(--white); border: 3px dashed var(--ink); padding: 14px 16px; margin-bottom: 18px; }
+.soon-box p { margin: 0; }
+.tile.passed { background: #e6f8e9; }
+textarea.sess-input { font-size: 17px; line-height: 1.5; resize: vertical; }
+.chat-log { height: min(52vh, 420px); overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 12px; background: #eef6ff; border: 3px solid var(--ink); margin-bottom: 10px; }
+.msg { max-width: 85%; padding: 9px 12px; border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); line-height: 1.45; animation: fadeUp .3s steps(4) both; background: var(--white); }
+.msg.bot { align-self: flex-start; } .msg.me { align-self: flex-end; background: var(--yellow); }
+.chat-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.chip-q { font: 700 13px var(--body); border: 2px solid var(--ink); background: var(--white); color: var(--ink); padding: 6px 10px; cursor: pointer; }
+.chip-q:hover, .chip-q:focus-visible { background: var(--pink); color: var(--white); outline: none; }
+.chat-form { display: flex; gap: 8px; align-items: center; }
+.chat-form .pg-field { margin: 0; }
+.tile:disabled:hover, .tile.locked:hover { background: var(--white); }
+
+/* Программа 31–180 и B2 */
+.prog-mod { padding: 0; }
+.prog-head { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; width: 100%; text-align: left; background: none; border: 0; padding: 14px 16px; cursor: pointer; font: inherit; color: var(--ink); }
+.prog-head .wk-num { grid-column: 1 / -1; font: 9px/1.5 "Press Start 2P", monospace; color: var(--muted); }
+.prog-head b { font-size: 17px; }
+.prog-head .cefr { align-self: center; font: 10px "Press Start 2P", monospace; background: var(--yellow); border: 2px solid var(--ink); padding: 5px 7px; }
+.prog-head:hover, .prog-head:focus-visible { background: #fff4c9; outline: none; }
+.prog-mod.open .prog-head { border-bottom: 3px dashed var(--ink); }
+.prog-body { padding: 4px 16px 14px; }
+.prog-days { margin: 8px 0 0; padding-left: 2.6em; line-height: 1.7; }
+.op-box .btn { margin-top: 4px; }
+.unit.w6 { background: linear-gradient(#e9fbe6, #b9ecc9); }
+.prog-mod.ready .cefr { background: var(--green); color: var(--white); }

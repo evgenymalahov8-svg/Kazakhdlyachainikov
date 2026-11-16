@@ -12,7 +12,7 @@
       hello: "Сәлем!", note: "30 дней с нуля, словарь, сленг, ситуации",
       progress: { key: "kz_v3_progress", field: "done", total: 30 }, theme: "#6fc6f2" },
     { id: "en", name: "Английский", course: "Английский для чайников", path: "english/index.html", status: "open",
-      hello: "Hello!", note: "30 уровней с нуля, IPA, британский и американский",
+      hello: "Hello!", note: "30 уровней с нуля, IPA, сленг, официальный язык, IELTS",
       progress: { key: "en_v1_progress", field: "done", total: 30 }, theme: "#1b1f4b" },
     { id: "de", name: "Немецкий", course: "Немецкий для чайников", path: "", status: "soon", hello: "Hallo!", theme: "#ffce00" },
     { id: "es", name: "Испанский", course: "Испанский для чайников", path: "", status: "soon", hello: "¡Hola!", theme: "#f1bf00" },

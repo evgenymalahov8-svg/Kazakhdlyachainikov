@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Чат поддержки — Языки для чайников</title>
+<meta name="description" content="Чат поддержки Языки для чайников: ответы на частые вопросы о курсах, прогрессе, озвучке и микрофоне.">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/platform.css">
+<link rel="stylesheet" href="../assets/portal.css">
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="../index.html"><span>Языки</span><span>для чайников</span></a>
+  <nav class="top-nav" aria-label="Разделы">
+    <a href="../index.html">Главная</a>
+  </nav>
+  <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Открыть меню">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+<div class="scrim" id="scrim" hidden></div>
+<nav class="drawer" id="menu" aria-label="Главное меню">
+  <p class="menu-h">Платформа</p>
+  <ul class="menu-list">
+    <li><a href="../index.html">Главная</a></li>
+    <li><a href="../index.html#shelf">Выбор языка</a></li>
+    <li><a href="../index.html#about">О проекте</a></li>
+  </ul>
+  <p class="menu-h">Помощь</p>
+  <ul class="menu-list">
+    <li><a href="../profile/index.html">Профиль</a></li>
+    <li><a href="../support/index.html" aria-current="page">Чат поддержки</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="band sky">
+    <p class="kicker">помощь</p>
+    <h1 class="mega"><span class="gold">ЧАТ</span><span class="sub">поддержки</span></h1>
+  </div>
+  <div class="px-edge e-sky-paper" aria-hidden="true"></div>
+  <div class="band plain">
+    <div class="card chat-card">
+      <p class="notice-small">Это чат-помощник: он отвечает на частые вопросы сам, прямо в браузере. Если нужен живой человек — напишите оператору в Telegram, ответ придёт туда.</p>
+      <p><a class="btn primary small" href="https://t.me/tnunr0" target="_blank" rel="noopener">Написать оператору · @tnunr0</a></p>
+      <div class="chat-log" id="chatLog" role="log" aria-live="polite"></div>
+      <div class="chat-chips" id="chatChips"></div>
+      <form class="chat-form" id="chatForm"><input class="pg-field" id="chatIn" type="text" autocomplete="off" placeholder="Напиши вопрос…" aria-label="Вопрос"><button class="btn primary" type="submit">►</button></form>
+    </div>
+  </div>
+</main>
+<div class="orn-strip" aria-hidden="true"></div>
+<footer>Языки для чайников · не для коммерческого использования: только для развлекательных и познавательных целей.<br>Автор: Сулустанова Анжелина.</footer>
+<script src="../assets/platform.js"></script>
+<script>
+(function () {
+  var burger = document.getElementById("burger"), drawer = document.getElementById("menu"), scrim = document.getElementById("scrim");
+  function setMenu(o) { drawer.classList.toggle("open", o); scrim.hidden = !o; burger.setAttribute("aria-expanded", String(o)); burger.setAttribute("aria-label", o ? "Закрыть меню" : "Открыть меню"); }
+  burger.addEventListener("click", function () { setMenu(!drawer.classList.contains("open")); });
+  scrim.addEventListener("click", function () { setMenu(false); });
+  drawer.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu(false); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") setMenu(false); });
+})();
+(function () {
+  var log = document.getElementById("chatLog"), form = document.getElementById("chatForm"), inp = document.getElementById("chatIn"), chips = document.getElementById("chatChips");
+  var FAQ = [
+    { k: ["прогресс", "сохран", "пропал", "исчез", "сброс"], a: "Прогресс хранится в этом браузере, отдельно для каждого языка. Он пропадёт, если очистить данные сайта или открыть его в другом браузере. Чтобы не потерять его, создай код в разделе <a href=\"../profile/index.html\">Профиль</a> и сохрани в заметках." },
+    { k: ["телефон", "устройств", "перенес", "компьютер", "ноутбук"], a: "Чтобы перенести прогресс: на старом устройстве открой <a href=\"../profile/index.html\">Профиль</a> → «Создать код», скопируй его, а на новом устройстве вставь код и нажми «Загрузить код»." },
+    { k: ["звук", "озвуч", "голос", "не слыш", "аудио", "диктор"], a: "Озвучка идёт через голос твоего браузера или телефона. Лучше всего работает в Chrome, Edge и Safari. Если звука нет, проверь громкость и беззвучный режим. Если голос не тот, в настройках английского курса можно выбрать британское или американское произношение." },
+    { k: ["микрофон", "произнош", "скажи", "распозна"], a: "Кнопка «🎙 Скажи» появляется только там, где браузер умеет распознавать речь (Chrome, Edge). Разреши доступ к микрофону, когда браузер спросит. Оценка примерная — это подсказка, а не экзамен." },
+    { k: ["немецк", "испанск", "японск", "француз", "новый язык", "другие язык", "когда"], a: "Немецкий, испанский, японский и другие языки появятся позже — их чайники уже стоят на полке с пометкой «Скоро». Пока открыты казахский и английский." },
+    { k: ["бесплат", "цена", "стоит", "оплат", "деньг", "платн"], a: "Сайт полностью бесплатный и некоммерческий: только для развлекательных и познавательных целей. Здесь нет рекламы и платных разделов." },
+    { k: ["кто", "автор", "сделал", "создал"], a: "Сайт сделала студентка, которая поступила учиться в Республику Казахстан. Казахский и английский для автора не родные, поэтому в текстах возможны ошибки. Автор: Сулустанова Анжелина." },
+    { k: ["начать", "с чего", "новичок", "нул", "уровень"], a: "Начни с главной: нажми «Выбрать язык» и выбери чайник. Оба курса рассчитаны на старт с нуля: в казахском — 30 дней, в английском — 30 уровней до A2. Лучше заниматься понемногу каждый день." },
+    { k: ["оператор", "человек", "живой", "телеграм", "telegram"], a: "Живой оператор отвечает в Telegram: @tnunr0. Нажми «Написать оператору» вверху страницы." },
+    { k: ["ошибк", "неправильн", "опечат", "неверн"], a: "Если нашёл ошибку в уроке, запомни номер дня или уровня и само слово. Напиши оператору в Telegram: @tnunr0 — кнопка вверху страницы." },
+    { k: ["портал", "анимац", "пропуст"], a: "Анимацию портала можно пропустить кнопкой «Пропустить ►» внизу экрана или клавишей Esc. Если в системе включено «уменьшение движения», портал заменяется коротким затемнением." },
+    { k: ["сертификат", "экзамен", "диплом"], a: "Сайт не выдаёт сертификатов и не заменяет учителя. Он помогает дойти до базового уровня самостоятельно." }
+  ];
+  var QUICK = ["Как сохранить прогресс?", "Нет звука", "Как перенести на телефон?", "Когда будут другие языки?", "Это бесплатно?"];
+  function add(who, html) { var d = document.createElement("div"); d.className = "msg " + who; d.innerHTML = html; log.appendChild(d); log.scrollTop = log.scrollHeight; }
+  function esc(s) { return s.replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); }
+  function answer(q) {
+    var t = q.toLowerCase().replace(/ё/g, "е"), best = null, score = 0;
+    FAQ.forEach(function (f) { var s = 0; f.k.forEach(function (k) { if (t.indexOf(k) >= 0) s++; }); if (s > score) { score = s; best = f; } });
+    if (/^(привет|здравств|салем|сәлем|hello|hi)/.test(t)) return "Привет! Спроси про прогресс, озвучку, микрофон, перенос на другое устройство или новые языки.";
+    return best ? best.a : "Не нашла ответа на этот вопрос. Попробуй спросить по-другому или выбери вопрос из подсказок ниже. Живой поддержки пока нет.";
+  }
+  function ask(q) { add("me", esc(q)); setTimeout(function () { add("bot", answer(q)); }, 350); }
+  QUICK.forEach(function (q) { var b = document.createElement("button"); b.type = "button"; b.className = "chip-q"; b.textContent = q; b.onclick = function () { ask(q); }; chips.appendChild(b); });
+  form.addEventListener("submit", function (e) { e.preventDefault(); var q = inp.value.trim(); if (!q) return; inp.value = ""; ask(q); });
+  add("bot", "Сәлем! Hello! Я чат-помощник «Языков для чайников». Выбери вопрос ниже или напиши свой.");
+})();
+</script>
+</body>
+</html>
