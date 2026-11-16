@@ -492,9 +492,9 @@
   .salem-pot { width: 150px; height: 112px; display: block; animation: bob 1.2s steps(2) infinite; }
   @media (max-width: 560px) { .salem-card { flex-direction: column; text-align: center; } .salem-card .row { justify-content: center; } .salem-pot { width: 120px; height: 90px; } }
   @media (prefers-reduced-motion: reduce) { .salem-pot { animation: none; } }
-  .band.sky.kz-home { text-align: left; padding: 0 0 0; background: linear-gradient(#bfe6fb, #e4f4ff 55%, #eef8e6); }
-  .band.sky.kz-home::before { top: 230px; }
-  .band.sky.kz-home::after { bottom: 190px; }
+  .band.sky.kz-home { text-align: left; padding: 0 0 0; background-color: #dff0ff; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M20 12h8v-2h8v2h4v2h4v2h4v4H12v-2h2v-4h4v-2h2z'/%3E%3Cpath fill='%23d7e8ff' d='M12 18h40v2H12z'/%3E%3Cpath fill='%23fff' d='M104 58h6v-2h6v2h3v2h3v3H96v-2h2v-2h4v-1h2z'/%3E%3Cpath fill='%23d7e8ff' d='M96 61h26v2H96z'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90' shape-rendering='crispEdges'%3E%3Cpath fill='%23fff' d='M20 12h8v-2h8v2h4v2h4v2h4v4H12v-2h2v-4h4v-2h2z'/%3E%3Cpath fill='%23d7e8ff' d='M12 18h40v2H12z'/%3E%3Cpath fill='%23fff' d='M104 58h6v-2h6v2h3v2h3v3H96v-2h2v-2h4v-1h2z'/%3E%3Cpath fill='%23d7e8ff' d='M96 61h26v2H96z'/%3E%3C/svg%3E"), linear-gradient(#9fd6f5, #b9e2f8 40%, #cdeafa 80%, #dcefd6); background-size: 640px 360px, 480px 270px, 100% 100%; background-position: 0 40px, 300px 200px, 0 0; background-repeat: repeat, repeat, no-repeat; }
+  .band.sky.kz-home::before, .band.sky.kz-home::after { display: none; }
+  .salem-card { margin-bottom: 26px !important; }
   .kz-home .dash { padding: 24px 20px 10px; background: none; position: relative; z-index: 1; }
   .kz-home .h-pixel { margin-top: 4px; }
   .steppe-head { margin: 0 -20px 22px; height: 150px; }
