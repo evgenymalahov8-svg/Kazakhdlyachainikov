@@ -531,3 +531,24 @@
 .world-stage { margin-top: 22px; }
 .world-stage .h1 { left: 0; top: 0; } .world-stage .h2 { right: 0; top: 0; } .world-stage .h3 { left: 0; top: 30%; } .world-stage .h4 { right: 0; top: 30%; }
 .world-stage .h5 { left: auto; right: 0; top: 57%; transform: none; animation: bob 1.6s steps(2) infinite; animation-delay: 1.2s; font-size: 12px; }
+/* Шкаф: сплошные полки во всю ширину и ничего не вылезает за экран на телефоне */
+.cupboard { box-sizing: border-box; }
+.shelf-grid { overflow: hidden; margin: 0 -14px; padding: 0 14px; }
+.slot::after { left: -40px; right: -40px; }
+.slot { z-index: 0; }
+@media (max-width: 560px) {
+  .cupboard { margin: 16px 18px 30px 6px; padding: 8px; border-width: 6px; outline-width: 5px; box-shadow: 8px 8px 0 5px #3a2a52; }
+  .shelf-grid { margin: 0 -8px; padding: 0 8px; gap: 0 10px; }
+  .slot { margin-bottom: 34px; }
+  .slot::after { bottom: -18px; height: 18px; border-bottom-width: 5px; }
+  .shelf-pot { padding: 20px 6px 16px; gap: 6px; }
+  .plate { gap: 6px; }
+  .plate small { font-size: 13px; line-height: 1.35; }
+  .cupboard .feet { bottom: -30px; }
+}
+@media (max-width: 380px) { .cupboard { margin-left: 2px; margin-right: 14px; } .shelf-pot .tp-svg { width: 96px; height: 72px; } .plate b { font-size: 10px; } }
+.shelf-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 560px) { .shelf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.plate, .plate small { min-width: 0; overflow-wrap: anywhere; }
+.world-stage { width: min(400px, calc(100% - 28px)); }
+@media (max-width: 420px) { .world-stage .hi { font-size: 8px; padding: 5px 6px; } .world-stage .h5 { font-size: 11px; } }
