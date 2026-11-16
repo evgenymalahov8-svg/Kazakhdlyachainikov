@@ -1,3 +1,237 @@
+/* Общие скрипты платформы: режим проверки, входной тест, студия озвучки */
+/* ---- checkmode ---- */
+/* Режим проверки: все уроки, ДЗ и тесты открыты без прохождения по порядку.
+   Включается переключателем в профиле или ссылкой с ?check=1 (выключить — ?check=0). Прогресс при этом не портится. */
+(function () {
+  var KEY = "ldc_open_all";
+  function get() { try { return localStorage.getItem(KEY) === "1"; } catch (e) { return false; } }
+  function set(v) { try { if (v) localStorage.setItem(KEY, "1"); else localStorage.removeItem(KEY); } catch (e) {} }
+  try {
+    var m = /[?&]check=([01])/.exec(location.search);
+    if (m) { set(m[1] === "1"); history.replaceState(null, "", location.pathname + location.hash); }
+  } catch (e) {}
+  function banner() {
+    if (!get() || document.getElementById("ldcCheck")) return;
+    var b = document.createElement("div"); b.id = "ldcCheck"; b.className = "ldc-check";
+    b.innerHTML = "<span><b>Режим проверки:</b> все уроки открыты</span>";
+    var x = document.createElement("button"); x.type = "button"; x.textContent = "Выключить";
+    x.addEventListener("click", function () { set(false); location.reload(); });
+    b.appendChild(x); document.body.insertBefore(b, document.body.firstChild);
+  }
+  function card(box, cls) {
+    var c = document.createElement("div"); c.className = cls || "card";
+    var on = get();
+    c.innerHTML = "<h3>Режим проверки</h3><p class='muted'>Открывает все дни и уровни, домашние задания и тесты в обоих курсах — удобно, чтобы проверить материалы. Ваш прогресс не меняется: пройденным считается только то, что вы прошли по порядку.</p>";
+    var row = document.createElement("div"); row.className = "row";
+    var btn = document.createElement("button"); btn.type = "button"; btn.className = "btn " + (on ? "" : "primary");
+    btn.textContent = on ? "Выключить режим проверки" : "Открыть все уроки";
+    btn.addEventListener("click", function () { set(!get()); location.reload(); });
+    row.appendChild(btn); c.appendChild(row);
+    c.appendChild(Object.assign(document.createElement("p"), { className: "notice-small", textContent: on ? "Сейчас включён: все уроки открыты." : "Сейчас выключен." }));
+    box.appendChild(c); return c;
+  }
+  window.LDCCheck = { on: get, set: set, card: card };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", banner); else banner();
+  var st = document.createElement("style");
+  st.textContent = ".ldc-check{position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:center;padding:7px 12px;background:#ffd23f;color:#111;border-bottom:3px solid #111;font:600 14px/1.3 system-ui,sans-serif}.ldc-check button{font:700 13px system-ui,sans-serif;background:#111;color:#fff;border:0;padding:5px 10px;cursor:pointer}";
+  (document.head || document.documentElement).appendChild(st);
+})();
+;
+/* ---- placement ---- */
+/* Входной тест «Языки для чайников»: общий движок для всех курсов.
+   Вопрос банка: [навык v|g|r|l, этап, вариант 0|1, вопрос (HTML), "верный|неверный|…", тема, текст для озвучки (для l)].
+   Тест адаптивный: этапы от простого к сложному, при слабом результате тест останавливается.
+   Итог — по навыкам, без «точного общего уровня» (устная речь не проверяется). */
+(function () {
+  var SK = { v: "Словарный запас", g: "Грамматика", r: "Чтение", l: "Аудирование" };
+  var ORDER = ["v", "g", "r", "l"];
+  function el(t, c, h) { var e = document.createElement(t); if (c) e.className = c; if (h != null) e.innerHTML = h; return e; }
+  function btn(txt, cls, fn) { var b = el("button", "btn " + (cls || ""), txt); b.type = "button"; if (fn) b.addEventListener("click", fn); return b; }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function load(k) { try { return JSON.parse(localStorage.getItem(k)) || null; } catch (e) { return null; } }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+  function mount(box, cfg) {
+    var KEY = cfg.storeKey, data = load(KEY) || { attempts: [] }, S = null;
+    var last = data.attempts[data.attempts.length - 1];
+    function top() { box.innerHTML = ""; box.scrollIntoView && window.scrollTo(0, 0); }
+    function head(t, lead) { var h = el("h1", "h-pixel"); h.appendChild(el("span", "gold", t)); box.appendChild(h); if (lead) box.appendChild(el("p", "muted", lead)); }
+
+    function intro() {
+      top(); head("Входной тест", "Узнайте, с какого урока начать. 15–20 минут: словарь, грамматика, чтение и аудирование. Задания идут от простого к сложному — если станет трудно, тест закончится сам.");
+      var c = el("div", "card pl-card");
+      c.appendChild(el("p", null, "<b>Как это устроено</b>"));
+      c.appendChild(el("ul", "pl-list", "<li>Не угадывайте: если не знаете ответ, нажмите «Не знаю».</li><li>Новичку не нужно проходить весь тест — он остановится на вашем уровне.</li><li>В конце — уровень по каждому навыку, сильные стороны, пробелы и урок, с которого лучше начать.</li><li>Устную речь тест не проверяет, поэтому общий уровень — только ориентир.</li>" + (cfg.ttsNote ? "<li>" + cfg.ttsNote + "</li>" : "")));
+      var r = el("div", "row pl-row");
+      r.appendChild(btn(last ? "► Повторная проверка (другие задания)" : "► Начать тест", "primary", start));
+      r.appendChild(btn("Я совсем с нуля — к уроку 1", "", function () { data.zero = true; save(KEY, data); cfg.goLesson(1); }));
+      c.appendChild(r); box.appendChild(c);
+      if (last) { box.appendChild(el("h2", "pl-h2", "Последний результат")); box.appendChild(resultCard(last, data.attempts[data.attempts.length - 2])); }
+    }
+
+    function start() {
+      var form = data.attempts.length % 2;
+      S = { form: form, stage: 0, items: [], pos: 0, ans: [] };
+      loadStage(); step();
+    }
+    function loadStage() {
+      var pool = cfg.bank.filter(function (q) { return q[1] === S.stage && q[2] === S.form; });
+      if (!pool.length) pool = cfg.bank.filter(function (q) { return q[1] === S.stage; });
+      S.items = []; ORDER.forEach(function (s) { S.items = S.items.concat(shuffle(pool.filter(function (q) { return q[0] === s; }))); });
+      S.pos = 0;
+    }
+    function step() {
+      if (S.pos >= S.items.length) return endStage();
+      top();
+      var q = S.items[S.pos], st = cfg.stages[S.stage];
+      var hd = el("div", "pl-top");
+      hd.appendChild(btn("✕", "small pl-x", function () { if (confirm("Выйти из теста? Ответы этой попытки не сохранятся.")) intro(); }));
+      var bar = el("div", "pl-bar"), fill = el("i"); fill.style.width = Math.round(S.pos / S.items.length * 100) + "%"; bar.appendChild(fill); hd.appendChild(bar);
+      hd.appendChild(el("span", "pl-count", "Этап " + (S.stage + 1) + " из " + cfg.stages.length));
+      box.appendChild(hd);
+      var c = el("div", "card pl-card");
+      c.appendChild(el("p", "pl-skill", SK[q[0]] + " · " + st.name));
+      if (q[0] === "l") {
+        c.appendChild(el("p", "pl-q", "Послушайте и выберите, что прозвучало."));
+        var pb = btn("▶ Послушать", "small", function () { cfg.speak(q[6], pb); }); c.appendChild(pb);
+        setTimeout(function () { cfg.speak(q[6]); }, 350);
+        if (q[3]) c.appendChild(el("p", "pl-q", q[3]));
+      } else c.appendChild(el("div", "pl-q", q[3]));
+      var opts = q[4].split("|"), right = opts[0], g = el("div", "pl-opts");
+      shuffle(opts).forEach(function (o) { g.appendChild(btn(o, "pl-opt", function () { answer(o === right ? 1 : 0); })); });
+      c.appendChild(g);
+      c.appendChild(btn("Не знаю", "small pl-dk", function () { answer(-1); }));
+      box.appendChild(c);
+    }
+    function answer(v) { var q = S.items[S.pos]; S.ans.push({ s: q[0], st: S.stage, ok: v === 1 ? 1 : 0, dk: v === -1 ? 1 : 0, t: q[5] }); S.pos++; step(); }
+    function stageScore(st) { var a = S.ans.filter(function (x) { return x.st === st; }); return a.length ? a.filter(function (x) { return x.ok; }).length / a.length : 0; }
+    function endStage() {
+      var sc = stageScore(S.stage);
+      if (sc >= 0.6 && S.stage < cfg.stages.length - 1) {
+        S.stage++; loadStage();
+        top(); var c = el("div", "card pl-card pl-mid");
+        c.appendChild(el("h2", null, "Этап " + S.stage + " пройден"));
+        c.appendChild(el("p", null, "Дальше задания сложнее: «" + cfg.stages[S.stage].name + "». Можно остановиться и посмотреть результат."));
+        var r = el("div", "row pl-row"); r.appendChild(btn("► Дальше", "primary", step)); r.appendChild(btn("Закончить и посмотреть результат", "", finish)); c.appendChild(r); box.appendChild(c);
+        return;
+      }
+      finish();
+    }
+    function finish() {
+      var stages = cfg.stages, res = { date: Date.now(), form: S.form, skills: {}, passed: 0, gaps: [], dk: 0 };
+      for (var i = 0; i < stages.length; i++) { var a = S.ans.filter(function (x) { return x.st === i; }); if (a.length && stageScore(i) >= 0.7) res.passed = i + 1; else break; }
+      ORDER.forEach(function (s) {
+        var lv = 0;
+        for (var i = 0; i < stages.length; i++) {
+          var a = S.ans.filter(function (x) { return x.st === i && x.s === s; });
+          if (!a.length || a.filter(function (x) { return x.ok; }).length / a.length < 0.5) break; lv = i + 1;
+        }
+        res.skills[s] = lv;
+      });
+      var seen = {}; S.ans.forEach(function (x) { if (!x.ok && !seen[x.t]) { seen[x.t] = 1; res.gaps.push(x.t); } if (x.dk) res.dk++; });
+      res.rec = res.passed >= stages.length ? stages[stages.length - 1].to + 1 : stages[res.passed].from;
+      res.rec = Math.min(res.rec, cfg.total);
+      data.attempts.push(res); save(KEY, data); last = res;
+      top(); head("Ваш результат", "Это ориентир, а не сертификат: тест не проверяет устную речь.");
+      box.appendChild(resultCard(res, data.attempts[data.attempts.length - 2], true));
+      if (window.LDCPlace && LDCPlace.planCard) LDCPlace.planCard(box, KEY, cfg.stages, cfg.unit);
+    }
+    function lvName(n) { return n === 0 ? cfg.zeroLabel : cfg.stages[n - 1].label; }
+    function resultCard(res, prev, actions) {
+      var c = el("div", "card pl-card");
+      var t = el("table", "pl-table"); t.innerHTML = "<tr><th>Навык</th><th>Уровень</th>" + (prev ? "<th>Было</th>" : "") + "</tr>";
+      ORDER.forEach(function (s) { t.innerHTML += "<tr><td>" + SK[s] + "</td><td><b>" + lvName(res.skills[s]) + "</b></td>" + (prev ? "<td>" + lvName(prev.skills[s]) + "</td>" : "") + "</tr>"; });
+      c.appendChild(t);
+      var vals = ORDER.map(function (s) { return res.skills[s]; }), mx = Math.max.apply(null, vals), mn = Math.min.apply(null, vals);
+      c.appendChild(el("p", null, "<b>Примерный уровень по тесту:</b> " + lvName(res.passed) + (mx !== mn ? " (навыки различаются)" : "") + "."));
+      if (mx > 0) c.appendChild(el("p", null, "<b>Сильные стороны:</b> " + ORDER.filter(function (s) { return res.skills[s] === mx; }).map(function (s) { return SK[s].toLowerCase(); }).join(", ") + "."));
+      if (mx !== mn || mx === 0) c.appendChild(el("p", null, "<b>Над чем поработать:</b> " + ORDER.filter(function (s) { return res.skills[s] === mn; }).map(function (s) { return SK[s].toLowerCase(); }).join(", ") + "."));
+      if (res.gaps.length) c.appendChild(el("p", "notice-small", "Темы с ошибками: " + res.gaps.slice(0, 8).join(", ") + "."));
+      if (res.dk) c.appendChild(el("p", "notice-small", "Ответов «Не знаю»: " + res.dk + ". Это честнее, чем угадывать, — так рекомендация точнее."));
+      var rec = res.rec;
+      c.appendChild(el("p", "pl-rec", rec <= 1 ? "Рекомендуем начать с <b>урока 1</b>." : "Рекомендуем начать с <b>урока " + rec + "</b>" + (mn < res.passed ? ", а слабый навык подтянуть повторением ранних уроков" : "") + "."));
+      if (actions) {
+        var r = el("div", "row pl-row");
+        if (rec > cfg.done() + 1) { r.appendChild(btn("► Проверить базу и начать с урока " + rec, "primary", function () { skipCheck(rec); })); r.appendChild(btn("Начать с урока 1", "", function () { cfg.goLesson(1); })); }
+        else r.appendChild(btn("► К уроку " + Math.max(cfg.done() + 1, 1), "primary", function () { cfg.goLesson(Math.max(cfg.done() + 1, 1)); }));
+        r.appendChild(btn("Пройти ещё раз позже", "", intro));
+        c.appendChild(r);
+      }
+      return c;
+    }
+
+    // Короткая проверка ключевых навыков пропускаемых уроков
+    function skipCheck(rec) {
+      var items = cfg.skipItems(rec), k = 0, ok = 0, miss = [];
+      function show() {
+        top();
+        if (k >= items.length) {
+          var pass = ok / items.length >= 0.75, c = el("div", "card pl-card");
+          head("Проверка базы", null);
+          c.appendChild(el("p", null, "Верно: <b>" + ok + " из " + items.length + "</b>."));
+          if (pass) {
+            c.appendChild(el("p", null, "База на месте. Уроки 1–" + (rec - 1) + " отмечены как пройденные, их можно открыть и повторить в любой момент."));
+            var r = el("div", "row pl-row"); r.appendChild(btn("► Начать урок " + rec, "primary", function () { cfg.skipTo(rec); cfg.goLesson(rec); })); c.appendChild(r);
+          } else {
+            var back = cfg.stages.filter(function (s) { return s.to < rec; }).map(function (s) { return s.from; }).pop() || 1;
+            c.appendChild(el("p", null, "Есть пробелы в базе" + (miss.length ? ": " + miss.slice(0, 6).join(", ") : "") + ". Лучше не пропускать эти уроки."));
+            var r2 = el("div", "row pl-row");
+            if (back > 1 && back < rec) r2.appendChild(btn("► Начать с урока " + back, "primary", function () { cfg.skipTo(back); cfg.goLesson(back); }));
+            r2.appendChild(btn((back > 1 && back < rec) ? "Начать с урока 1" : "► Начать с урока 1", back > 1 && back < rec ? "" : "primary", function () { cfg.goLesson(1); }));
+            c.appendChild(r2);
+          }
+          box.appendChild(c); return;
+        }
+        var q = items[k], c2 = el("div", "card pl-card");
+        var hd = el("div", "pl-top"), bar = el("div", "pl-bar"), f = el("i"); f.style.width = Math.round(k / items.length * 100) + "%"; bar.appendChild(f); hd.appendChild(bar); hd.appendChild(el("span", "pl-count", "Проверка базы " + (k + 1) + "/" + items.length)); box.appendChild(hd);
+        c2.appendChild(el("p", "pl-skill", "Ключевое из уроков 1–" + (rec - 1)));
+        c2.appendChild(el("div", "pl-q", q.q));
+        var g = el("div", "pl-opts");
+        shuffle(q.o).forEach(function (o) { g.appendChild(btn(o, "pl-opt", function () { if (o === q.o[0]) ok++; else miss.push(q.t); k++; show(); })); });
+        c2.appendChild(g); c2.appendChild(btn("Не знаю", "small pl-dk", function () { miss.push(q.t); k++; show(); }));
+        box.appendChild(c2);
+      }
+      show();
+    }
+    intro();
+  }
+
+  // ---------- Адаптация обучения по результату теста ----------
+  function stageOf(stages, id) { for (var i = 0; i < stages.length; i++) if (id >= stages[i].from && id <= stages[i].to) return i; return stages.length; }
+  function adapt(storeKey, stages, id) {
+    var d = load(storeKey); if (!d || !d.attempts || !d.attempts.length || d.adaptOff) return null;
+    var r = d.attempts[d.attempts.length - 1], st = stageOf(stages, id), strong = {}, weak = {}, any = false;
+    ORDER.forEach(function (s) { strong[s] = r.skills[s] > st; weak[s] = r.skills[s] < st; if (strong[s] || weak[s]) any = true; });
+    return any ? { strong: strong, weak: weak, res: r } : null;
+  }
+  function planLines(r, stages, unit) {
+    var out = [];
+    ORDER.forEach(function (s) {
+      var lv = r.skills[s];
+      if (lv > 0) out.push("<b>" + SK[s] + "</b>: " + unit + " 1–" + stages[lv - 1].to + " — короткая проверка вместо подробных объяснений.");
+    });
+    var mx = Math.max.apply(null, ORDER.map(function (s) { return r.skills[s]; }));
+    var mn = Math.min.apply(null, ORDER.map(function (s) { return r.skills[s]; }));
+    ORDER.forEach(function (s) { var lv = r.skills[s]; if (lv === mn && lv < mx && lv < stages.length) out.push("<b>" + SK[s] + "</b> — ваш слабый навык: начиная с " + (unit === "дни" ? "дня " : "уровня ") + stages[lv].from + " в уроках больше практики на него."); });
+    return out;
+  }
+  function planCard(box, storeKey, stages, unit) {
+    var d = load(storeKey); if (!d || !d.attempts || !d.attempts.length) return null;
+    var r = d.attempts[d.attempts.length - 1], lines = planLines(r, stages, unit || "уроки");
+    var c = el("div", "card pl-card");
+    c.appendChild(el("h3", null, "Обучение по вашему уровню"));
+    if (!lines.length) { c.appendChild(el("p", null, "По тесту лучше пройти курс полностью, с объяснениями. Тест можно пройти снова в любой момент.")); box.appendChild(c); return c; }
+    c.appendChild(el("p", "muted", d.adaptOff ? "Сейчас выключено: все уроки идут полностью." : "По результату входного теста курс подстроен под вас:"));
+    c.appendChild(el("ul", "pl-list", lines.map(function (x) { return "<li>" + x + "</li>"; }).join("")));
+    c.appendChild(el("p", "notice-small", "Дальше по курсу, где навык ещё не дотягивает до уровня урока, практики на него тоже будет больше. Устную речь, задачу урока и босс-тест мы не сокращаем: они проверяют, что база на месте. Ошибки в короткой проверке возвращаются в повторение."));
+    var b = btn(d.adaptOff ? "Включить адаптацию" : "Учиться без сокращений", d.adaptOff ? "primary" : "", function () { d.adaptOff = !d.adaptOff; save(storeKey, d); var nc = planCard(document.createElement("div"), storeKey, stages, unit); c.replaceWith(nc); });
+    var r2 = el("div", "row pl-row"); r2.appendChild(b); r2.appendChild(btn("Пройти тест снова", "", function () { location.hash = "#test"; })); c.appendChild(r2);
+    box.appendChild(c); return c;
+  }
+  window.LDCPlace = { mount: mount, shuffle: shuffle, adapt: adapt, planCard: planCard, stageOf: stageOf };
+})();
+;
+/* ---- studio ---- */
 /* Студия озвучки «Языки для чайников» — общая для всех курсов.
    Диктор записывает фразы в браузере. Записи хранятся на устройстве (IndexedDB) и сразу звучат в курсе.
    «Скачать архив» даёт папку audio/ с файлами и manifest.json (вместе с тем, что уже лежит на сайте).
@@ -297,3 +531,4 @@
     ".studio-ov-opts input{-webkit-appearance:checkbox;appearance:auto;width:18px;height:18px;vertical-align:middle;margin-right:6px}";
   var s = document.createElement("style"); s.textContent = css; (document.head || document.documentElement).appendChild(s);
 })();
+;
