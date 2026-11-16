@@ -16,6 +16,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/portal.css">
+<link rel="stylesheet" href="../assets/placement.css">
+<script src="placement-kz.js"></script>
+<script src="../assets/placement.js"></script>
 <style>
   :root {
     --paper: #f2f2ef; --ink: #111; --pink: #f0479a; --pink-d: #b8246a; --green: #3dbe4a; --green-d: #1d7a2a;
@@ -3927,7 +3930,7 @@
 
   // ============ Меню из пяти разделов, страницы, серия и XP ============
   const MENU = [
-    ["Главная", "Home", [["home", "Обзор и приветствие", "Overview"], ["continue", "Продолжить обучение", "Continue learning"], ["progress", "Мой прогресс", "My progress"], ["materials", "Полезные материалы", "Useful materials"], ["quick", "Быстрый доступ", "Quick access"]]],
+    ["Главная", "Home", [["home", "Обзор и приветствие", "Overview"], ["test", "Входной тест", "Placement test"], ["continue", "Продолжить обучение", "Continue learning"], ["progress", "Мой прогресс", "My progress"], ["materials", "Полезные материалы", "Useful materials"], ["quick", "Быстрый доступ", "Quick access"]]],
     ["Основной курс", "Main course", [["plan", "Казахский с нуля — 30 дней", "Kazakh from zero — 30 days"], ["next", "Продолжение — 31–180 дней", "Continuation — days 31–180"], ["continue", "Текущий урок", "Current lesson"], ["grammar", "Грамматика: окончания и времена", "Grammar: endings and tenses"], ["schedule", "Расписание обучения", "Study schedule"], ["hw", "Домашние задания", "Homework"], ["media", "Видео и аудирование", "Video and listening"], ["sites", "Полезные учебные сайты", "Useful learning sites"]]],
     ["Словарь", "Dictionary", [["words", "Все слова", "All words"], ["cats", "Тематические категории", "Topic categories"], ["cards", "Карточки для запоминания", "Flashcards"], ["review", "Повторение слов", "Word review"], ["fav", "Избранное", "Favourites"], ["speech", "Разговорная речь и сленг", "Colloquial speech and slang"], ["dicts", "Онлайн-словари и справочники", "Online dictionaries"]]],
     ["Практика", "Practice", [["drill", "Практика по урокам", "Practice by lesson"], ["extra", "Дополнительные упражнения", "Extra exercises"], ["tests", "Тесты", "Tests"], ["writing", "Письменные задания", "Writing tasks"], ["dialogs", "Диалоги и разговорная практика", "Dialogues and speaking"], ["listen", "Аудирование", "Listening"], ["mistakes", "Разбор ошибок", "Mistake review"]]],
@@ -4094,6 +4097,7 @@
     const hiRow = el("div", "row");
     hiRow.appendChild(aBtn("#continue", prog.done >= TOTAL ? T("► Повторить", "► Review") : fresh ? T("► Начать", "► Start") : T("► Продолжить", "► Continue"), "primary"));
     hiRow.appendChild(aBtn("#cards", T("Карточки", "Cards")));
+    if (fresh) hiRow.appendChild(aBtn("#test", T("Входной тест", "Placement test")));
     hiTxt.appendChild(hiRow); hi.appendChild(hiTxt); box.appendChild(hi);
     courseNote(box);
     const g = el("div", "dash-grid");
@@ -4213,6 +4217,21 @@
 
   // ---------- Страницы ----------
   const PAGES = {};
+  PAGES.test = (box) => {
+    LDCPlace.mount(box, {
+      storeKey: "kz_v3_place", bank: PLACE_KZ.bank, stages: PLACE_KZ.stages, zeroLabel: PLACE_KZ.zeroLabel, total: TOTAL,
+      ttsNote: hasKkVoice() ? "" : "На этом устройстве нет казахского голоса: в аудировании фразы прочитает русский голос, особые звуки будут звучать приблизительно.",
+      speak: (t, b) => speak(t, b),
+      done: () => prog.done,
+      goLesson: (n) => { if (n > prog.done + 1) { location.hash = "#plan"; return; } startLesson(n); },
+      skipTo: (n) => { prog.done = Math.max(prog.done, Math.min(TOTAL, n - 1)); prog.placed = n; saveProg(); },
+      skipItems: (n) => {
+        const pool = [];
+        LESSONS.slice(0, n - 1).forEach((L, i) => L.w.forEach((w) => { if (w[0].indexOf(" ") < 0) pool.push({ kk: w[0], ru: w[1].split(/[\/,;(]/)[0].trim(), day: i + 1 }); }));
+        return LDCPlace.shuffle(pool).slice(0, 8).map((w) => ({ q: "Что значит <b lang='kk'>" + w.kk + "</b>? <span class='notice-small'>(день " + w.day + ")</span>", o: [w.ru].concat(LDCPlace.shuffle(pool.filter((x) => x.ru !== w.ru)).slice(0, 3).map((x) => x.ru)), t: w.kk }));
+      }
+    });
+  };
   PAGES.materials = (box) => {
     pageHead(box, T("Полезные материалы", "Useful materials"), T("Короткая подборка. Основная программа — в разделе «Основной курс».", "A short selection. The main programme is in “Main course”."));
     const t = el("div", "tiles");

@@ -202,7 +202,7 @@
 
   // ---------- меню: разделы-аккордеоны, как в казахском ----------
   var MENU = [
-    ["Главная", [["home", "Обзор и приветствие"], ["progress", "Мой прогресс"], ["materials", "Полезные материалы"]]],
+    ["Главная", [["home", "Обзор и приветствие"], ["test", "Входной тест"], ["progress", "Мой прогресс"], ["materials", "Полезные материалы"]]],
     ["Основной курс", [["map", "Карта уровней 1–40"], ["next", "Продолжение 31–180 (до B1)"], ["grammar", "Грамматика"], ["hw", "Домашние задания"], ["listen", "Аудирование"]]],
     ["Словарь", [["words", "Все слова"], ["cards", "Карточки для запоминания"], ["speech", "Разговорная речь и сленг"], ["formal", "Официальный английский"], ["sounds", "Звуки и IPA"]]],
     ["Практика", [["practice", "Тренировка и ошибки"]]],
@@ -243,7 +243,7 @@
 
   // ---------- маршрутизация ----------
   var S = null;
-  var ROUTES = { home: viewHome, map: viewMap, materials: viewMaterials, dicts: function (v) { viewRes(v, "dicts"); }, media: function (v) { viewRes(v, "media"); }, sites: function (v) { viewRes(v, "sites"); }, progress: viewProgress, next: viewNext, b2: viewB2, hw: viewHw, words: viewWords, cards: viewCards, speech: viewSpeech, formal: viewFormal, grammar: viewGrammar, sounds: viewSounds, listen: viewListen, practice: viewPractice, ielts: viewIelts, support: viewSupport, profile: viewProfile, about: viewAbout };
+  var ROUTES = { home: viewHome, test: viewTest, map: viewMap, materials: viewMaterials, dicts: function (v) { viewRes(v, "dicts"); }, media: function (v) { viewRes(v, "media"); }, sites: function (v) { viewRes(v, "sites"); }, progress: viewProgress, next: viewNext, b2: viewB2, hw: viewHw, words: viewWords, cards: viewCards, speech: viewSpeech, formal: viewFormal, grammar: viewGrammar, sounds: viewSounds, listen: viewListen, practice: viewPractice, ielts: viewIelts, support: viewSupport, profile: viewProfile, about: viewAbout };
   function route() {
     var hs = location.hash.slice(1) || "home";
     if (synth) synth.cancel();
@@ -302,6 +302,7 @@
       c1.appendChild(el("p", null, L0.en + " — " + L0.ru));
       var r1 = el("div", "row"); r1.appendChild(aBtn("#level-" + nx, prog.done || prog.resume[nx] ? "► Продолжить" : "► Начать", "primary"));
       if (prog.done && !((prog.hw || {})[prog.done] >= 60)) r1.appendChild(aBtn("#hw", "ДЗ к уровню " + prog.done, "small"));
+      if (!prog.done) r1.appendChild(aBtn("#test", "Входной тест", "small"));
       c1.appendChild(r1);
     } else { c1.appendChild(el("p", "dash-day", "Все уровни пройдены")); var r2 = el("div", "row"); r2.appendChild(aBtn("#next", "Что дальше", "primary")); c1.appendChild(r2); }
     g.appendChild(c1);
@@ -394,6 +395,13 @@
   function levelSession(id) {
     var L = LESSONS[id - 1], ws = wordsOf(L), g1 = ws.slice(0, 5), g2 = ws.slice(5);
     var B = [];
+    // 0. Разминка: повторение прошлых слов (интервалы 1-3-7-14 дней) и грамматики уровней id-1, id-3, id-7, id-14
+    if (id > 1) {
+      var rsteps = [{ k: "info", kicker: "Разминка · 5 минут", title: "Сначала вспомним прошлое", html: "<p>Слова и правила из прошлых уровней возвращаются через 1, 3, 7 и 14 дней. Ошибочные — раньше, уверенные — реже. Отвечайте без подсказок.</p>" }];
+      rsteps = rsteps.concat(reviewTasks(L, 5));
+      [1, 3, 7, 14].forEach(function (d) { var P0 = LESSONS[id - 1 - d]; if (P0) { var t = gramTask(pick(P0.g.tasks, 1)[0], P0); if (t) { t.kicker = "Повторение · уровень " + P0.id; rsteps.push(t); } } });
+      B.push({ id: "review", steps: rsteps });
+    }
     // 1. Слова: знакомство по 5 слов → сразу практика
     var wsteps = [{ k: "info", kicker: "Уровень " + L.id + " · цель", title: L.en + " — " + L.ru, html: "<p>" + L.goal + "</p><p class='muted'>Сначала 10 новых слов. Слушайте каждое в британском и американском варианте, смотрите транскрипцию. После каждых пяти слов — практика.</p>" }];
     [g1, g2].forEach(function (g) {
@@ -421,13 +429,16 @@
     B.push({ id: "listen", steps: lsteps });
     // 5. Практика: свои предложения + повторение старых слов
     var psteps = sentenceTasks(L);
-    if (id > 1) psteps = psteps.concat(reviewTasks(L, 4));
-    B.push({ id: "practice", steps: shuffle(psteps) });
+    psteps = shuffle(psteps);
+    // Задача урока: применить самостоятельно
+    psteps.push({ k: "write", soft: true, kicker: "Задача урока", title: L.goal, words: L.w.map(function (w) { return w[0]; }), minW: 15, minUse: 2, model: L.d.l.map(function (x) { return x[1]; }).slice(0, 4).join(" ") });
+    B.push({ id: "practice", steps: psteps });
     // 6. Босс-тест: без подсказок, 80% для прохождения
     var boss = [];
     pick(ws, 4).forEach(function (w, i) { boss.push(i % 2 ? { k: "type", kicker: "Напишите по-английски", q: w.ru, answers: [w.en], wkey: w.en } : choiceFromWords(w, "en", wordPool(L), { kicker: "Послушайте и выберите", q: "", listen: w.en })); });
     pick(G.tasks, 4).forEach(function (t) { var x = gramTask(t, L); if (x) boss.push(x); });
     pick(L.s, 2).forEach(function (s) { boss.push({ k: "build", kicker: "Соберите предложение", ru: s[1], en: s[0] }); });
+    if (id % 5 === 0) for (var mi = id - 4; mi < id; mi++) { var ML = LESSONS[mi - 1], mt = gramTask(pick(ML.g.tasks, 1)[0], ML); if (mt) { mt.kicker = "Смешанная проверка · уровень " + mi; boss.push(mt); } }
     boss.forEach(function (b) { b.boss = true; });
     B.push({ id: "boss", steps: [{ k: "info", kicker: "Финал уровня", title: "Босс-тест", html: "<p>" + boss.length + " заданий без подсказок. Нужно <b>80%</b> правильных ответов с первой попытки. Ошибки не возвращаются — после теста увидите разбор.</p><p class='muted'>1★ — от 80%, 2★ — от 90%, 3★ — без ошибок.</p>" }].concat(shuffle(boss)) });
 
@@ -442,7 +453,7 @@
   // ======================================================================
   // УРОК: экран как в казахском (полоса, блок, нижняя панель)
   // ======================================================================
-  var BLOCK_NAMES = { words: "Слова", sounds: "Звуки", grammar: "Грамматика", listen: "Аудирование", practice: "Практика", boss: "Босс-тест" };
+  var BLOCK_NAMES = { review: "Разминка", words: "Слова", sounds: "Звуки", grammar: "Грамматика", listen: "Аудирование", practice: "Практика", boss: "Босс-тест" };
   function stepId(st) { return st.uid || (st.uid = Math.random().toString(36).slice(2)); }
   function pickOne(a) { return a[Math.floor(Math.random() * a.length)]; }
   function isEn(t) { return /^[\x00-\x7f’]+$/.test(t); }
@@ -484,12 +495,17 @@
         else if (st.wkey && miss["w:" + st.wkey]) miss["w:" + st.wkey] = Math.max(0, miss["w:" + st.wkey] - 1);
       }
       if (!(id in S.scored) && st.pts) { S.scored[id] = 1; S.score += partial != null ? partial : ok ? st.pts : 0; }
-      if (!ok && !st.boss && !st.hw && !S.retried[id]) { S.retried[id] = 1; S.queue.push(st); }
+      if (!ok && !st.boss && !st.hw && !st.soft && !S.retried[id]) {
+        S.retried[id] = 1;
+        var again = st;
+        if (st.wkey && st.k !== "type" && WMAP[st.wkey]) again = { k: "type", kicker: "Ещё раз, без вариантов: напишите по-английски", q: ru1(WMAP[st.wkey]), answers: [st.wkey], wkey: st.wkey };
+        S.queue.splice(Math.min(S.pos + 3, S.queue.length), 0, again);
+      }
       var hpOut = false;
-      if (!ok && S.kind === "level") { S.hp = Math.max(0, S.hp - 1); hpOut = S.hp === 0; var hr = $(".sess-top .hp"); if (hr) hr.replaceWith(heartsRow(S.hp, HP_MAX)); }
+      if (!ok && S.kind === "level" && !st.soft) { S.hp = Math.max(0, S.hp - 1); hpOut = S.hp === 0; var hr = $(".sess-top .hp"); if (hr) hr.replaceWith(heartsRow(S.hp, HP_MAX)); }
       fb.className = "fb " + (ok ? "ok" : "bad");
       fb.innerHTML = (ok ? pickOne(["Верно!", "Отлично!", "Так держать!", "Great!"]) : "Неверно." + (right ? " Правильно: <b>" + esc(right) + "</b>" : "")) +
-        (why ? "<span class='why'>" + why + "</span>" : "") + (!ok && !st.boss && !st.hw ? "<span class='why'>Задание вернётся в конце блока.</span>" : "");
+        (why ? "<span class='why'>" + why + "</span>" : "") + (!ok && !st.boss && !st.hw ? "<span class='why'>Похожее задание вернётся через пару вопросов.</span>" : "");
       setAct("Дальше", true, next);
       if (hpOut) {
         fb.innerHTML += "<span class='why'><b>ХП закончились.</b> " + (st.boss ? "Босс-тест не пройден — попробуйте ещё раз." : "Блок начнётся заново с полными сердцами.") + "</span>";
@@ -735,7 +751,7 @@
   }
 
   // ---------- интервальное повторение (оценки как в казахском) ----------
-  var IVL = [0, 1, 2, 4, 7, 15, 30, 60];
+  var IVL = [0, 1, 3, 7, 14, 30, 60];
   function srsAdd(en) { if (!srs[en]) { srs[en] = { b: 0, due: today() }; save(K.srs, srs); } }
   function srsTouch(en, ok) { var s = srs[en] || { b: 0, due: today() }; s.b = ok ? Math.min(s.b + 1, IVL.length - 1) : 0; s.due = today() + IVL[s.b]; srs[en] = s; }
   function srsGrade(en, g) {
@@ -1030,6 +1046,11 @@
     c4.appendChild(el("p", null, "В каждом блоке уровня у вас " + HP_MAX + " сердец (ХП). Ошибка снимает одно сердце. Если сердца закончились, блок начинается заново с полными ХП, а пройденные блоки сохраняются."));
     c4.appendChild(el("p", "notice-small", "В тренировках, карточках и домашних заданиях ХП не тратятся: там можно спокойно ошибаться."));
     v.appendChild(c4);
+    var can = card("Что я умею");
+    can.appendChild(el("p", "notice-small", "Умение засчитывается, когда пройден босс-тест уровня и выполнена задача урока. Прохождение страницы ещё не значит, что тема освоена — повторение вернёт слабые места."));
+    var ul = el("ul", "can-list");
+    LESSONS.forEach(function (L) { var li = el("li", prog.passed[L.id] ? "on" : "", (prog.passed[L.id] ? "✓ " : "○ ") + esc(L.goal)); ul.appendChild(li); });
+    can.appendChild(ul); v.appendChild(can);
   }
 
   // ======================================================================
@@ -1090,6 +1111,22 @@
       var b = tileBtn(x[1], x[2], function () { location.hash = x[0]; }); t.appendChild(b);
     });
     v.appendChild(t);
+  }
+  function viewTest(v) {
+    LDCPlace.mount(v, {
+      storeKey: "en_v1_place", bank: PLACE_EN.bank, stages: PLACE_EN.stages, zeroLabel: PLACE_EN.zeroLabel, total: TOTAL,
+      speak: function (t) { speak(t); },
+      done: function () { return prog.done; },
+      goLesson: function (n) { location.hash = "#level-" + n; },
+      skipTo: function (n) { for (var i = 1; i < n; i++) if (!prog.passed[i]) prog.passed[i] = 1; var k = 0; while (k < TOTAL && prog.passed[k + 1]) k++; prog.done = k; prog.placed = n; saveAll(); hud(); },
+      skipItems: function (n) {
+        var pool = ALLW.filter(function (w) { return w.lesson < n && w.en.indexOf(" ") < 0; });
+        return shuffle(pool).slice(0, 8).map(function (w) {
+          var others = shuffle(pool.filter(function (x) { return ru1(x) !== ru1(w); })).slice(0, 3).map(ru1);
+          return { q: "Что значит <b lang='en'>" + esc(w.en) + "</b>? <span class='notice-small'>(уровень " + w.lesson + ")</span>", o: [ru1(w)].concat(others), t: w.en };
+        });
+      }
+    });
   }
   function viewNext(v) {
     programView(v, EN.b1, 31, 10, "Продолжение — 31–180 до уровня B1",

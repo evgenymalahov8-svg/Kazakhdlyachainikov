@@ -1,0 +1,22 @@
+/* Входной тест: общие стили (используют переменные курса) */
+.pl-card { margin-bottom: 18px; }
+.pl-list { margin: 6px 0 14px; padding-left: 1.3em; line-height: 1.6; }
+.pl-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.pl-h2 { font-size: 16px; margin: 26px 0 12px; }
+.pl-top { display: flex; align-items: center; gap: 12px; margin: 4px 0 16px; }
+.pl-bar { flex: 1; height: 14px; border: 3px solid var(--ink); background: #fff; }
+.pl-bar i { display: block; height: 100%; background: var(--yellow); transition: width .25s steps(4); }
+.pl-count { font-weight: 800; font-size: 13px; white-space: nowrap; }
+.pl-skill { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; opacity: .75; margin: 0 0 8px; }
+.pl-q { font-size: 19px; line-height: 1.5; margin: 0 0 14px; }
+.pl-q p { margin: 0 0 10px; padding: 10px 12px; background: rgba(0, 0, 0, .04); border-left: 4px solid var(--ink); }
+.pl-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 14px; }
+.btn.pl-opt { text-align: left; justify-content: flex-start; white-space: normal; font-family: inherit; font-size: 16px; text-transform: none; letter-spacing: 0; line-height: 1.35; min-height: 52px; background: #fff; color: var(--ink); }
+.btn.pl-opt:hover, .btn.pl-opt:focus-visible { background: var(--yellow); }
+.btn.pl-dk { opacity: .85; }
+.pl-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+.pl-table th, .pl-table td { border: 2px solid var(--ink); padding: 8px 10px; text-align: left; }
+.pl-table th { background: var(--yellow); font-size: 13px; }
+.pl-rec { font-size: 18px; padding: 10px 12px; background: #fff6cf; border: 3px solid var(--ink); }
+.pl-mid h2 { margin-top: 0; }
+@media (max-width: 560px) { .pl-opts { grid-template-columns: 1fr; } .pl-q { font-size: 17px; } }
