@@ -16,6 +16,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/portal.css">
+<link rel="stylesheet" href="../assets/placement.css">
+<script src="placement-kz.js"></script>
+<script src="../assets/placement.js"></script>
 <style>
   :root {
     --paper: #f2f2ef; --ink: #111; --pink: #f0479a; --pink-d: #b8246a; --green: #3dbe4a; --green-d: #1d7a2a;
@@ -501,6 +504,9 @@
   .steppe-foot { margin: 30px 0 0; }
   .kz-home .card { position: relative; z-index: 1; }
   @media (max-width: 560px) { .kz-home .dash { padding: 18px 14px 6px; } .steppe-head { margin: 0 -14px 18px; height: 112px; } }
+  .can-list { list-style: none; margin: 8px 0 0; padding: 0; max-height: 420px; overflow-y: auto; }
+  .can-list li { padding: 6px 0; border-bottom: 1px dashed rgba(0, 0, 0, .2); color: #666; }
+  .can-list li.on { color: var(--ink); font-weight: 700; }
 </style>
 </head>
 <body>
@@ -676,6 +682,13 @@
 
   // ============ ДАННЫЕ: 30 уроков ============
   // t — название, n — заметка по грамматике, w — слова [казахский, перевод, транскрипция], e — пример [казахский, перевод]
+  const TASKS_KZ = {
+    1: { task: "Прочитать слова с особыми буквами и сказать «Бұл — …» (Это …).", can: ["Могу прочитать особые буквы: ә, ғ, қ, ң, ө, ұ, ү, і, һ", "Различаю твёрдые и мягкие слова", "Могу сказать: Бұл — жұлдыз (Это звезда)"] },
+    2: { task: "Поздороваться со старшим и с другом и спросить, как дела.", can: ["Могу вежливо поздороваться: Сәлеметсіз бе!", "Различаю «сіз» и «сен»", "Могу спросить: Қалайсыз? / Қалайсың?"] },
+    3: { task: "Представиться: имя, кто вы и откуда.", can: ["Могу сказать: Менің атым …", "Могу сказать «я — …»: Мен студентпін", "Могу спросить: Сіздің атыңыз кім? Қайдансыз?"] },
+    4: { task: "Посчитать до двадцати и сказать, что у вас есть и чего нет.", can: ["Могу считать до двадцати", "Могу сказать: Менде үш кітап бар", "Могу сказать «нет»: Менде қалам жоқ"] },
+    5: { task: "Назвать свой возраст и спросить цену.", can: ["Могу назвать числа до тысячи", "Могу сказать возраст: Мен жиырма жастамын", "Могу спросить цену: Бағасы қанша?"] }
+  };
   const LESSONS = [
     { t: "Алфавит и звуки", n: "В казахском алфавите 42 буквы: 33 как в русском и 9 особых — ә, ғ, қ, ң, ө, ұ, ү, і, һ. Слова бывают твёрдые и мягкие. Твёрдые гласные: а, о, ұ, ы. Мягкие: ә, ө, ү, і, е. Обычно в слове гласные одного вида: «жұлдыз» — твёрдое, «теңіз» — мягкое. Если гласные разные, решает последняя. Подсказка: буквы қ и ғ бывают только в твёрдых словах. От этого зависит гласная в каждом окончании: в твёрдом слове а или ы, в мягком е или і. «Бұл» значит «это». Глагол «есть» не нужен: «Бұл — тау» — «Это гора».",
       w: [["әже", "бабушка", "äje"], ["ән", "песня", "än"], ["ғалым", "учёный", "ğalım"], ["қаз", "гусь", "qaz"], ["теңіз", "море", "teñiz"], ["өзен", "река", "özen"], ["көл", "озеро", "köl"], ["күз", "осень", "küz"], ["гүл", "цветок", "gül"], ["жұлдыз", "звезда", "jūldız"], ["тіл", "язык", "til"], ["тау", "гора", "tau"], ["бұл", "это / этот", "būl"], ["не", "что", "ne"], ["кім", "кто", "kim"]],
@@ -915,7 +928,7 @@
   // Интервалы повторения: верно — интервал удваивается (1, 2, 4 ... до 30 дней), ошибка — снова через день
   function srsGrade(map, kk, ok, now) {
     const s = map[kk] || { i: 0, d: now };
-    s.i = ok ? (s.i ? Math.min(s.i * 2, 30) : 1) : 1;
+    const LAD = [1, 3, 7, 14, 30]; s.i = ok ? (s.i ? LAD[Math.min(LAD.indexOf(s.i) < 0 ? LAD.findIndex((x) => x >= s.i) : LAD.indexOf(s.i) + 1, LAD.length - 1)] : 1) : 1;
     s.d = now + s.i;
     map[kk] = s;
     return map;
@@ -2995,6 +3008,7 @@
   }
   function buildLessonTest(day) {
     const out = lessonWords(day).map((w, i) => (i % 2 === 0 ? mkType(w) : mkTF(w, day)));
+    if (day % 5 === 0) shuffle(gramPool(day - 1).filter((it) => canForm(it, "A"))).slice(0, 4).forEach((it) => { const t = gramTask(it, "A"); if (t) { t.label = T("Смешанная проверка прошлых тем: ", "Mixed review: ") + (t.label || ""); out.push(t); } });
     out.push(mkSent2(xsent(day, 0), "ru", day));
     gramTasks(gramPlan(day).test).forEach((t) => out.push(t));
     return shuffle(out);
@@ -3927,7 +3941,7 @@
 
   // ============ Меню из пяти разделов, страницы, серия и XP ============
   const MENU = [
-    ["Главная", "Home", [["home", "Обзор и приветствие", "Overview"], ["continue", "Продолжить обучение", "Continue learning"], ["progress", "Мой прогресс", "My progress"], ["materials", "Полезные материалы", "Useful materials"], ["quick", "Быстрый доступ", "Quick access"]]],
+    ["Главная", "Home", [["home", "Обзор и приветствие", "Overview"], ["test", "Входной тест", "Placement test"], ["continue", "Продолжить обучение", "Continue learning"], ["progress", "Мой прогресс", "My progress"], ["materials", "Полезные материалы", "Useful materials"], ["quick", "Быстрый доступ", "Quick access"]]],
     ["Основной курс", "Main course", [["plan", "Казахский с нуля — 30 дней", "Kazakh from zero — 30 days"], ["next", "Продолжение — 31–180 дней", "Continuation — days 31–180"], ["continue", "Текущий урок", "Current lesson"], ["grammar", "Грамматика: окончания и времена", "Grammar: endings and tenses"], ["schedule", "Расписание обучения", "Study schedule"], ["hw", "Домашние задания", "Homework"], ["media", "Видео и аудирование", "Video and listening"], ["sites", "Полезные учебные сайты", "Useful learning sites"]]],
     ["Словарь", "Dictionary", [["words", "Все слова", "All words"], ["cats", "Тематические категории", "Topic categories"], ["cards", "Карточки для запоминания", "Flashcards"], ["review", "Повторение слов", "Word review"], ["fav", "Избранное", "Favourites"], ["speech", "Разговорная речь и сленг", "Colloquial speech and slang"], ["dicts", "Онлайн-словари и справочники", "Online dictionaries"]]],
     ["Практика", "Practice", [["drill", "Практика по урокам", "Practice by lesson"], ["extra", "Дополнительные упражнения", "Extra exercises"], ["tests", "Тесты", "Tests"], ["writing", "Письменные задания", "Writing tasks"], ["dialogs", "Диалоги и разговорная практика", "Dialogues and speaking"], ["listen", "Аудирование", "Listening"], ["mistakes", "Разбор ошибок", "Mistake review"]]],
@@ -4094,6 +4108,7 @@
     const hiRow = el("div", "row");
     hiRow.appendChild(aBtn("#continue", prog.done >= TOTAL ? T("► Повторить", "► Review") : fresh ? T("► Начать", "► Start") : T("► Продолжить", "► Continue"), "primary"));
     hiRow.appendChild(aBtn("#cards", T("Карточки", "Cards")));
+    if (fresh) hiRow.appendChild(aBtn("#test", T("Входной тест", "Placement test")));
     hiTxt.appendChild(hiRow); hi.appendChild(hiTxt); box.appendChild(hi);
     courseNote(box);
     const g = el("div", "dash-grid");
@@ -4213,6 +4228,21 @@
 
   // ---------- Страницы ----------
   const PAGES = {};
+  PAGES.test = (box) => {
+    LDCPlace.mount(box, {
+      storeKey: "kz_v3_place", bank: PLACE_KZ.bank, stages: PLACE_KZ.stages, zeroLabel: PLACE_KZ.zeroLabel, total: TOTAL,
+      ttsNote: hasKkVoice() ? "" : "На этом устройстве нет казахского голоса: в аудировании фразы прочитает русский голос, особые звуки будут звучать приблизительно.",
+      speak: (t, b) => speak(t, b),
+      done: () => prog.done,
+      goLesson: (n) => { if (n > prog.done + 1) { location.hash = "#plan"; return; } startLesson(n); },
+      skipTo: (n) => { prog.done = Math.max(prog.done, Math.min(TOTAL, n - 1)); prog.placed = n; saveProg(); },
+      skipItems: (n) => {
+        const pool = [];
+        LESSONS.slice(0, n - 1).forEach((L, i) => L.w.forEach((w) => { if (w[0].indexOf(" ") < 0) pool.push({ kk: w[0], ru: w[1].split(/[\/,;(]/)[0].trim(), day: i + 1 }); }));
+        return LDCPlace.shuffle(pool).slice(0, 8).map((w) => ({ q: "Что значит <b lang='kk'>" + w.kk + "</b>? <span class='notice-small'>(день " + w.day + ")</span>", o: [w.ru].concat(LDCPlace.shuffle(pool.filter((x) => x.ru !== w.ru)).slice(0, 3).map((x) => x.ru)), t: w.kk }));
+      }
+    });
+  };
   PAGES.materials = (box) => {
     pageHead(box, T("Полезные материалы", "Useful materials"), T("Короткая подборка. Основная программа — в разделе «Основной курс».", "A short selection. The main programme is in “Main course”."));
     const t = el("div", "tiles");
@@ -4730,7 +4760,7 @@
     }
     if (!ok && !ex.retry && !S.noRetry) {
       const copy = Object.assign({}, ex, { retry: true, attempted: true, bank: undefined, placed: undefined });
-      S.list.push(copy);
+      S.list.splice(Math.min(S.pos + 3, S.list.length), 0, copy);
     }
   }
   function renderSession() {
@@ -4802,6 +4832,11 @@
     c1.appendChild(el("p", null, prog.done < TOTAL ? T("Следующий урок: день ", "Next lesson: day ") + (prog.done + 1) + " — " + LESSONS[prog.done].t : T("Все 30 уроков пройдены.", "All 30 lessons are done.")));
     c1.appendChild(el("p", "notice-small", T("Продолжение 31–180 дней пока в разработке, его прогресс будет отдельным.", "Days 31–180 are in development; their progress will be separate.")));
     box.appendChild(c1);
+    const cc = card(T("Что я умею", "What I can do"));
+    cc.appendChild(el("p", "notice-small", T("Умение засчитывается, когда урок пройден с контрольным тестом. Прохождение страницы ещё не значит, что тема освоена — повторение в начале уроков вернёт слабые места.", "A skill counts when the lesson and its test are passed.")));
+    const cul = el("ul", "can-list");
+    LESSONS.forEach((L, i) => { const d = i + 1, on = d <= prog.done; (TASKS_KZ[d] ? TASKS_KZ[d].can : [T("Тема дня ", "Day ") + d + ": " + L.t]).forEach((c) => { const li = el("li", on ? "on" : "", (on ? "✓ " : "○ ") + c); cul.appendChild(li); }); });
+    cc.appendChild(cul); box.appendChild(cc);
     const c2 = card(T("Серия: дни подряд", "Streak: days in a row"));
     c2.appendChild(statGrid([[game.streak, T("дней подряд сейчас", "days in a row now")], [game.best || 0, T("лучшая серия", "best streak")]]));
     c2.appendChild(el("p", null, T("Серия показывает, сколько дней подряд вы занимаетесь на сайте. За один день серия растёт на один, сколько бы заданий вы ни сделали.", "The streak shows how many days in a row you have studied here. It grows by one per day, however many tasks you do.")));
@@ -5093,6 +5128,7 @@
     const L = LESSONS[S.day - 1], total = S.phases.reduce((a, p) => a + p.min, 0) + S.testMin;
     body.appendChild(el("span", "blk", T("День ", "Day ") + S.day + T(" из ", " of ") + TOTAL));
     body.appendChild(goldHead("h2", L.t));
+    const TK = TASKS_KZ[S.day]; if (TK) { const tb2 = el("div", "notice"); tb2.innerHTML = "<b>" + T("Задача урока: ", "Lesson task: ") + "</b>" + TK.task + "<br>" + T("К концу урока вы сделаете это сами, без подсказок:", "By the end you will do it on your own:") + "<ul>" + TK.can.map((c) => "<li>" + c + "</li>").join("") + "</ul>" + T("Удобно заниматься тремя подходами по 30 минут с перерывами.", "Three 30-minute sessions with breaks work well."); body.appendChild(tb2); }
     body.appendChild(el("p", null, T("Примерное время урока: ", "Estimated lesson time: ") + total + T(" мин. Новых слов: ", " min. New words: ") + L.w.length + T(". Оценка времени приблизительная: всё зависит от вашего темпа.", ". The time is an estimate: it depends on your pace.")));
     const t = el("table", "plain");
     const row = (a, b) => { const tr = el("tr"); tr.appendChild(el("td", null, a)); tr.appendChild(el("td", "mins", b)); t.appendChild(tr); };
@@ -5231,6 +5267,7 @@
       body.appendChild(el("span", "blk", phaseInfo("talk")[0]));
       body.appendChild(el("div", "q-label", T("Свободная речь. Расскажите вслух три-четыре предложения по образцу, заменяя слова на свои", "Free speaking. Say three or four sentences aloud after the model, replacing words with your own")));
       st.lines.forEach((s) => body.appendChild(el("p", "kk", s[0])));
+      if (TASKS_KZ[S.day]) body.appendChild(el("p", "notice", "<b>" + T("Задача урока — сделайте сами: ", "Lesson task — do it yourself: ") + "</b>" + TASKS_KZ[S.day].task));
       body.appendChild(el("p", "notice-small", T("Это задание сайт не проверяет. Грамматику своих фраз можно проверить в разделе «Практика → Диалоги» (ИИ работает на claude.ai) или у носителя языка.", "The site does not check this task. You can check your phrases in “Practice → Dialogues” (AI works on claude.ai) or with a native speaker.")));
     }
   }

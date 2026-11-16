@@ -312,3 +312,6 @@ textarea.sess-input { font-size: 17px; line-height: 1.5; resize: vertical; }
 .streak-big .hp { margin: 0; }
 .qlinks { display: flex; flex-wrap: wrap; gap: 10px; }
 @media (max-width: 720px) { .dash-grid { grid-template-columns: 1fr; } }
+.can-list { list-style: none; margin: 8px 0 0; padding: 0; max-height: 420px; overflow-y: auto; }
+.can-list li { padding: 6px 0; border-bottom: 1px dashed rgba(43, 36, 102, .25); color: var(--muted); }
+.can-list li.on { color: var(--ink); font-weight: 700; }
