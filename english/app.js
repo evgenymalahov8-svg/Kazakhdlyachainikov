@@ -202,8 +202,8 @@
 
   // ---------- меню: разделы-аккордеоны, как в казахском ----------
   var MENU = [
-    ["Главная", [["map", "Карта мира и обзор"], ["progress", "Мой прогресс"]]],
-    ["Основной курс", [["map", "Английский с нуля — 30 уровней"], ["next", "Продолжение 31–180 (до B1)"], ["grammar", "Грамматика"], ["hw", "Домашние задания"], ["listen", "Аудирование"]]],
+    ["Главная", [["home", "Обзор и приветствие"], ["progress", "Мой прогресс"], ["materials", "Полезные материалы"]]],
+    ["Основной курс", [["map", "Карта уровней 1–40"], ["next", "Продолжение 31–180 (до B1)"], ["grammar", "Грамматика"], ["hw", "Домашние задания"], ["listen", "Аудирование"]]],
     ["Словарь", [["words", "Все слова"], ["cards", "Карточки для запоминания"], ["speech", "Разговорная речь и сленг"], ["formal", "Официальный английский"], ["sounds", "Звуки и IPA"]]],
     ["Практика", [["practice", "Тренировка и ошибки"]]],
     ["Дополнительные курсы", [["b2", "Углублённый курс B2"], ["ielts", "Подготовка к IELTS"]]]
@@ -243,9 +243,9 @@
 
   // ---------- маршрутизация ----------
   var S = null;
-  var ROUTES = { map: viewMap, progress: viewProgress, next: viewNext, b2: viewB2, hw: viewHw, words: viewWords, cards: viewCards, speech: viewSpeech, formal: viewFormal, grammar: viewGrammar, sounds: viewSounds, listen: viewListen, practice: viewPractice, ielts: viewIelts, support: viewSupport, profile: viewProfile, about: viewAbout };
+  var ROUTES = { home: viewHome, map: viewMap, materials: viewMaterials, dicts: function (v) { viewRes(v, "dicts"); }, media: function (v) { viewRes(v, "media"); }, sites: function (v) { viewRes(v, "sites"); }, progress: viewProgress, next: viewNext, b2: viewB2, hw: viewHw, words: viewWords, cards: viewCards, speech: viewSpeech, formal: viewFormal, grammar: viewGrammar, sounds: viewSounds, listen: viewListen, practice: viewPractice, ielts: viewIelts, support: viewSupport, profile: viewProfile, about: viewAbout };
   function route() {
-    var hs = location.hash.slice(1) || "map";
+    var hs = location.hash.slice(1) || "home";
     if (synth) synth.cancel();
     var m = /^level-(\d+)$/.exec(hs);
     app.innerHTML = "";
@@ -259,11 +259,11 @@
       renderSession();
     } else {
       if (hs !== "train") S = null; else if (!S) { location.replace("#map"); return; }
-      var fn = ROUTES[hs] || viewMap;
-      markMenu(ROUTES[hs] ? hs : "map");
+      var fn = ROUTES[hs] || viewHome;
+      markMenu(ROUTES[hs] ? hs : "home");
       var v = el("section", "view"); app.appendChild(v);
       fn(v);
-      if (!ROUTES[hs]) history.replaceState(null, "", "#map");
+      if (!ROUTES[hs]) history.replaceState(null, "", "#home");
     }
     window.scrollTo(0, 0);
   }
@@ -280,9 +280,9 @@
     5: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12' shape-rendering='crispEdges'%3E%3Cpath fill='%232b2466' fill-opacity='.3' d='M2 3h1v1H2zM4 3h1v1H4zM6 3h1v1H6zM2 4h5v8H2zM9 6h7v6H9zM9 5h1v1H9zM11 5h1v1h-1zM13 5h1v1h-1zM15 5h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM18 4h3v8h-3z'/%3E%3Cpath fill='%23ffd23f' d='M11 9h3v3h-3z'/%3E%3C/svg%3E"
   };
   SCENERY[6] = SCENERY[3];
-  function viewMap(v) {
+  function viewHome(v) {
     var nx = nextLevel(), allDone = prog.done >= TOTAL, name = (LDC.profile().name || "").trim();
-    var head = el("div", "city-head"); pageHead(head, "Карта мира", "Уровни 1–30 — основной курс до A2. Дальше — продолжение до B1: модуль 1 (уровни 31–40) уже открыт, остальные модули появятся по очереди."); v.appendChild(head);
+    var head = el("div", "city-head"); pageHead(head, "Главная", "Ваша учебная панель: продолжить урок, прогресс, серия, очки и быстрые ссылки. Все уровни — на странице «Карта уровней»."); v.appendChild(head);
     var hero = card(null, "hero-card");
     var pot = el("div"); pot.innerHTML = LDC.teapotSVG("en", "Чайник с британским флагом"); pot.firstChild.classList.add("mascot"); hero.appendChild(pot.firstChild);
     var txt = el("div");
@@ -295,11 +295,40 @@
     r.appendChild(aBtn("#level-" + nx, allDone ? "► Повторить уровень " + TOTAL : prog.done || prog.resume[nx] ? "► Продолжить" : "► Начать", "primary"));
     r.appendChild(aBtn("#cards", "Карточки"));
     txt.appendChild(r); hero.appendChild(txt); v.appendChild(hero);
-    var l = levelOf(prog.xp), pc = card("Мой прогресс");
-    pc.appendChild(el("p", null, "Уровни: " + prog.done + " из " + TOTAL)); pc.appendChild(meter(prog.done / TOTAL * 100));
-    pc.appendChild(statGrid([[prog.xp + " XP", "уровень игрока " + l.lv], [totalStars() + " ★", "звёзд из " + TOTAL * 3], [learnedWords().length, "слов в карточках"], [liveStreak() + " дн.", "серия подряд"]]));
-    pc.appendChild(el("p", "notice-small", "До уровня игрока " + (l.lv + 1) + " осталось " + (100 - l.into) + " XP."));
-    v.appendChild(pc);
+    var g = el("div", "dash-grid"), l = levelOf(prog.xp);
+    var c1 = card("Продолжить обучение");
+    if (!allDone) {
+      c1.appendChild(el("p", "dash-day", "Уровень " + nx + " из " + TOTAL));
+      c1.appendChild(el("p", null, L0.en + " — " + L0.ru));
+      var r1 = el("div", "row"); r1.appendChild(aBtn("#level-" + nx, prog.done || prog.resume[nx] ? "► Продолжить" : "► Начать", "primary"));
+      if (prog.done && !((prog.hw || {})[prog.done] >= 60)) r1.appendChild(aBtn("#hw", "ДЗ к уровню " + prog.done, "small"));
+      c1.appendChild(r1);
+    } else { c1.appendChild(el("p", "dash-day", "Все уровни пройдены")); var r2 = el("div", "row"); r2.appendChild(aBtn("#next", "Что дальше", "primary")); c1.appendChild(r2); }
+    g.appendChild(c1);
+    var c2 = card("Мой прогресс");
+    c2.appendChild(el("p", null, "Уровни: " + prog.done + " из " + TOTAL)); c2.appendChild(meter(prog.done / TOTAL * 100));
+    c2.appendChild(el("p", "notice-small", "Домашние задания: " + Object.keys(prog.hw || {}).filter(function (k) { return prog.hw[k] >= 60; }).length + " · звёзды: " + totalStars() + " / " + TOTAL * 3 + " · слов в карточках: " + learnedWords().length));
+    var r3 = el("div", "row"); r3.appendChild(aBtn("#progress", "Подробнее", "small")); c2.appendChild(r3);
+    g.appendChild(c2);
+    var c3 = card("Серия"), sb = el("div", "streak-big"), stk = liveStreak();
+    sb.appendChild(heartsRow(stk > 0 ? 1 : 0, 1)); sb.appendChild(el("span", null, stk + " дн. подряд")); c3.appendChild(sb);
+    c3.appendChild(el("p", "notice-small", "Сколько дней подряд вы занимаетесь. Серия растёт, когда вы проходите блок уровня, тренировку, ДЗ или карточки." + (prog.best ? " Лучшая серия: " + prog.best + " дн." : "")));
+    g.appendChild(c3);
+    var c4 = card("Поинты (XP)");
+    c4.appendChild(el("p", "dash-day", prog.xp + " XP · уровень " + l.lv)); c4.appendChild(meter(l.into, "xp"));
+    c4.appendChild(el("p", "notice-small", "Награда за выполненные задания: блок уровня, босс-тест, ДЗ, тренировка. От серии не зависят и не сгорают. До уровня " + (l.lv + 1) + " — " + (100 - l.into) + " XP."));
+    g.appendChild(c4);
+    var c5 = card("Быстрый доступ"), q = el("div", "qlinks");
+    [["#map", "Карта уровней"], ["#words", "Словарь"], ["#cards", "Карточки"], ["#practice", "Практика"], ["#grammar", "Грамматика"], ["#hw", "ДЗ"]].forEach(function (x) { q.appendChild(aBtn(x[0], x[1], "small")); });
+    c5.appendChild(q); g.appendChild(c5);
+    var c6 = card("Полезные материалы", "wide"), q2 = el("div", "qlinks");
+    [["#dicts", "Онлайн-словари"], ["#media", "Видео и аудирование"], ["#speech", "Разговорная речь и сленг"], ["#formal", "Официальный английский"], ["#sites", "Учебные сайты"], ["#ielts", "IELTS"]].forEach(function (x) { q2.appendChild(aBtn(x[0], x[1], "small")); });
+    c6.appendChild(q2); g.appendChild(c6);
+    v.appendChild(g);
+  }
+  function viewMap(v) {
+    var nx = nextLevel();
+    var head = el("div", "city-head"); pageHead(head, "Карта уровней", "Уровни 1–30 — основной курс до A2. Дальше — продолжение до B1: модуль 1 (уровни 31–40) уже открыт, остальные модули появятся по очереди."); v.appendChild(head);
     EN.worlds.forEach(function (W, wi) {
       var ls = LESSONS.filter(function (L) { return L.world === wi + 1; });
       var u = card(null, "unit w" + (wi + 1)); u.style.setProperty("--scn", "url(\"" + SCENERY[wi + 1] + "\")");
@@ -1026,6 +1055,41 @@
       hd.addEventListener("click", function () { body.hidden = !body.hidden; hd.setAttribute("aria-expanded", String(!body.hidden)); c.classList.toggle("open", !body.hidden); });
       v.appendChild(c); n = to + 1;
     });
+  }
+  var RES = {
+    dicts: ["Онлайн-словари", "Где проверять значение, произношение и примеры. Все сайты бесплатные.", [
+      ["Cambridge Dictionary", "https://dictionary.cambridge.org/", "Простые определения, британское и американское произношение, перевод на русский."],
+      ["Oxford Learner's Dictionaries", "https://www.oxfordlearnersdictionaries.com/", "Словарь для изучающих: уровни слов (A1–C1), примеры, аудио."],
+      ["Longman Dictionary", "https://www.ldoceonline.com/", "Понятные толкования и много примеров из живой речи."],
+      ["Reverso Context", "https://context.reverso.net/", "Как слово переводится в реальных предложениях."],
+      ["YouGlish", "https://youglish.com/", "Как слово произносят носители: отрывки из тысяч видео."]]],
+    media: ["Видео и аудирование", "Слушайте понемногу каждый день. Начинайте с субтитров, потом без них.", [
+      ["BBC Learning English", "https://www.bbc.co.uk/learningenglish/", "Короткие видео и подкасты для учащихся: грамматика, новости, произношение."],
+      ["VOA Learning English", "https://learningenglish.voanews.com/", "Новости медленным и понятным английским, с текстом."],
+      ["British Council LearnEnglish", "https://learnenglish.britishcouncil.org/", "Аудио и видео по уровням с заданиями."],
+      ["TED", "https://www.ted.com/", "Выступления с субтитрами на английском и русском — для уровня B1 и выше."]]],
+    sites: ["Учебные сайты", "Дополнительная практика к курсу.", [
+      ["British Council LearnEnglish", "https://learnenglish.britishcouncil.org/", "Грамматика и словарь по уровням, упражнения с проверкой."],
+      ["Cambridge English — бесплатные материалы", "https://www.cambridgeenglish.org/learning-english/", "Игры, тесты уровня и задания экзаменационного формата."],
+      ["IELTS — официальный сайт", "https://ielts.org/", "Формат экзамена и официальные пробные задания."],
+      ["Wikipedia: Simple English", "https://simple.wikipedia.org/", "Статьи простым английским — удобно для чтения."]]]
+  };
+  function viewRes(v, key) {
+    var R = RES[key]; pageHead(v, R[0], R[1]);
+    R[2].forEach(function (x) {
+      var c = card(x[0]); c.appendChild(el("p", null, x[2]));
+      var a = el("a", "btn small", "Открыть сайт ↗"); a.href = x[1]; a.target = "_blank"; a.rel = "noopener"; c.appendChild(a); v.appendChild(c);
+    });
+    v.appendChild(el("p", "notice-small", "Ссылки ведут на внешние сайты; курс с ними не связан."));
+    var r = el("div", "row"); r.appendChild(aBtn("#materials", "Все материалы")); r.appendChild(aBtn("#home", "На главную")); v.appendChild(r);
+  }
+  function viewMaterials(v) {
+    pageHead(v, "Полезные материалы", "Короткая подборка. Основная программа — на «Карте уровней».");
+    var t = el("div", "tiles");
+    [["#dicts", "Онлайн-словари", "проверить слово и произношение"], ["#media", "Видео и аудирование", "BBC, VOA, TED"], ["#speech", "Разговорная речь и сленг", "в курсе"], ["#formal", "Официальный английский", "в курсе"], ["#sites", "Учебные сайты", "дополнительная практика"], ["#ielts", "Подготовка к IELTS", "в курсе"]].forEach(function (x) {
+      var b = tileBtn(x[1], x[2], function () { location.hash = x[0]; }); t.appendChild(b);
+    });
+    v.appendChild(t);
   }
   function viewNext(v) {
     programView(v, EN.b1, 31, 10, "Продолжение — 31–180 до уровня B1",
