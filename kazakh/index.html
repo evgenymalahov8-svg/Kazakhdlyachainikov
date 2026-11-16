@@ -519,7 +519,7 @@
 </style>
 <link rel="stylesheet" href="../assets/compat.css">
 <script src="../assets/checkmode.js"></script>
-<script src="studio.js"></script>
+<script src="../assets/studio.js"></script>
 </head>
 <body>
 
@@ -3831,7 +3831,7 @@
       const G = [];
       let miss = []; try { miss = JSON.parse(localStorage.getItem("kz_v3_recmiss") || "[]"); } catch (e) {}
       if (miss.length) G.push({ name: T("Звучали на сайте, но ещё не записаны", "Heard on the site, not recorded yet"), items: miss.map((x) => ({ kk: x, ru: "" })) });
-      LESSONS.forEach((L, i) => G.push({ name: T("День ", "Day ") + (i + 1) + ": " + L.t, items: L.w.map((w) => ({ kk: w[0], ru: w[1] })).concat([{ kk: L.e[0], ru: L.e[1] }]) }));
+      LESSONS.forEach((L, i) => G.push({ name: T("День ", "Day ") + (i + 1) + ": " + L.t, items: L.w.map((w) => ({ kk: w[0], ru: w[1], hint: w[2] })).concat([{ kk: L.e[0], ru: L.e[1] }]) }));
       SITS.forEach((x) => G.push({ name: T("Ситуация: ", "Situation: ") + x.name, items: x.p.map((p) => ({ kk: p[0], ru: p[1] })).concat(x.d.map((l) => ({ kk: l[1], ru: l[2] }))) }));
       G.push({ name: T("Готовые фразы", "Phrases"), items: PHRASES.map((p) => ({ kk: p.kk, ru: p.ru })) });
       G.push({ name: T("Сленг", "Slang"), items: SLANG.map((x) => ({ kk: x.w, ru: x.mean })) });

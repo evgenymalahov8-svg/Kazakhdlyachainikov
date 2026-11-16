@@ -103,7 +103,29 @@
     function score(v) { return (/google|natural|neural|premium|enhanced/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1); }
   }
   function hasEnVoice(acc) { loadVoices(); var v = voiceFor(acc); return !!v && (acc === "us" ? /en[-_]us/i.test(v.lang) : /en[-_]gb/i.test(v.lang)); }
+  // Записи диктора: audio/manifest.json на сайте и записи из студии на этом устройстве
+  var REC_EN = {}, LOCAL_EN = {}, curAudio = null;
+  try { fetch("audio/manifest.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : {}; }).then(function (j) { REC_EN = j || {}; }).catch(function () {}); } catch (e) {}
+  if (window.LDCStudio) LDCStudio.loadAll("ldc_en_rec").then(function (m) { Object.keys(m).forEach(function (k) { LOCAL_EN[k] = m[k].blob; }); });
+  function recSrc(text, acc, loose) {
+    var n = String(text).trim().toLowerCase().replace(/[.!?…]+$/, ""), order = [acc + "|" + n];
+    if (loose) order.push((acc === "us" ? "uk" : "us") + "|" + n);
+    for (var i = 0; i < order.length; i++) { if (LOCAL_EN[order[i]]) return URL.createObjectURL(LOCAL_EN[order[i]]); if (REC_EN[order[i]]) return "audio/" + REC_EN[order[i]]; }
+    return null;
+  }
+  function playRec(text, acc, loose, onend, onfail) {
+    var src = recSrc(text, acc, loose); if (!src || typeof Audio === "undefined") return false;
+    try { if (curAudio) curAudio.pause(); } catch (e) {}
+    try { if (synth) synth.cancel(); } catch (e) {}
+    var au = new Audio(src); curAudio = au; au.onended = onend || null;
+    au.play().catch(function () { onfail && onfail(); });
+    return true;
+  }
   function speak(text, acc, rate) {
+    if (playRec(text, acc || settings.accent, !acc, null, function () { ttsSpeak(text, acc, rate); })) return;
+    ttsSpeak(text, acc, rate);
+  }
+  function ttsSpeak(text, acc, rate) {
     if (!synth) { toast("В этом браузере нет озвучки. Откройте сайт в Chrome, Edge или Safari."); return; }
     loadVoices();
     synth.cancel();
@@ -115,6 +137,19 @@
     synth.speak(u);
   }
   function speakLines(lines, acc) {
+    var A = acc || settings.accent;
+    if (lines.some(function (l) { return recSrc(l[1], A, true); })) {
+      var i = 0;
+      var next = function () {
+        if (i >= lines.length) return;
+        var l = lines[i++];
+        if (playRec(l[1], A, true, next, next)) return;
+        if (!synth) return next();
+        var u = new SpeechSynthesisUtterance(l[1]); u.lang = A === "us" ? "en-US" : "en-GB"; var v = voiceFor(A); if (v) u.voice = v; u.rate = settings.rate; u.pitch = l[0] === "B" ? 0.85 : 1.15; u.onend = next; u.onerror = next; synth.speak(u);
+      };
+      try { if (synth) synth.cancel(); } catch (e) {}
+      next(); return;
+    }
     if (!synth) { toast("В этом браузере нет озвучки."); return; }
     synth.cancel(); loadVoices();
     var vs = [voiceFor(acc || settings.accent)];
@@ -210,7 +245,7 @@
     ["Практика", [["practice", "Тренировка и ошибки"]]],
     ["Дополнительные курсы", [["b2", "Углублённый курс B2"], ["ielts", "Подготовка к IELTS"]]]
   ];
-  var SERVICE = [["support", "Поддержка · Support"], ["profile", "Профиль и данные"], ["about", "О курсе"]];
+  var SERVICE = [["support", "Поддержка · Support"], ["studio", "Студия озвучки"], ["profile", "Профиль и данные"], ["about", "О курсе"]];
   var HP_MAX = 5;
   var HEART_SVG = '<svg viewBox="0 0 9 8" shape-rendering="crispEdges"><path d="' + HEART.map(function (r, y) { return r.split("").map(function (c, x) { return c === "1" ? "M" + x + " " + y + "h1v1h-1z" : ""; }).join(""); }).join("") + '"/></svg>';
   var menuSecs = [], menuLinks = [];
@@ -245,7 +280,7 @@
 
   // ---------- маршрутизация ----------
   var S = null;
-  var ROUTES = { home: viewHome, test: viewTest, map: viewMap, materials: viewMaterials, dicts: function (v) { viewRes(v, "dicts"); }, media: function (v) { viewRes(v, "media"); }, sites: function (v) { viewRes(v, "sites"); }, progress: viewProgress, next: viewNext, b2: viewB2, hw: viewHw, words: viewWords, cards: viewCards, speech: viewSpeech, formal: viewFormal, grammar: viewGrammar, sounds: viewSounds, listen: viewListen, practice: viewPractice, ielts: viewIelts, support: viewSupport, profile: viewProfile, about: viewAbout };
+  var ROUTES = { home: viewHome, test: viewTest, studio: viewStudio, map: viewMap, materials: viewMaterials, dicts: function (v) { viewRes(v, "dicts"); }, media: function (v) { viewRes(v, "media"); }, sites: function (v) { viewRes(v, "sites"); }, progress: viewProgress, next: viewNext, b2: viewB2, hw: viewHw, words: viewWords, cards: viewCards, speech: viewSpeech, formal: viewFormal, grammar: viewGrammar, sounds: viewSounds, listen: viewListen, practice: viewPractice, ielts: viewIelts, support: viewSupport, profile: viewProfile, about: viewAbout };
   function route() {
     var hs = location.hash.slice(1) || "home";
     if (synth) synth.cancel();
@@ -1158,6 +1193,32 @@
           var others = shuffle(pool.filter(function (x) { return ru1(x) !== ru1(w); })).slice(0, 3).map(ru1);
           return { q: "Что значит <b lang='en'>" + esc(w.en) + "</b>? <span class='notice-small'>(уровень " + w.lesson + ")</span>", o: [ru1(w)].concat(others), t: w.en };
         });
+      }
+    });
+  }
+  function viewStudio(v) {
+    if (!window.LDCStudio) { v.appendChild(el("p", "notice", "Студия не загрузилась. Обновите страницу.")); return; }
+    LDCStudio.render(v, {
+      db: "ldc_en_rec", prefix: "en", lang: "en", langName: "английские", folder: "english", dir: "audio/",
+      accents: [["uk", "британский (UK)"], ["us", "американский (US)"]],
+      tts: function (t, b, acc) { ttsSpeak(t, acc); },
+      setLocal: function (k, blob) { if (blob) LOCAL_EN[k] = blob; else delete LOCAL_EN[k]; },
+      groups: function () {
+        var G = [];
+        LESSONS.forEach(function (L) {
+          var it = [];
+          L.w.forEach(function (w) { it.push({ t: w[0], hint: "/" + w[1] + "/", ru: w[3] }); });
+          L.w.forEach(function (w) { if (w[4]) it.push({ t: w[4], ru: w[5] }); });
+          L.d.l.forEach(function (x) { it.push({ t: x[1], ru: x[2] }); });
+          (L.s || []).forEach(function (x) { it.push({ t: x[0], ru: x[1] }); });
+          (L.speak || []).forEach(function (x) { it.push({ t: x[0], ru: x[1] }); it.push({ t: x[2], ru: "пример ответа" }); });
+          G.push({ name: "Уровень " + L.id + ": " + L.en, items: it });
+        });
+        if (EN.slang) G.push({ name: "Разговорная речь и сленг", items: EN.slang.map(function (x) { return { t: x[0], ru: x[1] }; }).concat(EN.slang.map(function (x) { return { t: x[2], ru: "" }; })) });
+        if (EN.registerPairs) G.push({ name: "Официальный английский", items: EN.registerPairs.map(function (x) { return { t: x[1], ru: x[2] }; }).concat((EN.formalPhrases || []).map(function (x) { return { t: x[0] || x, ru: x[1] || "" }; })) });
+        if (EN.ielts && EN.ielts.speaking) G.push({ name: "IELTS: вопросы Speaking", items: EN.ielts.speaking.map(function (x) { return { t: x[0], ru: "вопрос" }; }).concat(EN.ielts.speaking.map(function (x) { return { t: x[1], ru: "пример ответа" }; })) });
+        if (window.PLACE_EN) G.push({ name: "Входной тест: аудирование", items: PLACE_EN.bank.filter(function (q) { return q[0] === "l"; }).map(function (q) { return { t: q[6], ru: q[4].split("|")[0] }; }) });
+        return G;
       }
     });
   }
