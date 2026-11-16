@@ -4207,6 +4207,7 @@
     c5.appendChild(q2);
     g.appendChild(c5);
     box.appendChild(g);
+    if (window.LDCPlace && window.PLACE_KZ) LDCPlace.planCard(box, "kz_v3_place", PLACE_KZ.stages, "дни");
   }
 
   // ---------- Сессии: тесты, ДЗ, тренировки ----------
@@ -4274,12 +4275,12 @@
   PAGES.studio = (box) => { if (window.KZStudio) KZStudio.render(box, KZ_API); else box.appendChild(el("p", "notice", "Студия не загрузилась. Обновите страницу.")); };
   PAGES.test = (box) => {
     LDCPlace.mount(box, {
-      storeKey: "kz_v3_place", bank: PLACE_KZ.bank, stages: PLACE_KZ.stages, zeroLabel: PLACE_KZ.zeroLabel, total: TOTAL,
+      storeKey: "kz_v3_place", unit: "дни", bank: PLACE_KZ.bank, stages: PLACE_KZ.stages, zeroLabel: PLACE_KZ.zeroLabel, total: TOTAL,
       ttsNote: hasKkVoice() ? "" : "На этом устройстве нет казахского голоса: в аудировании фразы прочитает русский голос, особые звуки будут звучать приблизительно.",
       speak: (t, b) => speak(t, b),
       done: () => prog.done,
       goLesson: (n) => { if (n > prog.done + 1) { location.hash = "#plan"; return; } startLesson(n); },
-      skipTo: (n) => { prog.done = Math.max(prog.done, Math.min(TOTAL, n - 1)); prog.placed = n; saveProg(); },
+      skipTo: (n) => { LESSONS.slice(0, n - 1).forEach((L) => L.w.forEach((w) => { if (!srs[w[0]]) srs[w[0]] = { i: 14, d: today() + 14 }; })); save(K.srs, srs); prog.done = Math.max(prog.done, Math.min(TOTAL, n - 1)); prog.placed = n; saveProg(); },
       skipItems: (n) => {
         const pool = [];
         LESSONS.slice(0, n - 1).forEach((L, i) => L.w.forEach((w) => { if (w[0].indexOf(" ") < 0) pool.push({ kk: w[0], ru: w[1].split(/[\/,;(]/)[0].trim(), day: i + 1 }); }));
@@ -4779,8 +4780,24 @@
     };
     return M[id] || ["", ""];
   }
+  function adaptKZ(day, P) {
+    const AD = window.LDCPlace && window.PLACE_KZ ? LDCPlace.adapt("kz_v3_place", PLACE_KZ.stages, day) : null;
+    if (!AD) return P;
+    const NOTE = T("По вашему входному тесту: ", "Based on your placement test: ");
+    P.forEach((p) => {
+      const tasks = p.steps.filter((x) => !x.card);
+      if (p.id === "lex" && AD.strong.v) { p.steps = p.steps.filter((x) => x.card && x.card !== "word").concat(shuffle(tasks).slice(0, 6)); p.note = NOTE + T("слова дня вам знакомы — без карточек-объяснений, только короткая проверка. Ошибётесь — слово вернётся в повторение.", "you know these words — a short check instead of word cards."); }
+      else if (p.id === "lex" && AD.weak.v) { lessonWords(day).slice(0, 3).forEach((w) => p.steps.push(Object.assign(mkType(w), { blk: "p_lex" }))); p.note = NOTE + T("добавили практику на слова.", "extra word practice added."); }
+      if (p.id === "gram" && AD.strong.g) { p.steps = tasks.slice(0, 4); p.note = NOTE + T("правило вам знакомо — 4 задания для проверки. Полное объяснение есть в разделе «Грамматика».", "you know this rule — 4 tasks to check it."); }
+      else if (p.id === "gram" && AD.weak.g) { shuffle(gramPool(day).filter((it) => canForm(it, "A"))).slice(0, 3).forEach((it) => { const t = gramTask(it, "A"); if (t) { t.blk = "p_gram"; p.steps.push(t); } }); p.note = NOTE + T("добавили 3 задания на грамматику.", "3 extra grammar tasks added."); }
+      if (p.id === "read" && AD.strong.r) { let n = 0; p.steps = p.steps.filter((x) => x.card || n++ < 2); p.note = NOTE + T("чтение у вас сильное — меньше вопросов к тексту.", "strong reading — fewer questions."); }
+      if (p.id === "talk" && AD.strong.l) { let n = 0; p.steps = p.steps.filter((x) => x.card || x.k !== "choice" || n++ < 1); p.note = NOTE + T("на слух понимаете хорошо — меньше вопросов «что ответить». Говорение остаётся полностью.", "good listening — fewer reply questions; speaking stays."); }
+      else if (p.id === "talk" && AD.weak.l) { const d0 = p.steps.find((x) => x.card === "dialog"); if (d0) p.steps.splice(p.steps.indexOf(d0) + 1, 0, Object.assign({}, d0)); p.note = NOTE + T("диалог прозвучит дважды — для тренировки слуха.", "the dialogue plays twice for listening practice."); }
+    });
+    return P;
+  }
   function startLesson(day, fresh) {
-    const P = buildLesson(day, srs, today(), { speech: !!window.speechSynthesis, kkVoice: hasKkVoice() });
+    const P = adaptKZ(day, buildLesson(day, srs, today(), { speech: !!window.speechSynthesis, kkVoice: hasKkVoice() }));
     P.forEach((p, i) => { p.min = phaseMin(p.steps); p.steps.unshift({ card: "phase" }); if (i === 0) p.steps.unshift({ card: "overview" }); });
     if (fresh) lessonDrop(day);
     const sv = fresh ? null : lessonSaved(day);
@@ -5186,6 +5203,7 @@
     if (!S.fix) body.appendChild(el("span", "blk", T("Блок ", "Block ") + (S.pi + 1) + T(" из ", " of ") + S.phases.length));
     body.appendChild(goldHead("h2", info[0]));
     body.appendChild(el("p", null, info[1]));
+    if (p.note) body.appendChild(el("p", "notice", p.note));
     body.appendChild(el("p", "notice-small", T("Примерно ", "About ") + p.min + T(" мин", " min")));
   }
   function cardResume(body) {

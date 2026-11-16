@@ -94,6 +94,7 @@
       data.attempts.push(res); save(KEY, data); last = res;
       top(); head("Ваш результат", "Это ориентир, а не сертификат: тест не проверяет устную речь.");
       box.appendChild(resultCard(res, data.attempts[data.attempts.length - 2], true));
+      if (window.LDCPlace && LDCPlace.planCard) LDCPlace.planCard(box, KEY, cfg.stages, cfg.unit);
     }
     function lvName(n) { return n === 0 ? cfg.zeroLabel : cfg.stages[n - 1].label; }
     function resultCard(res, prev, actions) {
@@ -154,5 +155,38 @@
     }
     intro();
   }
-  window.LDCPlace = { mount: mount, shuffle: shuffle };
+
+  // ---------- Адаптация обучения по результату теста ----------
+  function stageOf(stages, id) { for (var i = 0; i < stages.length; i++) if (id >= stages[i].from && id <= stages[i].to) return i; return stages.length; }
+  function adapt(storeKey, stages, id) {
+    var d = load(storeKey); if (!d || !d.attempts || !d.attempts.length || d.adaptOff) return null;
+    var r = d.attempts[d.attempts.length - 1], st = stageOf(stages, id), strong = {}, weak = {}, any = false;
+    ORDER.forEach(function (s) { strong[s] = r.skills[s] > st; weak[s] = r.skills[s] < st; if (strong[s] || weak[s]) any = true; });
+    return any ? { strong: strong, weak: weak, res: r } : null;
+  }
+  function planLines(r, stages, unit) {
+    var out = [];
+    ORDER.forEach(function (s) {
+      var lv = r.skills[s];
+      if (lv > 0) out.push("<b>" + SK[s] + "</b>: " + unit + " 1–" + stages[lv - 1].to + " — короткая проверка вместо подробных объяснений.");
+    });
+    var mx = Math.max.apply(null, ORDER.map(function (s) { return r.skills[s]; }));
+    var mn = Math.min.apply(null, ORDER.map(function (s) { return r.skills[s]; }));
+    ORDER.forEach(function (s) { var lv = r.skills[s]; if (lv === mn && lv < mx && lv < stages.length) out.push("<b>" + SK[s] + "</b> — ваш слабый навык: начиная с " + (unit === "дни" ? "дня " : "уровня ") + stages[lv].from + " в уроках больше практики на него."); });
+    return out;
+  }
+  function planCard(box, storeKey, stages, unit) {
+    var d = load(storeKey); if (!d || !d.attempts || !d.attempts.length) return null;
+    var r = d.attempts[d.attempts.length - 1], lines = planLines(r, stages, unit || "уроки");
+    var c = el("div", "card pl-card");
+    c.appendChild(el("h3", null, "Обучение по вашему уровню"));
+    if (!lines.length) { c.appendChild(el("p", null, "По тесту лучше пройти курс полностью, с объяснениями. Тест можно пройти снова в любой момент.")); box.appendChild(c); return c; }
+    c.appendChild(el("p", "muted", d.adaptOff ? "Сейчас выключено: все уроки идут полностью." : "По результату входного теста курс подстроен под вас:"));
+    c.appendChild(el("ul", "pl-list", lines.map(function (x) { return "<li>" + x + "</li>"; }).join("")));
+    c.appendChild(el("p", "notice-small", "Дальше по курсу, где навык ещё не дотягивает до уровня урока, практики на него тоже будет больше. Устную речь, задачу урока и босс-тест мы не сокращаем: они проверяют, что база на месте. Ошибки в короткой проверке возвращаются в повторение."));
+    var b = btn(d.adaptOff ? "Включить адаптацию" : "Учиться без сокращений", d.adaptOff ? "primary" : "", function () { d.adaptOff = !d.adaptOff; save(storeKey, d); var nc = planCard(document.createElement("div"), storeKey, stages, unit); c.replaceWith(nc); });
+    var r2 = el("div", "row pl-row"); r2.appendChild(b); r2.appendChild(btn("Пройти тест снова", "", function () { location.hash = "#test"; })); c.appendChild(r2);
+    box.appendChild(c); return c;
+  }
+  window.LDCPlace = { mount: mount, shuffle: shuffle, adapt: adapt, planCard: planCard, stageOf: stageOf };
 })();
