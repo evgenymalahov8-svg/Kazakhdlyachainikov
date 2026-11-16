@@ -1,0 +1,38 @@
+/* Совместимость: Safari (iOS, macOS), Firefox, Яндекс Браузер, Chrome/Edge на Android и Windows.
+   Подключается последним на всех страницах. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+* { -webkit-tap-highlight-color: transparent; }
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+/* Высота экрана: на телефонах 100vh больше видимой области из-за панели браузера */
+body { min-height: 100vh; }
+@supports (min-height: 100dvh) { body { min-height: 100dvh; } .choose { min-height: calc(100dvh - 74px); } .portal-canvas { height: 100dvh; } }
+/* inset для старых Safari (до 14.1) */
+.scrim, .hfx, .portal-layer, .portal-canvas { top: 0; right: 0; bottom: 0; left: 0; }
+.hfx-flash { top: 0; right: 0; bottom: 0; left: 0; }
+/* Пиксельные картинки без размытия во всех движках */
+.tp-svg, .mascot, .portal-canvas, .salem-pot, .hero-world, img { image-rendering: -moz-crisp-edges; image-rendering: -webkit-optimize-contrast; image-rendering: pixelated; }
+/* iOS увеличивает страницу при фокусе на поле с шрифтом меньше 16px */
+@supports (-webkit-touch-callout: none) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea { font-size: 16px; }
+  .sess-input { font-size: 20px; }
+  textarea.sess-input { font-size: 17px; }
+}
+/* Кнопки и поля: убрать системное оформление Safari */
+button, input, textarea { -webkit-appearance: none; appearance: none; border-radius: 0; }
+select { border-radius: 0; }
+input[type="checkbox"] { -webkit-appearance: checkbox; appearance: auto; }
+input[type="radio"] { -webkit-appearance: radio; appearance: auto; }
+input[type="range"] { -webkit-appearance: auto; appearance: auto; }
+/* Вырезы и «чёлки» экранов (iPhone, Android): нижняя панель урока и меню не уходят под системные полосы */
+.sess-foot { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+.drawer { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+.pf-bar, .top { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+/* Широкие таблицы прокручиваются пальцем; тонкий скролл в Firefox */
+.table-wrap, .pl-table, .chat-log, .can-list { -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+/* Плавная прокрутка только если пользователь не просил уменьшить движение */
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+/* Наведение мышью только там, где оно есть: на телефоне кнопки не «залипают» в подсвеченном состоянии */
+@media (hover: none) {
+  .shelf-pot:hover .tp-svg { transform: none; filter: none; }
+  .btn.pl-opt:hover { background: #fff; }
+}
