@@ -105,6 +105,7 @@
   function render(box, cfg) {
     box.innerHTML = "";
     var h = el("h1", "h-pixel"); h.appendChild(el("span", "gold", "Студия озвучки")); box.appendChild(h);
+    if (cfg.guide !== false) { var gl = el("p", "studio-guide", "<a class='btn small' href='" + (cfg.guide || "../dictor/index.html") + "' target='_blank' rel='noopener'>Инструкция для дикторов</a>"); box.appendChild(gl); }
     box.appendChild(el("p", "muted", "Здесь диктор записывает " + cfg.langName + " слова и фразы курса. Записи сразу звучат на этом устройстве вместо синтезатора, а после загрузки на GitHub — у всех."));
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
       box.appendChild(el("p", "notice", "Этот браузер не умеет записывать звук. Откройте страницу в Chrome, Edge, Яндекс Браузере или Safari и разрешите микрофон.")); return;
