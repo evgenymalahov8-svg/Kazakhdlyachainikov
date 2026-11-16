@@ -55,20 +55,28 @@
   }
 
   // ---------- запись с индикатором громкости и автостопом по тишине ----------
+  var SHARED = { stream: null };
+  function getStream() {
+    if (SHARED.stream && SHARED.stream.getAudioTracks().some(function (t) { return t.readyState === "live"; })) return Promise.resolve(SHARED.stream);
+    return navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }).then(function (st) { SHARED.stream = st; return st; });
+  }
+  function releaseMic() { if (SHARED.stream) { SHARED.stream.getTracks().forEach(function (t) { t.stop(); }); SHARED.stream = null; } }
+  window.addEventListener("hashchange", releaseMic); window.addEventListener("pagehide", releaseMic);
   function Recorder(onLevel) {
-    var self = this; self.stream = null; self.ctx = null;
+    var self = this;
     self.start = function (opts) {
-      return navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }).then(function (stream) {
+      return getStream().then(function (stream) {
         var mime = pickMime(), mr = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream), chunks = [];
-        self.stream = stream; self.mr = mr;
-        var AC = window.AudioContext || window.webkitAudioContext, spoke = false, quietSince = 0, t0 = Date.now(), raf;
+        self.mr = mr;
+        var AC = window.AudioContext || window.webkitAudioContext, spoke = false, heard = 0, quietSince = 0, t0 = Date.now(), raf, ctx = null;
         if (AC) {
           try {
-            self.ctx = new AC(); var an = self.ctx.createAnalyser(); an.fftSize = 512; self.ctx.createMediaStreamSource(stream).connect(an);
+            ctx = new AC(); if (ctx.state === "suspended" && ctx.resume) ctx.resume();
+            var an = ctx.createAnalyser(); an.fftSize = 512; ctx.createMediaStreamSource(stream).connect(an);
             var buf = new Uint8Array(an.fftSize);
             var tick = function () {
-              an.getByteTimeDomainData(buf); var s = 0; for (var i = 0; i < buf.length; i++) { var v = (buf[i] - 128) / 128; s += v * v; }
-              var rms = Math.sqrt(s / buf.length); onLevel && onLevel(Math.min(1, rms * 6));
+              an.getByteTimeDomainData(buf); var s2 = 0; for (var i = 0; i < buf.length; i++) { var v = (buf[i] - 128) / 128; s2 += v * v; }
+              var rms = Math.sqrt(s2 / buf.length); if (rms > heard) heard = rms; onLevel && onLevel(Math.min(1, rms * 6));
               var now = Date.now();
               if (rms > 0.04) { spoke = true; quietSince = 0; } else if (spoke && !quietSince) quietSince = now;
               if (opts.autoStop && spoke && quietSince && now - quietSince > 900 && mr.state === "recording") { mr.stop(); return; }
@@ -76,16 +84,17 @@
               raf = requestAnimationFrame(tick);
             };
             raf = requestAnimationFrame(tick);
-          } catch (e) {}
+          } catch (e) { ctx = null; }
         }
         return new Promise(function (res) {
           mr.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
           mr.onstop = function () {
-            cancelAnimationFrame(raf); stream.getTracks().forEach(function (t) { t.stop(); }); try { self.ctx && self.ctx.close(); } catch (e) {}
+            cancelAnimationFrame(raf); try { ctx && ctx.close(); } catch (e) {}
             onLevel && onLevel(0);
-            res({ blob: new Blob(chunks, { type: mr.mimeType || mime || "audio/webm" }), spoke: spoke });
+            // если анализатор ничего не слышал (так бывает в Safari), не считаем запись пустой
+            res({ blob: new Blob(chunks, { type: mr.mimeType || mime || "audio/mp4" }), spoke: spoke || heard < 0.002 });
           };
-          mr.start();
+          mr.start(1000);
         });
       });
     };
@@ -122,13 +131,16 @@
     row1.appendChild(grpSel); row1.appendChild(fSel); top.appendChild(row1);
     var row2 = el("div", "row studio-ctl");
     var conv = bt("● Запись подряд", "primary", function () { conveyor(); });
-    var dl = bt("Скачать архив записей", "", download);
-    row2.appendChild(conv); row2.appendChild(dl); top.appendChild(row2);
+    var dl = bt("Скачать архив записей", "", function () { download(false); });
+    row2.appendChild(conv); row2.appendChild(dl);
+    var canShare = false; try { canShare = !!(navigator.canShare && window.File && navigator.canShare({ files: [new File(["x"], "a.zip", { type: "application/zip" })] })); } catch (e) {}
+    var sh = null; if (canShare) { sh = bt("Отправить архив (Telegram, почта…)", "primary", function () { download(true); }); row2.appendChild(sh); }
+    top.appendChild(row2);
     top.appendChild(el("p", "notice-small", "Совет: поделите работу — каждый диктор выбирает свой раздел в списке «Все разделы» и записывает только его. Фразы, которые уже есть на сайте, отмечены и в «незаписанные» не попадают."));
     box.appendChild(top);
     var list = el("div", "studio-list"); box.appendChild(list);
     var help = el("div", "card");
-    help.innerHTML = "<h3>Как записывать быстрее</h3><ul class='pl-list'><li><b>«Запись подряд»</b>: фраза крупно на экране, запись останавливается сама, когда вы замолчали, и сразу открывается следующая. Руки свободны — удобно с телефона на подставке.</li><li>Клавиши: <b>Пробел</b> — запись / стоп, <b>→</b> — дальше, <b>←</b> — назад, <b>P</b> — прослушать, <b>R</b> — перезаписать.</li><li>Тихая комната, микрофон в 20–30 см. Говорите естественно, в обычном темпе, без «дикторской» интонации.</li><li>Записи хранятся только в этом браузере, пока вы не скачаете архив. Не очищайте данные сайта до этого.</li></ul>" +
+    help.innerHTML = "<h3>Как записывать быстрее</h3><ul class='pl-list'><li><b>«Запись подряд»</b>: фраза крупно на экране, запись останавливается сама, когда вы замолчали, и сразу открывается следующая. Руки свободны — удобно с телефона на подставке.</li><li>Клавиши: <b>Пробел</b> — запись / стоп, <b>→</b> — дальше, <b>←</b> — назад, <b>P</b> — прослушать, <b>R</b> — перезаписать.</li><li>Тихая комната, микрофон в 20–30 см. Говорите естественно, в обычном темпе, без «дикторской» интонации.</li><li><b>С телефона</b> (Safari, Яндекс, Chrome): разрешите микрофон, когда браузер спросит. Записывайте в «Запись подряд» — кнопки крупные, экран не гаснет. Чтобы сохранить работу, нажмите <b>«Отправить архив»</b> и выберите Telegram или почту.</li><li>Записи хранятся только в этом браузере, пока вы не отправите или не скачаете архив. На iPhone данные сайта могут стереться, если не заходить неделю, — отправляйте архив после каждой сессии.</li></ul>" +
       "<h3>Как выложить для всех</h3><ol class='pl-list'><li>«Скачать архив записей» → распакуйте → внутри папка <b>audio</b> (в ней уже и старые записи с сайта).</li><li>На github.com откройте папку курса (<b>" + esc(cfg.folder) + "</b>) → <b>Add file → Upload files</b> → перетащите папку <b>audio</b> целиком с компьютера.</li><li>Или пришлите архивы в чат: я объединю записи нескольких дикторов, переведу в mp3 и подключу.</li></ol>";
     box.appendChild(help);
 
@@ -138,10 +150,16 @@
     function playItem(it, cb) { var r = REC[key(it.t)]; if (r) return playBlob(r.blob, cb); var s = SITE[key(it.t)]; if (s) { var a = new Audio(cfg.dir + s); a.onended = cb || null; a.play().catch(function () { cb && cb(); }); return; } cb && cb(); }
     function save(it, blob) {
       var k = key(it.t), v = { blob: blob, type: blob.type, text: it.t, acc: acc, date: Date.now() };
-      return op(cfg.db, "readwrite", function (s) { s.put(v, k); }).then(function () { REC[k] = v; cfg.setLocal(k, blob); counts(); });
+      return op(cfg.db, "readwrite", function (s) { s.put(v, k); }).then(function () {
+        REC[k] = v; cfg.setLocal(k, blob); counts(); unsaved++;
+        if (unsaved >= 25) { unsaved = 0; remind(); }
+      }).catch(function () { REC[k] = v; cfg.setLocal(k, blob); counts(); warnStore(); });
     }
     function remove(it) { var k = key(it.t); return op(cfg.db, "readwrite", function (s) { s.delete(k); }).then(function () { delete REC[k]; cfg.setLocal(k, null); counts(); }); }
-    var rec = new Recorder();
+    var rec = new Recorder(), unsaved = 0;
+    try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
+    function warnStore() { if (box.querySelector(".studio-warn")) return; var w = el("p", "notice studio-warn", "Браузер не даёт сохранить записи на устройстве (так бывает в приватном режиме). Записи живут, пока открыта страница, — скачайте или отправьте архив до закрытия."); top.appendChild(w); }
+    function remind() { var w = el("p", "notice", "Уже 25 новых записей. Сохраните их: «Отправить архив» или «Скачать архив». На iPhone браузер может стереть данные сайта, если не заходить на него неделю."); top.appendChild(w); setTimeout(function () { w.remove(); }, 12000); }
     function row(it) {
       var r = el("div", "studio-row" + (isDone(it) ? " done" : ""));
       r.appendChild(el("div", "studio-txt", "<b lang='" + cfg.lang + "'>" + esc(it.t) + "</b>" + (it.hint ? "<i>" + esc(it.hint) + "</i>" : "") + (it.ru ? "<span>" + esc(it.ru) + "</span>" : "") + (SITE[key(it.t)] && !REC[key(it.t)] ? "<em>уже на сайте</em>" : "")));
@@ -185,10 +203,11 @@
       if (fSel.value === "all" || fSel.value === "done") queue = queue.filter(function (it) { return !isDone(it); }).length ? queue : queue;
       if (!queue.length) { alert("Нечего записывать: в выбранном разделе всё готово."); return; }
       var i = 0, auto = true, next = true;
-      var ov = el("div", "studio-ov"), pane = el("div", "studio-pane");
+      var ov = el("div", "studio-ov"), pane = el("div", "studio-pane"), lock = null;
+      try { navigator.wakeLock && navigator.wakeLock.request("screen").then(function (l) { lock = l; }).catch(function () {}); } catch (e) {}
       ov.appendChild(pane); document.body.appendChild(ov); document.body.style.overflow = "hidden";
       var meter = el("div", "studio-meter"), fill = el("i"); meter.appendChild(fill);
-      function close() { rec.stop(); document.removeEventListener("keydown", keys); ov.remove(); document.body.style.overflow = ""; draw(); }
+      function close() { rec.stop(); try { lock && lock.release(); } catch (e) {} document.removeEventListener("keydown", keys); ov.remove(); document.body.style.overflow = ""; draw(); }
       function show() {
         var it = queue[i]; pane.innerHTML = "";
         var hd = el("div", "studio-ov-top"); hd.appendChild(el("span", null, (i + 1) + " / " + queue.length + (isDone(it) ? " · записано ✓" : ""))); hd.appendChild(bt("✕ Закрыть", "small", close)); pane.appendChild(hd);
@@ -205,7 +224,7 @@
         var a1 = el("label", null, "<input type='checkbox'" + (auto ? " checked" : "") + "> автостоп по тишине"); a1.firstChild.addEventListener("change", function (e) { auto = e.target.checked; }); o.appendChild(a1);
         var a2 = el("label", null, "<input type='checkbox'" + (next ? " checked" : "") + "> сразу следующая фраза"); a2.firstChild.addEventListener("change", function (e) { next = e.target.checked; }); o.appendChild(a2);
         pane.appendChild(o);
-        pane.appendChild(el("p", "notice-small", "Пробел — запись / стоп · → дальше · ← назад · P — прослушать · R — перезаписать"));
+        pane.appendChild(el("p", "notice-small studio-keys", "Пробел — запись / стоп · → дальше · ← назад · P — прослушать · R — перезаписать"));
       }
       function go() { if (i < queue.length - 1) { i++; show(); } else { pane.innerHTML = ""; pane.appendChild(el("div", "studio-big", "<b>Готово!</b><span>Все фразы этого раздела записаны. Можно скачать архив.</span>")); pane.appendChild(bt("Закрыть", "primary", close)); } }
       function toggle() {
@@ -233,16 +252,22 @@
       show();
     }
 
-    function download() {
+    function download(share) {
       var keys = Object.keys(REC); if (!keys.length && !Object.keys(SITE).length) { alert("Пока нет записей."); return; }
-      dl.disabled = true; dl.textContent = "Собираю архив…";
+      dl.disabled = true; dl.textContent = "Собираю архив…"; if (sh) sh.disabled = true;
       var manifest = Object.assign({}, SITE), files = [], listTxt = [];
       Promise.all(keys.map(function (k) { return new Response(REC[k].blob).arrayBuffer().then(function (buf) { var n = fname(cfg.prefix, k, REC[k].type); manifest[k] = n; files.push({ name: "audio/" + n, data: new Uint8Array(buf) }); listTxt.push(n + "\t" + REC[k].text + (REC[k].acc ? "\t" + REC[k].acc : "")); }); }))
         .then(function () {
           files.push({ name: "audio/manifest.json", data: new TextEncoder().encode(JSON.stringify(manifest, null, 1)) });
           files.push({ name: "audio/список.txt", data: new TextEncoder().encode("Новые записи этого архива (старые с сайта остаются на сайте):\n" + listTxt.join("\n")) });
-          var a = document.createElement("a"); a.href = URL.createObjectURL(zip(files)); a.download = cfg.prefix + "-audio.zip"; document.body.appendChild(a); a.click(); a.remove();
-        }).then(function () { dl.disabled = false; dl.textContent = "Скачать архив записей"; });
+          var blob = zip(files), name = cfg.prefix + "-audio-" + new Date().toISOString().slice(0, 10) + ".zip";
+          if (share) {
+            var f = new File([blob], name, { type: "application/zip" });
+            return navigator.share({ files: [f], title: "Записи диктора", text: "Архив записей для «Языки для чайников»" }).catch(function () {});
+          }
+          var url = URL.createObjectURL(blob), a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+        }).then(function () { dl.disabled = false; dl.textContent = "Скачать архив записей"; if (sh) sh.disabled = false; });
     }
     Promise.all([loadAll(cfg.db), fetch(cfg.dir + "manifest.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; })])
       .then(function (x) { REC = x[0]; SITE = x[1] || {}; draw(); });
@@ -267,6 +292,7 @@
     ".studio-big{display:flex;flex-direction:column;gap:8px;text-align:center;padding:24px 8px}.studio-big b{font-size:clamp(26px,6vw,44px);line-height:1.2}.studio-big span{font-size:18px;opacity:.75}" +
     ".studio-meter{height:12px;border:3px solid #111;margin:6px 0 14px;background:#f2f2f2}.studio-meter i{display:block;height:100%;width:0;background:#1f8a3b;transition:width .08s}" +
     ".studio-ov-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.studio-ov-btns .studio-rec{font-size:16px;padding:14px 22px}.studio-ov-opts{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;margin:12px 0 4px;font-size:14px}" +
+    "@media (hover:none){.studio-keys{display:none}}" + "@media (max-width:560px){.studio-ov{padding:0;align-items:stretch}.studio-pane{border-width:0;box-shadow:none;min-height:100%;padding:14px 12px calc(14px + env(safe-area-inset-bottom))}.studio-ov-btns .btn{flex:1 1 40%}.studio-ov-btns .studio-rec{flex:1 1 100%;font-size:18px;padding:20px}.studio-btns .btn{flex:1 1 auto}}" +
     ".studio-ov-opts input{-webkit-appearance:checkbox;appearance:auto;width:18px;height:18px;vertical-align:middle;margin-right:6px}";
   var s = document.createElement("style"); s.textContent = css; (document.head || document.documentElement).appendChild(s);
 })();
