@@ -507,8 +507,19 @@
   .can-list { list-style: none; margin: 8px 0 0; padding: 0; max-height: 420px; overflow-y: auto; }
   .can-list li { padding: 6px 0; border-bottom: 1px dashed rgba(0, 0, 0, .2); color: #666; }
   .can-list li.on { color: var(--ink); font-weight: 700; }
+  .studio-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 10px 0; border-bottom: 1px dashed rgba(0,0,0,.2); }
+  .studio-row.done .studio-txt b::after { content: " ✓"; color: #1f8a3b; }
+  .studio-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 220px; }
+  .studio-txt b { font-size: 18px; } .studio-txt span { font-size: 14px; color: #666; }
+  .studio-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+  .studio-grp summary { cursor: pointer; padding: 4px 0; font-size: 16px; }
+  .btn.rec-on { background: #d62828 !important; color: #fff !important; animation: recpulse 1s steps(2) infinite; }
+  @keyframes recpulse { 50% { opacity: .65; } }
+  .studio-list { margin: 14px 0; }
 </style>
 <link rel="stylesheet" href="../assets/compat.css">
+<script src="../assets/checkmode.js"></script>
+<script src="studio.js"></script>
 </head>
 <body>
 
@@ -646,6 +657,7 @@
   <!-- ПРОФИЛЬ И ДАННЫЕ -->
   <section class="view" data-view="account" hidden>
     <h1 class="h-pixel"><span class="gold" data-i="h_acct">Профиль и данные</span></h1>
+    <div id="kzCheck"></div>
     <div class="card">
       <h3 data-i="set_h">Настройки</h3>
       <div class="field">
@@ -3205,10 +3217,11 @@
   window.addEventListener("hashchange", () => showView(location.hash.slice(1)));
 
   // ---------- План ----------
+  const CHECK = () => !!(window.LDCCheck && LDCCheck.on());
   function dayStatus(n) {
     if (n <= prog.done) return "done";
     if (n === prog.done + 1) return "current";
-    return "locked";
+    return CHECK() ? "open" : "locked";
   }
 
   // ---------- Урок ----------
@@ -3753,7 +3766,7 @@
   }
   function speakNote() {
     if (!window.speechSynthesis) return T("В этом окне нет озвучки (так бывает в приложении Claude на телефоне). Откройте страницу в браузере Chrome.", "This window has no speech (this happens in the Claude app on a phone). Open the page in the Chrome browser.");
-    return hasKkVoice() ? "" : T("Казахского голоса на устройстве нет: слово прочитает русский голос, звуки ә, ғ, қ, ң, ө, ү, ұ, і будут неточными.", "There is no Kazakh voice on this device: a Russian voice will read the word if one is installed, so the sounds ә, ғ, қ, ң, ө, ү, ұ, і will be inaccurate.");
+    return hasKkVoice() ? "" : T("Казахского голоса на устройстве нет: слово прочитает русский голос, звуки ә, ғ, қ, ң, ө, ү, ұ, і будут неточными. Настоящий казахский голос обычно есть в браузере Microsoft Edge (голоса Aigul и Daulet).", "There is no Kazakh voice on this device: a Russian voice will read the word if one is installed, so the sounds ә, ғ, қ, ң, ө, ү, ұ, і will be inaccurate. Microsoft Edge usually has real Kazakh voices (Aigul and Daulet).");
   }
   const RU_MAP = { "ә": "э", "ғ": "г", "қ": "к", "ң": "н", "ө": "о", "ұ": "у", "ү": "у", "і": "и", "һ": "х" };
   function toRu(t) {
@@ -3770,12 +3783,25 @@
   const REC = {};
   const REC_DIR = "audio/";
   function recFor(text) { const k = String(text).trim().toLowerCase().replace(/[.!?…]+$/, ""); return REC[k] ? REC_DIR + REC[k] : null; }
+  const LOCAL_REC = {};
+  try { fetch(REC_DIR + "manifest.json", { cache: "no-cache" }).then((r) => (r.ok ? r.json() : {})).then((j) => { Object.keys(j || {}).forEach((k) => { REC[k] = j[k]; }); }).catch(() => {}); } catch (e) {}
+  if (window.KZStudio) KZStudio.loadAll().then((m) => { Object.keys(m).forEach((k) => { LOCAL_REC[k] = m[k].blob; }); });
+  function recKey(text) { return String(text).trim().toLowerCase().replace(/[.!?…]+$/, ""); }
+  function logMiss(text) {
+    const k = recKey(text); if (!k || REC[k] || LOCAL_REC[k] || !/[а-яәғқңөұүіһ]/i.test(k)) return;
+    try { const m = JSON.parse(localStorage.getItem("kz_v3_recmiss") || "[]"); if (m.indexOf(text) < 0 && m.length < 600) { m.push(String(text).trim()); localStorage.setItem("kz_v3_recmiss", JSON.stringify(m)); } } catch (e) {}
+  }
   function speak(text, b) {
     const rf = recFor(text);
-    if (rf && typeof Audio !== "undefined") {
-      try { const a = new Audio(rf); a.play().catch(() => { REC_FAIL[rf] = 1; ttsSpeak(text, b); }); return; } catch (e) {}
+    if (rf && !REC_FAIL[rf] && typeof Audio !== "undefined") {
+      try { const a = new Audio(rf); a.play().catch(() => { REC_FAIL[rf] = 1; speakLocal(text, b); }); return; } catch (e) {}
     }
-    ttsSpeak(text, b);
+    speakLocal(text, b);
+  }
+  function speakLocal(text, b) {
+    const lb = LOCAL_REC[recKey(text)];
+    if (lb && typeof Audio !== "undefined") { try { const a = new Audio(URL.createObjectURL(lb)); a.play().catch(() => ttsSpeak(text, b)); return; } catch (e) {} }
+    logMiss(text); ttsSpeak(text, b);
   }
   const REC_FAIL = {};
   function ttsSpeak(text, b) {
@@ -3783,7 +3809,8 @@
     if (!sy || typeof SpeechSynthesisUtterance === "undefined") { if (b) flash(b, T("Нет звука: откройте в Chrome", "No sound: open in Chrome")); return; }
     try { sy.cancel(); } catch (e) {}
     const voices = sy.getVoices ? sy.getVoices() : [];
-    const kk = voices.find((x) => /^kk/i.test(x.lang));
+    const kks = voices.filter((x) => /^kk/i.test(x.lang));
+    const kk = kks.find((x) => /natural|online|neural|aigul|daulet/i.test(x.name)) || kks[0];
     const ru = voices.find((x) => /^ru/i.test(x.lang));
     const u = new SpeechSynthesisUtterance(kk ? text : toRu(text));
     u.rate = 0.8;
@@ -3797,6 +3824,21 @@
     sy.speak(u);
     if (b) setTimeout(() => { if (!started) flash(b, T("Нет звука на устройстве", "No sound on this device")); }, 2500);
   }
+  const KZ_API = {
+    el, T, tts: (t, b) => ttsSpeak(t, b),
+    setLocal: (k, blob) => { if (blob) LOCAL_REC[k] = blob; else delete LOCAL_REC[k]; },
+    groups: () => {
+      const G = [];
+      let miss = []; try { miss = JSON.parse(localStorage.getItem("kz_v3_recmiss") || "[]"); } catch (e) {}
+      if (miss.length) G.push({ name: T("Звучали на сайте, но ещё не записаны", "Heard on the site, not recorded yet"), items: miss.map((x) => ({ kk: x, ru: "" })) });
+      LESSONS.forEach((L, i) => G.push({ name: T("День ", "Day ") + (i + 1) + ": " + L.t, items: L.w.map((w) => ({ kk: w[0], ru: w[1] })).concat([{ kk: L.e[0], ru: L.e[1] }]) }));
+      SITS.forEach((x) => G.push({ name: T("Ситуация: ", "Situation: ") + x.name, items: x.p.map((p) => ({ kk: p[0], ru: p[1] })).concat(x.d.map((l) => ({ kk: l[1], ru: l[2] }))) }));
+      G.push({ name: T("Готовые фразы", "Phrases"), items: PHRASES.map((p) => ({ kk: p.kk, ru: p.ru })) });
+      G.push({ name: T("Сленг", "Slang"), items: SLANG.map((x) => ({ kk: x.w, ru: x.mean })) });
+      if (window.PLACE_KZ) G.push({ name: T("Входной тест: аудирование", "Placement test: listening"), items: PLACE_KZ.bank.filter((q) => q[0] === "l").map((q) => ({ kk: q[6], ru: q[4].split("|")[0] })) });
+      return G;
+    }
+  };
   function soundBtn(text) {
     const b = el("button", "btn small", T("▶ Послушать", "▶ Listen"));
     b.type = "button";
@@ -3948,7 +3990,7 @@
     ["Практика", "Practice", [["drill", "Практика по урокам", "Practice by lesson"], ["extra", "Дополнительные упражнения", "Extra exercises"], ["tests", "Тесты", "Tests"], ["writing", "Письменные задания", "Writing tasks"], ["dialogs", "Диалоги и разговорная практика", "Dialogues and speaking"], ["listen", "Аудирование", "Listening"], ["mistakes", "Разбор ошибок", "Mistake review"]]],
     ["Дополнительные курсы", "Extra courses", [["kaztest", "Подготовка к КАЗТЕСТ", "KAZTEST preparation"], ["vnzh", "Казахский для ВНЖ", "Kazakh for a residence permit"], ["citizen", "Казахский для гражданства", "Kazakh for citizenship"], ["other", "Другие тематические курсы", "Other topic courses"]]]
   ];
-  const SERVICE = [["support", "Поддержка", "Support"], ["account", "Профиль и данные", "Profile and data"], ["about", "О сайте", "About"]];
+  const SERVICE = [["support", "Поддержка", "Support"], ["studio", "Студия озвучки", "Recording studio"], ["account", "Профиль и данные", "Profile and data"], ["about", "О сайте", "About"]];
   const ALIAS = { talk: "speech", slang: "speech", resources: "dicts", extra: "places", dialogs: "practice" };
   const STATIC = ["home", "plan", "lesson", "schedule", "places", "practice", "about", "account", "speech"];
   const HL = { lesson: "continue", places: "extra", practice: "dialogs" };
@@ -4165,6 +4207,7 @@
     c5.appendChild(q2);
     g.appendChild(c5);
     box.appendChild(g);
+    if (window.LDCPlace && window.PLACE_KZ) LDCPlace.planCard(box, "kz_v3_place", PLACE_KZ.stages, "дни");
   }
 
   // ---------- Сессии: тесты, ДЗ, тренировки ----------
@@ -4229,14 +4272,15 @@
 
   // ---------- Страницы ----------
   const PAGES = {};
+  PAGES.studio = (box) => { if (window.KZStudio) KZStudio.render(box, KZ_API); else box.appendChild(el("p", "notice", "Студия не загрузилась. Обновите страницу.")); };
   PAGES.test = (box) => {
     LDCPlace.mount(box, {
-      storeKey: "kz_v3_place", bank: PLACE_KZ.bank, stages: PLACE_KZ.stages, zeroLabel: PLACE_KZ.zeroLabel, total: TOTAL,
+      storeKey: "kz_v3_place", unit: "дни", bank: PLACE_KZ.bank, stages: PLACE_KZ.stages, zeroLabel: PLACE_KZ.zeroLabel, total: TOTAL,
       ttsNote: hasKkVoice() ? "" : "На этом устройстве нет казахского голоса: в аудировании фразы прочитает русский голос, особые звуки будут звучать приблизительно.",
       speak: (t, b) => speak(t, b),
       done: () => prog.done,
       goLesson: (n) => { if (n > prog.done + 1) { location.hash = "#plan"; return; } startLesson(n); },
-      skipTo: (n) => { prog.done = Math.max(prog.done, Math.min(TOTAL, n - 1)); prog.placed = n; saveProg(); },
+      skipTo: (n) => { LESSONS.slice(0, n - 1).forEach((L) => L.w.forEach((w) => { if (!srs[w[0]]) srs[w[0]] = { i: 14, d: today() + 14 }; })); save(K.srs, srs); prog.done = Math.max(prog.done, Math.min(TOTAL, n - 1)); prog.placed = n; saveProg(); },
       skipItems: (n) => {
         const pool = [];
         LESSONS.slice(0, n - 1).forEach((L, i) => L.w.forEach((w) => { if (w[0].indexOf(" ") < 0) pool.push({ kk: w[0], ru: w[1].split(/[\/,;(]/)[0].trim(), day: i + 1 }); }));
@@ -4543,7 +4587,7 @@
     TESTS.forEach(([id, a, b]) => {
       const name = id === "final" ? T("Итоговый тест · дни 1–30", "Final test · days 1–30") : T("Неделя ", "Week ") + id.slice(1) + T(" · дни ", " · days ") + a + "–" + b;
       const best = prog.tests[id];
-      if (prog.done < b) t.appendChild(tileBtn(name, T("Откроется после дня ", "Opens after day ") + b, null, "locked"));
+      if (prog.done < b && !CHECK()) t.appendChild(tileBtn(name, T("Откроется после дня ", "Opens after day ") + b, null, "locked"));
       else t.appendChild(tileBtn(name, best != null ? T("Лучший результат: ", "Best: ") + best + "%" : T("Открыт", "Open"), () => startWeekTest(id), best >= 80 ? "passed" : ""));
     });
     box.appendChild(t);
@@ -4736,8 +4780,24 @@
     };
     return M[id] || ["", ""];
   }
+  function adaptKZ(day, P) {
+    const AD = window.LDCPlace && window.PLACE_KZ ? LDCPlace.adapt("kz_v3_place", PLACE_KZ.stages, day) : null;
+    if (!AD) return P;
+    const NOTE = T("По вашему входному тесту: ", "Based on your placement test: ");
+    P.forEach((p) => {
+      const tasks = p.steps.filter((x) => !x.card);
+      if (p.id === "lex" && AD.strong.v) { p.steps = p.steps.filter((x) => x.card && x.card !== "word").concat(shuffle(tasks).slice(0, 6)); p.note = NOTE + T("слова дня вам знакомы — без карточек-объяснений, только короткая проверка. Ошибётесь — слово вернётся в повторение.", "you know these words — a short check instead of word cards."); }
+      else if (p.id === "lex" && AD.weak.v) { lessonWords(day).slice(0, 3).forEach((w) => p.steps.push(Object.assign(mkType(w), { blk: "p_lex" }))); p.note = NOTE + T("добавили практику на слова.", "extra word practice added."); }
+      if (p.id === "gram" && AD.strong.g) { p.steps = tasks.slice(0, 4); p.note = NOTE + T("правило вам знакомо — 4 задания для проверки. Полное объяснение есть в разделе «Грамматика».", "you know this rule — 4 tasks to check it."); }
+      else if (p.id === "gram" && AD.weak.g) { shuffle(gramPool(day).filter((it) => canForm(it, "A"))).slice(0, 3).forEach((it) => { const t = gramTask(it, "A"); if (t) { t.blk = "p_gram"; p.steps.push(t); } }); p.note = NOTE + T("добавили 3 задания на грамматику.", "3 extra grammar tasks added."); }
+      if (p.id === "read" && AD.strong.r) { let n = 0; p.steps = p.steps.filter((x) => x.card || n++ < 2); p.note = NOTE + T("чтение у вас сильное — меньше вопросов к тексту.", "strong reading — fewer questions."); }
+      if (p.id === "talk" && AD.strong.l) { let n = 0; p.steps = p.steps.filter((x) => x.card || x.k !== "choice" || n++ < 1); p.note = NOTE + T("на слух понимаете хорошо — меньше вопросов «что ответить». Говорение остаётся полностью.", "good listening — fewer reply questions; speaking stays."); }
+      else if (p.id === "talk" && AD.weak.l) { const d0 = p.steps.find((x) => x.card === "dialog"); if (d0) p.steps.splice(p.steps.indexOf(d0) + 1, 0, Object.assign({}, d0)); p.note = NOTE + T("диалог прозвучит дважды — для тренировки слуха.", "the dialogue plays twice for listening practice."); }
+    });
+    return P;
+  }
   function startLesson(day, fresh) {
-    const P = buildLesson(day, srs, today(), { speech: !!window.speechSynthesis, kkVoice: hasKkVoice() });
+    const P = adaptKZ(day, buildLesson(day, srs, today(), { speech: !!window.speechSynthesis, kkVoice: hasKkVoice() }));
     P.forEach((p, i) => { p.min = phaseMin(p.steps); p.steps.unshift({ card: "phase" }); if (i === 0) p.steps.unshift({ card: "overview" }); });
     if (fresh) lessonDrop(day);
     const sv = fresh ? null : lessonSaved(day);
@@ -5143,6 +5203,7 @@
     if (!S.fix) body.appendChild(el("span", "blk", T("Блок ", "Block ") + (S.pi + 1) + T(" из ", " of ") + S.phases.length));
     body.appendChild(goldHead("h2", info[0]));
     body.appendChild(el("p", null, info[1]));
+    if (p.note) body.appendChild(el("p", "notice", p.note));
     body.appendChild(el("p", "notice-small", T("Примерно ", "About ") + p.min + T(" мин", " min")));
   }
   function cardResume(body) {
@@ -5371,7 +5432,7 @@
         save(K.srs, srs);
         S.passed = true;
         lessonDrop(S.day);
-        if (S.day > prog.done) prog.done = S.day;
+        if (S.day > prog.done && (!CHECK() || S.day === prog.done + 1)) prog.done = S.day;
         S.xp = activity("lesson:" + S.day, 40);
         confetti();
       }
@@ -5430,9 +5491,9 @@
     box.appendChild(tb);
     box.appendChild(el("p", "notice-small", T("80–100 — хорошо, 60–79 — повторить материал, 0–59 — переделать задание.", "80–100 good, 60–79 review, 0–59 redo.")));
     const t = el("div", "tiles");
-    for (let n = 1; n <= Math.min(prog.done + 1, TOTAL); n++) {
+    for (let n = 1; n <= (CHECK() ? TOTAL : Math.min(prog.done + 1, TOTAL)); n++) {
       const sc = prog.hw[n];
-      if (n <= prog.done) t.appendChild(tileBtn(T("День ", "Day ") + n + ": " + LESSONS[n - 1].t, sc != null ? T("Лучший результат: ", "Best: ") + sc + " / 100" : T("Открыто", "Open"), () => startHW(n), sc >= 80 ? "passed" : ""));
+      if (n <= prog.done || CHECK()) t.appendChild(tileBtn(T("День ", "Day ") + n + ": " + LESSONS[n - 1].t, sc != null ? T("Лучший результат: ", "Best: ") + sc + " / 100" : T("Открыто", "Open"), () => startHW(n), sc >= 80 ? "passed" : ""));
       else t.appendChild(tileBtn(T("День ", "Day ") + n + ": " + LESSONS[n - 1].t, T("Закрыто: пройдите урок и контрольный тест на 80%", "Locked: pass the lesson and its control test (80%)"), null, "locked"));
     }
     box.appendChild(t);
@@ -5506,5 +5567,6 @@
 </script>
 <script src="../assets/platform.js"></script>
 <script>window.LDC && window.LDC.arrive();</script>
+<script>if (window.LDCCheck) LDCCheck.card(document.getElementById("kzCheck"));</script>
 </body>
 </html>

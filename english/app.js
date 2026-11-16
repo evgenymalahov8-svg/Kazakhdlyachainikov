@@ -42,7 +42,8 @@
     save(K.prog, prog); save(K.srs, srs); save(K.set, settings); save(K.miss, miss);
     hud();
   }
-  function isOpen(id) { return id === 1 || !!prog.passed[id - 1] || !!prog.passed[id]; }
+  function CHECK() { return !!(window.LDCCheck && LDCCheck.on()); }
+  function isOpen(id) { return id === 1 || CHECK() || !!prog.passed[id - 1] || !!prog.passed[id]; }
   function nextLevel() { for (var i = 1; i <= TOTAL; i++) if (!prog.passed[i]) return i; return TOTAL; }
   function levelOf(xp) { return { lv: Math.floor(xp / 100) + 1, into: xp % 100 }; }
   function addXp(n) { prog.xp += n; }
@@ -327,6 +328,7 @@
     [["#dicts", "Онлайн-словари"], ["#media", "Видео и аудирование"], ["#speech", "Разговорная речь и сленг"], ["#formal", "Официальный английский"], ["#sites", "Учебные сайты"], ["#ielts", "IELTS"]].forEach(function (x) { q2.appendChild(aBtn(x[0], x[1], "small")); });
     c6.appendChild(q2); g.appendChild(c6);
     v.appendChild(g);
+    if (window.LDCPlace && window.PLACE_EN) LDCPlace.planCard(v, "en_v1_place", PLACE_EN.stages, "уровни");
   }
   function viewMap(v) {
     var nx = nextLevel();
@@ -445,6 +447,19 @@
     if (id % 5 === 0) for (var mi = id - 4; mi < id; mi++) { var ML = LESSONS[mi - 1], mt = gramTask(pick(ML.g.tasks, 1)[0], ML); if (mt) { mt.kicker = "Смешанная проверка · уровень " + mi; boss.push(mt); } }
     boss.forEach(function (b) { b.boss = true; });
     B.push({ id: "boss", steps: [{ k: "info", kicker: "Финал уровня", title: "Босс-тест", html: "<p>" + boss.length + " заданий без подсказок. Нужно <b>80%</b> правильных ответов с первой попытки. Ошибки не возвращаются — после теста увидите разбор.</p><p class='muted'>1★ — от 80%, 2★ — от 90%, 3★ — без ошибок.</p>" }].concat(shuffle(boss)) });
+
+    // Адаптация по входному тесту: знакомое — короткой проверкой, слабым навыкам — больше практики
+    var AD = window.LDCPlace && window.PLACE_EN ? LDCPlace.adapt("en_v1_place", PLACE_EN.stages, id) : null;
+    if (AD) B.forEach(function (bl) {
+      var tasks = bl.steps.filter(function (x) { return x.k !== "info" && x.k !== "word"; });
+      var note = function (t, h) { return { k: "info", kicker: "По вашему входному тесту", title: t, html: "<p>" + h + "</p>" }; };
+      if (bl.id === "words" && AD.strong.v) bl.steps = [note("Слова уровня вам знакомы", "Поэтому без карточек-объяснений — 6 заданий для проверки. Ошибётесь — слово вернётся в повторение.")].concat(shuffle(tasks).slice(0, 6));
+      else if (bl.id === "words" && AD.weak.v) bl.steps = bl.steps.concat(shuffle(tasks.filter(function (x) { return x.k === "type"; })).slice(0, 3));
+      if (bl.id === "grammar" && AD.strong.g) bl.steps = [note("Правило «" + L.g.t + "» вам знакомо", "Короткая проверка из 4 заданий. Полное объяснение всегда есть в разделе «Грамматика».")].concat(tasks.slice(0, 4));
+      else if (bl.id === "grammar" && AD.weak.g) bl.steps = bl.steps.concat(L.g.tasks.slice().reverse().slice(0, 3).map(function (t) { var g2 = gramTask(t, L); if (g2) g2.kicker = "Дополнительная практика"; return g2; }).filter(Boolean));
+      if (bl.id === "listen" && AD.strong.l) bl.steps = bl.steps.filter(function (x) { return !(x.k === "dialog" && !x.hideText); });
+      else if (bl.id === "listen" && AD.weak.l) bl.steps.push({ k: "dialog", kicker: "Ещё раз на слух, без текста", title: L.d.t, lines: L.d.l, hideText: true });
+    });
 
     var startBlock = Math.min(prog.resume[id] || 0, B.length - 1);
     return { kind: "level", id: id, L: L, blocks: B, bi: startBlock, pos: 0, queue: B[startBlock].steps.slice(), first: {}, retried: {}, ok: 0, total: 0, bossOk: 0, bossTotal: 0, mistakes: [], hp: HP_MAX };
@@ -988,6 +1003,7 @@
   // ======================================================================
   function viewProfile(v) {
     pageHead(v, "Профиль и настройки");
+    if (window.LDCCheck) LDCCheck.card(v);
     var p = LDC.profile(), c = card("Настройки");
     var f1 = el("div", "field"); f1.appendChild(el("label", null, "Имя (общее для всей платформы)")).setAttribute("for", "pfName");
     var name = el("input", "pg-field"); name.id = "pfName"; name.maxLength = 40; name.value = p.name || ""; name.placeholder = "Например: Айдар"; f1.appendChild(name); c.appendChild(f1);
@@ -1131,11 +1147,11 @@
   }
   function viewTest(v) {
     LDCPlace.mount(v, {
-      storeKey: "en_v1_place", bank: PLACE_EN.bank, stages: PLACE_EN.stages, zeroLabel: PLACE_EN.zeroLabel, total: TOTAL,
+      storeKey: "en_v1_place", unit: "уровни", bank: PLACE_EN.bank, stages: PLACE_EN.stages, zeroLabel: PLACE_EN.zeroLabel, total: TOTAL,
       speak: function (t) { speak(t); },
       done: function () { return prog.done; },
       goLesson: function (n) { location.hash = "#level-" + n; },
-      skipTo: function (n) { for (var i = 1; i < n; i++) if (!prog.passed[i]) prog.passed[i] = 1; var k = 0; while (k < TOTAL && prog.passed[k + 1]) k++; prog.done = k; prog.placed = n; saveAll(); hud(); },
+      skipTo: function (n) { ALLW.forEach(function (w) { if (w.lesson < n && !srs[w.en]) srs[w.en] = { b: 4, due: today() + 14 }; }); save(K.srs, srs); for (var i = 1; i < n; i++) if (!prog.passed[i]) prog.passed[i] = 1; var k = 0; while (k < TOTAL && prog.passed[k + 1]) k++; prog.done = k; prog.placed = n; saveAll(); hud(); },
       skipItems: function (n) {
         var pool = ALLW.filter(function (w) { return w.lesson < n && w.en.indexOf(" ") < 0; });
         return shuffle(pool).slice(0, 8).map(function (w) {
@@ -1183,7 +1199,7 @@
     var t = el("div", "tiles");
     LESSONS.forEach(function (L) {
       var sc = (prog.hw || {})[L.id];
-      if (prog.passed[L.id]) t.appendChild(tileBtn("Уровень " + L.id + ": " + L.en, sc != null ? "Лучший результат: " + sc + " / 100" : "Открыто", function () { S = hwSession(L.id); location.hash = "#train"; if (location.hash === "#train") route(); }, sc >= 80 ? "passed" : ""));
+      if (prog.passed[L.id] || CHECK()) t.appendChild(tileBtn("Уровень " + L.id + ": " + L.en, sc != null ? "Лучший результат: " + sc + " / 100" : "Открыто", function () { S = hwSession(L.id); location.hash = "#train"; if (location.hash === "#train") route(); }, sc >= 80 ? "passed" : ""));
       else t.appendChild(tileBtn("Уровень " + L.id + ": " + L.en, "Закрыто: пройдите уровень и босс-тест", null, "locked"));
     });
     v.appendChild(t);

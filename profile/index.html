@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../assets/platform.css">
 <link rel="stylesheet" href="../assets/portal.css">
 <link rel="stylesheet" href="../assets/compat.css">
+<script src="../assets/checkmode.js"></script>
 </head>
 <body>
 
@@ -52,6 +53,7 @@
       <div class="row"><button class="btn primary" id="pfSave" type="button">Сохранить</button></div>
       <p class="notice-small" id="pfOut" aria-live="polite"></p>
     </div>
+    <div id="pfCheck"></div>
     <div class="card">
       <h3>Мои курсы</h3>
       <div id="pfCourses"></div>
@@ -107,5 +109,6 @@
   });
 })();
 </script>
+<script>LDCCheck.card(document.getElementById("pfCheck"));</script>
 </body>
 </html>
