@@ -42,7 +42,8 @@
     save(K.prog, prog); save(K.srs, srs); save(K.set, settings); save(K.miss, miss);
     hud();
   }
-  function isOpen(id) { return id === 1 || !!prog.passed[id - 1] || !!prog.passed[id]; }
+  function CHECK() { return !!(window.LDCCheck && LDCCheck.on()); }
+  function isOpen(id) { return id === 1 || CHECK() || !!prog.passed[id - 1] || !!prog.passed[id]; }
   function nextLevel() { for (var i = 1; i <= TOTAL; i++) if (!prog.passed[i]) return i; return TOTAL; }
   function levelOf(xp) { return { lv: Math.floor(xp / 100) + 1, into: xp % 100 }; }
   function addXp(n) { prog.xp += n; }
@@ -988,6 +989,7 @@
   // ======================================================================
   function viewProfile(v) {
     pageHead(v, "Профиль и настройки");
+    if (window.LDCCheck) LDCCheck.card(v);
     var p = LDC.profile(), c = card("Настройки");
     var f1 = el("div", "field"); f1.appendChild(el("label", null, "Имя (общее для всей платформы)")).setAttribute("for", "pfName");
     var name = el("input", "pg-field"); name.id = "pfName"; name.maxLength = 40; name.value = p.name || ""; name.placeholder = "Например: Айдар"; f1.appendChild(name); c.appendChild(f1);
@@ -1183,7 +1185,7 @@
     var t = el("div", "tiles");
     LESSONS.forEach(function (L) {
       var sc = (prog.hw || {})[L.id];
-      if (prog.passed[L.id]) t.appendChild(tileBtn("Уровень " + L.id + ": " + L.en, sc != null ? "Лучший результат: " + sc + " / 100" : "Открыто", function () { S = hwSession(L.id); location.hash = "#train"; if (location.hash === "#train") route(); }, sc >= 80 ? "passed" : ""));
+      if (prog.passed[L.id] || CHECK()) t.appendChild(tileBtn("Уровень " + L.id + ": " + L.en, sc != null ? "Лучший результат: " + sc + " / 100" : "Открыто", function () { S = hwSession(L.id); location.hash = "#train"; if (location.hash === "#train") route(); }, sc >= 80 ? "passed" : ""));
       else t.appendChild(tileBtn("Уровень " + L.id + ": " + L.en, "Закрыто: пройдите уровень и босс-тест", null, "locked"));
     });
     v.appendChild(t);
