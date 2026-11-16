@@ -280,7 +280,7 @@
     4: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12' shape-rendering='crispEdges'%3E%3Cpath fill='%232b2466' fill-opacity='.35' d='M6 1h1v7H6zM7 2h3v4H7zM2 8h10v1H2zM3 9h8v1H3z'/%3E%3Cpath fill='%232266b8' fill-opacity='.4' d='M0 11h24v1H0zM16 10h2v1h-2zM20 10h2v1h-2z'/%3E%3C/svg%3E",
     5: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12' shape-rendering='crispEdges'%3E%3Cpath fill='%232b2466' fill-opacity='.3' d='M2 3h1v1H2zM4 3h1v1H4zM6 3h1v1H6zM2 4h5v8H2zM9 6h7v6H9zM9 5h1v1H9zM11 5h1v1h-1zM13 5h1v1h-1zM15 5h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM18 4h3v8h-3z'/%3E%3Cpath fill='%23ffd23f' d='M11 9h3v3h-3z'/%3E%3C/svg%3E"
   };
-  SCENERY[6] = SCENERY[3];
+  SCENERY[6] = SCENERY[3]; SCENERY[7] = SCENERY[2];
   function viewHome(v) {
     var nx = nextLevel(), allDone = prog.done >= TOTAL, name = (LDC.profile().name || "").trim();
     var head = el("div", "city-head"); pageHead(head, "Главная", "Ваша учебная панель: продолжить урок, прогресс, серия, очки и быстрые ссылки. Все уровни — на странице «Карта уровней»."); v.appendChild(head);
@@ -330,7 +330,7 @@
   }
   function viewMap(v) {
     var nx = nextLevel();
-    var head = el("div", "city-head"); pageHead(head, "Карта уровней", "Уровни 1–30 — основной курс до A2. Дальше — продолжение до B1: модуль 1 (уровни 31–40) уже открыт, остальные модули появятся по очереди."); v.appendChild(head);
+    var head = el("div", "city-head"); pageHead(head, "Карта уровней", "Уровни 1–30 — основной курс до A2. Дальше — продолжение до B1: модули 1–2 (уровни 31–50) уже открыты, остальные появятся по очереди."); v.appendChild(head);
     EN.worlds.forEach(function (W, wi) {
       var ls = LESSONS.filter(function (L) { return L.world === wi + 1; });
       var u = card(null, "unit w" + (wi + 1)); u.style.setProperty("--scn", "url(\"" + SCENERY[wi + 1] + "\")");
@@ -1148,7 +1148,7 @@
   function viewNext(v) {
     programView(v, EN.b1, 31, 10, "Продолжение — 31–180 до уровня B1",
       "150 уровней, 15 модулей по 10 уровней. Цель — уровень B1: свободно говорить на знакомые темы, понимать основное в фильмах и новостях, писать письма и короткие эссе.",
-      "Модуль 1 (уровни 31–40) уже открыт: он на карте сразу после уровня 30. Остальные модули пишутся и будут открываться по очереди. Нажмите на модуль, чтобы увидеть темы по дням.");
+      "Модули 1–2 (уровни 31–50) уже открыты: они на карте сразу после уровня 30. Остальные модули пишутся и будут открываться по очереди. Нажмите на модуль, чтобы увидеть темы по дням.");
     var r = el("div", "row"); r.appendChild(aBtn("#map", "К курсу из 30 уровней", "primary")); r.appendChild(aBtn("#b2", "Дальше: курс B2")); v.appendChild(r);
   }
   function viewB2(v) {
