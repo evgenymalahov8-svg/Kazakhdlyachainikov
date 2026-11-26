@@ -61,6 +61,13 @@
   var ALLW = [];
   LESSONS.forEach(function (L) { L.w.forEach(function (w) { ALLW.push({ en: w[0], uk: w[1], us: w[2] || w[1], ru: w[3], ex: w[4], exru: w[5], lesson: L.id }); }); });
   var WMAP = {}; ALLW.forEach(function (w) { if (!WMAP[w.en]) WMAP[w.en] = w; });
+  // Словарь+: частотные наборы слов сверх уроков (открываются после уровня P.after)
+  var PACKS = EN.packs || [];
+  PACKS.forEach(function (P) { P.w.forEach(function (w) { if (WMAP[w[0]]) return; var o = { en: w[0], uk: w[1], us: w[2] || w[1], ru: w[3], ex: w[4], exru: w[5], lesson: P.after, pack: P.id }; ALLW.push(o); WMAP[w[0]] = o; }); });
+  function packWords(P) { return P.w.map(function (w) { return WMAP[w[0]]; }).filter(Boolean); }
+  function packOpen(P) { return CHECK() || !!prog.passed[P.after] || prog.done >= P.after; }
+  function packLearned(P) { return packWords(P).filter(function (w) { return srs[w.en]; }).length; }
+  function courseWordCount() { return Object.keys(WMAP).length; }
   function wordsOf(L) { return L.w.map(function (w) { return WMAP[w[0]].lesson === L.id ? WMAP[w[0]] : { en: w[0], uk: w[1], us: w[2] || w[1], ru: w[3], ex: w[4], exru: w[5], lesson: L.id }; }); }
   function ru1(w) { return w.ru.split(/[;,]/)[0].trim(); }
   function learnedWords() { return ALLW.filter(function (w) { return srs[w.en]; }); }
@@ -241,7 +248,7 @@
   var MENU = [
     ["Главная", [["home", "Обзор и приветствие"], ["test", "Входной тест"], ["progress", "Мой прогресс"], ["materials", "Полезные материалы"]]],
     ["Основной курс", [["map", "Карта уровней 1–40"], ["next", "Продолжение 31–180 (до B1)"], ["grammar", "Грамматика"], ["hw", "Домашние задания"], ["listen", "Аудирование"]]],
-    ["Словарь", [["words", "Все слова"], ["cards", "Карточки для запоминания"], ["speech", "Разговорная речь и сленг"], ["formal", "Официальный английский"], ["sounds", "Звуки и IPA"]]],
+    ["Словарь", [["vocab", "Словарь+ · 1000 частых слов"], ["words", "Все слова"], ["cards", "Карточки для запоминания"], ["speech", "Разговорная речь и сленг"], ["formal", "Официальный английский"], ["sounds", "Звуки и IPA"]]],
     ["Практика", [["practice", "Тренировка и ошибки"]]],
     ["Дополнительные курсы", [["b2", "Углублённый курс B2"], ["ielts", "Подготовка к IELTS"]]]
   ];
@@ -280,13 +287,16 @@
 
   // ---------- маршрутизация ----------
   var S = null;
-  var ROUTES = { home: viewHome, test: viewTest, studio: viewStudio, map: viewMap, materials: viewMaterials, dicts: function (v) { viewRes(v, "dicts"); }, media: function (v) { viewRes(v, "media"); }, sites: function (v) { viewRes(v, "sites"); }, progress: viewProgress, next: viewNext, b2: viewB2, hw: viewHw, words: viewWords, cards: viewCards, speech: viewSpeech, formal: viewFormal, grammar: viewGrammar, sounds: viewSounds, listen: viewListen, practice: viewPractice, ielts: viewIelts, support: viewSupport, profile: viewProfile, about: viewAbout };
+  var ROUTES = { home: viewHome, test: viewTest, studio: viewStudio, map: viewMap, materials: viewMaterials, dicts: function (v) { viewRes(v, "dicts"); }, media: function (v) { viewRes(v, "media"); }, sites: function (v) { viewRes(v, "sites"); }, progress: viewProgress, next: viewNext, b2: viewB2, hw: viewHw, words: viewWords, vocab: viewVocab, cards: viewCards, speech: viewSpeech, formal: viewFormal, grammar: viewGrammar, sounds: viewSounds, listen: viewListen, practice: viewPractice, ielts: viewIelts, support: viewSupport, profile: viewProfile, about: viewAbout };
   function route() {
     var hs = location.hash.slice(1) || "home";
     if (synth) synth.cancel();
-    var m = /^level-(\d+)$/.exec(hs);
+    var m = /^level-(\d+)$/.exec(hs), pm = /^pack-(\d+)$/.exec(hs);
     app.innerHTML = "";
-    if (m) {
+    if (pm) {
+      S = null; markMenu("vocab");
+      var pv = el("section", "view"); app.appendChild(pv); viewPack(pv, +pm[1]);
+    } else if (m) {
       var id = +m[1];
       if (!LESSONS[id - 1]) { location.replace("#map"); return; }
       if (!isOpen(id)) { toast("Уровень " + id + " откроется, когда вы пройдёте уровень " + (id - 1) + "."); location.replace("#map"); return; }
@@ -357,7 +367,7 @@
     c4.appendChild(el("p", "notice-small", "Награда за выполненные задания: блок уровня, босс-тест, ДЗ, тренировка. От серии не зависят и не сгорают. До уровня " + (l.lv + 1) + " — " + (100 - l.into) + " XP."));
     g.appendChild(c4);
     var c5 = card("Быстрый доступ"), q = el("div", "qlinks");
-    [["#map", "Карта уровней"], ["#words", "Словарь"], ["#cards", "Карточки"], ["#practice", "Практика"], ["#grammar", "Грамматика"], ["#hw", "ДЗ"]].forEach(function (x) { q.appendChild(aBtn(x[0], x[1], "small")); });
+    [["#map", "Карта уровней"], ["#vocab", "Словарь+"], ["#words", "Словарь"], ["#cards", "Карточки"], ["#practice", "Практика"], ["#grammar", "Грамматика"], ["#hw", "ДЗ"]].forEach(function (x) { q.appendChild(aBtn(x[0], x[1], "small")); });
     c5.appendChild(q); g.appendChild(c5);
     var c6 = card("Полезные материалы", "wide"), q2 = el("div", "qlinks");
     [["#dicts", "Онлайн-словари"], ["#media", "Видео и аудирование"], ["#speech", "Разговорная речь и сленг"], ["#formal", "Официальный английский"], ["#sites", "Учебные сайты"], ["#ielts", "IELTS"]].forEach(function (x) { q2.appendChild(aBtn(x[0], x[1], "small")); });
@@ -397,9 +407,9 @@
     opts = shuffle(opts);
     return Object.assign({ k: "choice", opts: opts, a: opts.indexOf(correct), wkey: w.en }, extra || {});
   }
-  function wordPool(L) { var p = ALLW.filter(function (x) { return x.lesson <= L.id; }); return p.length >= 8 ? p : ALLW.slice(0, 40); }
-  function wordTasks(ws, L, n) {
-    var pool = wordPool(L), out = [];
+  function wordPool(L) { var p = ALLW.filter(function (x) { return x.lesson <= L.id && !x.pack; }); return p.length >= 8 ? p : ALLW.slice(0, 40); }
+  function wordTasks(ws, L, n, pool0) {
+    var pool = pool0 || wordPool(L), out = [];
     ws.forEach(function (w, i) {
       var t = i % 4;
       if (t === 0) out.push(choiceFromWords(w, "ru", pool, { kicker: "Что значит слово?", q: w.en, audio: w.en }));
@@ -793,9 +803,14 @@
       r.appendChild(btn("► Ещё раз", "primary", function () { S = levelSession(id); renderSession(); }));
       r.appendChild(aBtn("#grammar", "Повторить правило"));
     }
-    c.appendChild(r); v.appendChild(c);
+    c.appendChild(r);
+    if (pass) PACKS.filter(function (P) { return P.after === id; }).forEach(function (P) {
+      var pr = el("p", "notice-small", "Открыт набор «Словарь+»: " + P.title + " — " + P.w.length + " частых слов. ");
+      pr.appendChild(aBtn("#pack-" + P.id, "Открыть набор", "small")); c.appendChild(pr);
+    });
+    v.appendChild(c);
     if (S.mistakes.length) v.appendChild(mistakesCard(S.mistakes));
-    r.querySelectorAll("a").forEach(function (a) { a.addEventListener("click", function () { S = null; }); });
+    c.querySelectorAll("a").forEach(function (a) { a.addEventListener("click", function () { S = null; }); });
     if (pass) confetti();
   }
   function mistakesCard(ms) {
@@ -807,6 +822,7 @@
   }
   function renderTrainFinish() {
     var acc = S.total ? S.ok / S.total : 1, gained = Math.round(S.ok * 2);
+    if (S.onDone) { try { S.onDone(acc); } catch (x) {} S.onDone = null; }
     addXp(gained); touchStreak(); saveAll();
     var v = finishShell(), c = card(null, "finish");
     c.appendChild(el("h2", null, "Тренировка окончена"));
@@ -839,11 +855,12 @@
     var q = el("input", "pg-field"); q.type = "search"; q.placeholder = "Поиск по-английски или по-русски"; q.setAttribute("aria-label", "Поиск слова");
     var sel = el("select"); sel.setAttribute("aria-label", "Тема"); sel.appendChild(el("option", null, "Все уровни и темы")).value = "";
     LESSONS.forEach(function (L) { var o = el("option", null, L.id + ". " + L.topic); o.value = String(L.id); sel.appendChild(o); });
+    PACKS.forEach(function (P) { var o = el("option", null, "Словарь+ " + P.id + ". " + P.title); o.value = "p" + P.id; sel.appendChild(o); });
     row.appendChild(q); row.appendChild(sel); v.appendChild(row);
     var cnt = el("p", "notice-small"), list = el("div"); v.appendChild(cnt); v.appendChild(list);
     function draw() {
       var s = q.value.trim().toLowerCase(), f = sel.value;
-      var res = ALLW.filter(function (w) { return (!f || String(w.lesson) === f) && (!s || w.en.toLowerCase().indexOf(s) >= 0 || w.ru.toLowerCase().indexOf(s) >= 0); });
+      var res = ALLW.filter(function (w) { return (!f || (f.charAt(0) === "p" ? "p" + w.pack === f : !w.pack && String(w.lesson) === f)) && (!s || w.en.toLowerCase().indexOf(s) >= 0 || w.ru.toLowerCase().indexOf(s) >= 0); });
       cnt.textContent = "Найдено: " + res.length; list.innerHTML = "";
       res.slice(0, 300).forEach(function (w) {
         var r = el("div", "wrow"), m = el("div", "wmain"), a = el("div", "wact");
@@ -851,12 +868,71 @@
         var il = el("div", "ipa-line"); il.appendChild(el("span", "ipa", "UK " + w.uk)); if (w.us !== w.uk) il.appendChild(el("span", "ipa", "US " + w.us)); m.appendChild(il);
         m.appendChild(el("div", null, w.ru));
         var ex = el("div", "notice-small", w.ex + " — " + w.exru); m.appendChild(ex);
-        m.appendChild(el("span", "tag", "Уровень " + w.lesson));
+        m.appendChild(el("span", "tag", w.pack ? "Словарь+ · набор " + w.pack : "Уровень " + w.lesson));
         a.appendChild(playBtn(w.en, "uk", "UK")); a.appendChild(playBtn(w.en, "us", "US"));
         r.appendChild(m); r.appendChild(a); list.appendChild(r);
       });
     }
     q.addEventListener("input", draw); sel.addEventListener("change", draw); draw();
+  }
+
+  // ======================================================================
+  // СЛОВАРЬ+: наборы частых слов до A2
+  // ======================================================================
+  function viewVocab(v) {
+    prog.packs = prog.packs || {};
+    var total = courseWordCount(), learned = Object.keys(WMAP).filter(function (k) { return srs[k]; }).length, doneP = PACKS.filter(function (P) { return prog.packs[P.id]; }).length;
+    pageHead(v, "Словарь+ · 1000 частых слов", "Слова уроков плюс " + PACKS.length + " тематических наборов самых частых слов английского. Вместе это " + total + " слов — словарный запас, на который опирается уровень A2. Новый набор открывается по мере прохождения уровней основного курса.");
+    var c = card("Мой словарный запас");
+    c.appendChild(el("p", null, "В карточках: " + learned + " из " + total + " слов · наборов пройдено: " + doneP + " из " + PACKS.length));
+    c.appendChild(meter(learned / total * 100));
+    c.appendChild(el("p", "notice-small", "Как учить: откройте набор, прослушайте слова, нажмите «Учить». Каждое слово — карточка с UK и US произношением, потом короткая проверка. Пройденные слова попадают в интервальное повторение (через 1, 3, 7, 14 дней) в разделе «Карточки»."));
+    v.appendChild(c);
+    var t = el("div", "tiles");
+    PACKS.forEach(function (P) {
+      var open = packOpen(P), n = packLearned(P);
+      var tl = tileBtn((prog.packs[P.id] ? "✓ " : open ? "" : "🔒 ") + P.id + ". " + P.title,
+        open ? "Слов: " + P.w.length + " · в карточках: " + n : "Откроется после уровня " + P.after,
+        function () { if (open) location.hash = "#pack-" + P.id; else toast("Набор откроется, когда вы пройдёте уровень " + P.after + ". Хотите раньше — пройдите входной тест."); });
+      if (!open) tl.classList.add("locked");
+      t.appendChild(tl);
+    });
+    v.appendChild(t);
+  }
+  function packSteps(P) {
+    var ws = packWords(P), pool = ALLW.filter(function (x) { return x.lesson <= P.after; }), steps = [];
+    for (var i = 0; i < ws.length; i += 5) {
+      var part = ws.slice(i, i + 5);
+      part.forEach(function (w) { steps.push({ k: "word", w: w }); });
+      steps = steps.concat(shuffle(wordTasks(part, LESSONS[P.after - 1], 0, pool)));
+    }
+    return steps;
+  }
+  function viewPack(v, id) {
+    var P = PACKS.filter(function (x) { return x.id === id; })[0];
+    if (!P) { location.replace("#vocab"); return; }
+    if (!packOpen(P)) { toast("Набор откроется после уровня " + P.after + "."); location.replace("#vocab"); return; }
+    prog.packs = prog.packs || {};
+    pageHead(v, "Словарь+ · " + P.title, "Набор " + P.id + " из " + PACKS.length + ". " + P.w.length + " слов: послушайте, затем нажмите «Учить» — карточки по 5 слов и проверка после каждой пятёрки.");
+    var r = el("div", "row");
+    r.appendChild(btn(prog.packs[P.id] ? "► Повторить набор" : "► Учить", "primary", function () { startTrain("Словарь+: " + P.title, packSteps(P), "#pack-" + P.id); S.onDone = function (acc) { if (acc >= 0.6) prog.packs[P.id] = true; }; }));
+    var learnedHere = packWords(P).filter(function (w) { return srs[w.en]; });
+    if (learnedHere.length >= 4) r.appendChild(btn("Проверка без карточек", "small", function () { startTrain("Проверка: " + P.title, shuffle(wordTasks(shuffle(packWords(P)), LESSONS[P.after - 1], 0, ALLW)), "#pack-" + P.id); }));
+    r.appendChild(aBtn("#vocab", "Все наборы", "small"));
+    v.appendChild(r);
+    var list = el("div");
+    packWords(P).forEach(function (w) {
+      var rw = el("div", "wrow"), m = el("div", "wmain"), a = el("div", "wact");
+      var b = el("b", null, (srs[w.en] ? "✓ " : "") + w.en); b.lang = "en"; m.appendChild(b);
+      var il = el("div", "ipa-line"); il.appendChild(el("span", "ipa", "UK " + w.uk)); if (w.us !== w.uk) il.appendChild(el("span", "ipa", "US " + w.us)); m.appendChild(il);
+      m.appendChild(el("div", null, w.ru));
+      m.appendChild(el("div", "notice-small", w.ex + " — " + w.exru));
+      a.appendChild(playBtn(w.en, "uk", "UK")); a.appendChild(playBtn(w.en, "us", "US")); a.appendChild(playBtn(w.ex, null, "Пример"));
+      rw.appendChild(m); rw.appendChild(a); list.appendChild(rw);
+    });
+    v.appendChild(list);
+    var nx = PACKS.filter(function (x) { return x.id === id + 1; })[0];
+    if (nx) { var r2 = el("div", "row"); r2.appendChild(packOpen(nx) ? aBtn("#pack-" + nx.id, "Следующий набор: " + nx.title) : el("span", "notice-small", "Следующий набор откроется после уровня " + nx.after + ".")); v.appendChild(r2); }
   }
 
   // ======================================================================
